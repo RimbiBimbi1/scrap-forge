@@ -43,13 +43,24 @@ class ImageProcessor {
     List<double> gaussianMultipliers =
         getGaussianKernelMultipliers(kernel, kernelRadius, sd);
 
+    for (int x = 0; x < image.width; x++) {
+      gb.setPixel(x, 0, image.getPixel(x, 0));
+      gb.setPixel(x, image.height - 1, image.getPixel(x, image.height - 1));
+    }
+    for (int y = 1; y < image.height - 1; y++) {
+      gb.setPixel(0, y, image.getPixel(0, y));
+      gb.setPixel(image.width - 1, y, image.getPixel(image.width - 1, y));
+    }
+
     for (int y = kernelRadius; y < gb.height - kernelRadius; y++) {
       for (int x = kernelRadius; x < gb.width - kernelRadius; x++) {
         double grey = 0.0;
 
-        kernel.asMap().forEach((i, point) => grey +=
-            image.getPixel((x + point.x).toInt(), (y + point.y).toInt()).r *
+        kernel.asMap().forEach((i, offset) => grey +=
+            image.getPixel((x + offset.x).toInt(), (y + offset.y).toInt()).r *
                 gaussianMultipliers[i]);
+
+        grey = math.min(grey, 255);
 
         gb.setPixelRgb(x, y, grey, grey, grey);
       }
@@ -319,16 +330,19 @@ class ImageProcessor {
     for (int y = 0; y < image.height; y++) {
       for (int x = 0; x < image.width; x++) {
         for (imgLib.Point neighbour in kernel) {
+          int nRed = erodeTo;
           try {
-            int nRed = image
+            nRed = image
                 .getPixel((x + neighbour.x).toInt(), (y + neighbour.y).toInt())
                 .r
                 .toInt();
-            if (nRed == erodeTo) {
-              eroded.setPixelRgb(x, y, erodeTo, erodeTo, erodeTo);
-              break;
-            }
-          } catch (ignored) {}
+          } catch (ignored) {
+            nRed = erodeFrom;
+          }
+          if (nRed == erodeTo) {
+            eroded.setPixelRgb(x, y, erodeTo, erodeTo, erodeTo);
+            break;
+          }
         }
       }
     }
