@@ -353,9 +353,9 @@ class ImageProcessor {
       imgLib.Point p = flooded.removeLast();
       try {
         if (floodfilled.getPixel(p.x.toInt(), p.y.toInt()).r == 0) {
-          floodfilled.setPixelRgb(p.x.toInt(), p.x.toInt(), 255, 255, 255);
-          if (p.y > 0) flooded.add(imgLib.Point(p.x, p.y - 1));
+          floodfilled.setPixelRgb(p.x.toInt(), p.y.toInt(), 255, 255, 255);
           if (p.x > 0) flooded.add(imgLib.Point(p.x - 1, p.y));
+          if (p.y > 0) flooded.add(imgLib.Point(p.x, p.y - 1));
           if (p.x < image.width - 1) flooded.add(imgLib.Point(p.x + 1, p.y));
           if (p.y < image.height - 1) flooded.add(imgLib.Point(p.x, p.y + 1));
         }
