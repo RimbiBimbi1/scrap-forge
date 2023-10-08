@@ -1,9 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:image/image.dart' as ImageTools;
-import 'dart:math' as math;
+import 'package:image/image.dart' as imgLib;
 
+import 'dart:math' as math;
+import 'package:scrap_forge/measure_tool/CornerScanner.dart';
+import 'package:scrap_forge/measure_tool/FramingTool.dart';
 import 'package:scrap_forge/measure_tool/ImageProcessor.dart';
+import 'package:scrap_forge/measure_tool/TriangleTexturer.dart';
 
 class MeasureTool extends StatefulWidget {
   const MeasureTool({super.key});
@@ -13,29 +16,34 @@ class MeasureTool extends StatefulWidget {
 }
 
 class _MeasureToolState extends State<MeasureTool> {
-  List<ImageTools.Image> imageHistory =
-      List.of([ImageTools.Image(width: 0, height: 0)]);
+  imgLib.Image photo = imgLib.Image(width: 0, height: 0);
+  List<imgLib.Image> imageHistory =
+      List.of([imgLib.Image(width: 0, height: 0)]);
 
   List<List<double>> xSobel = List.empty();
   List<List<double>> ySobel = List.empty();
 
+  List<Offset> corners = List.empty();
+
+  final _imageKey = GlobalKey();
+
   Future<void> loadImage(path) async {
     ByteData data = await rootBundle.load(path);
-    ImageTools.Image? image = ImageTools.decodeJpg(data.buffer.asUint8List());
+    imgLib.Image? image = imgLib.decodeJpg(data.buffer.asUint8List());
     if (image != null) {
-      num aaaa = image.getPixel(100, 100).g;
       setState(() {
+        photo = image;
         imageHistory.add(image);
       });
     }
   }
 
-  MemoryImage displayImage(ImageTools.Image image) {
-    List<int>? withHeader = ImageTools.encodeJpg(image);
+  MemoryImage displayImage(imgLib.Image image) {
+    List<int>? withHeader = imgLib.encodeJpg(image);
     return MemoryImage(Uint8List.fromList(withHeader));
   }
 
-  void addToHistory(ImageTools.Image img) {
+  void addToHistory(imgLib.Image img) {
     setState(() {
       if (imageHistory.length > 5) {
         imageHistory.removeAt(0);
@@ -45,22 +53,21 @@ class _MeasureToolState extends State<MeasureTool> {
   }
 
   void extendImage() {
-    ImageTools.Image ext =
-        ImageProcessor(imageHistory.last).getExtendedImage(1);
+    imgLib.Image ext = ImageProcessor(imageHistory.last).getExtendedImage(1);
     setState(() {
       addToHistory(ext);
     });
   }
 
   void toGreyscale() {
-    ImageTools.Image gs = ImageProcessor(imageHistory.last).getGrayscale();
+    imgLib.Image gs = ImageProcessor(imageHistory.last).getGrayscale();
     setState(() {
       addToHistory(gs);
     });
   }
 
   void applyGaussian() {
-    ImageTools.Image gb = ImageProcessor(imageHistory.last)
+    imgLib.Image gb = ImageProcessor(imageHistory.last)
         .getGaussianBlurred(kernelRadius: 1, sd: 1.4);
     setState(() {
       addToHistory(gb);
@@ -133,6 +140,74 @@ class _MeasureToolState extends State<MeasureTool> {
     });
   }
 
+  void findCorners() {
+    CornerScanner cs = CornerScanner(imageHistory.last);
+    List<imgLib.Point> scanned = cs.scanForCorners();
+    double imgW = imageHistory.last.width.toDouble();
+    double imgH = imageHistory.last.height.toDouble();
+    Size displaySize = _imageKey.currentContext?.size ?? const Size(0, 0);
+    double displayW = displaySize.width;
+    double displayH = displaySize.height;
+
+    setState(() {
+      corners = scanned
+          .map((e) => Offset(e.x.toDouble() / imgW * displayW,
+              e.y.toDouble() / imgH * displayH))
+          .toList();
+    });
+  }
+
+  void crop() {
+    int a4Width = 840;
+    int a4Height = 1188;
+
+    double imgW = imageHistory.last.width.toDouble();
+    double imgH = imageHistory.last.height.toDouble();
+    Size displaySize = _imageKey.currentContext?.size ?? const Size(0, 0);
+    double displayW = displaySize.width;
+    double displayH = displaySize.height;
+
+    imgLib.Image a4 = imgLib.Image(width: a4Width, height: a4Height);
+
+    List<imgLib.Point> URTriangleTexture = [0, 1, 2]
+        .map((i) => imgLib.Point(
+            corners[i].dx / displayW * imgW, corners[i].dy / displayH * imgH))
+        .toList();
+    // List<imgLib.Point> ULTriangle = List.from([imgLib.Point(corners[0].dx, corners[0].dy), imgLib.Point(corners[1].dx, corners[1].dy), imgLib.Point(corners[3].dx, corners[3].dy)]);
+    List<imgLib.Point> DLTriangleTexture = [2, 3, 0]
+        .map((i) => imgLib.Point(
+            corners[i].dx / displayW * imgW, corners[i].dy / displayH * imgH))
+        .toList();
+    List<imgLib.Point> URTriangleResult = List.from([
+      imgLib.Point(0, 0),
+      imgLib.Point(a4Width, 0),
+      imgLib.Point(a4Width, a4Height)
+    ]);
+    List<imgLib.Point> DLTriangleResult = List.from([
+      imgLib.Point(a4Width, a4Height),
+      imgLib.Point(0, a4Height),
+      imgLib.Point(0, 0)
+    ]);
+    TriangleTexturer tt =
+        TriangleTexturer(photo, a4, URTriangleTexture, URTriangleResult);
+
+    tt.texture();
+
+    tt.setTriangles(DLTriangleTexture, DLTriangleResult);
+    tt.texture();
+
+    setState(() {
+      addToHistory(tt.getResult());
+      corners = List.empty();
+    });
+  }
+
+  void calcInvariant() {
+    setState(() {
+      addToHistory(ImageProcessor(imageHistory.last).getInvariant());
+    });
+  }
+
   void clearHistory() {
     setState(() {
       imageHistory = List.from([imageHistory.last]);
@@ -150,7 +225,7 @@ class _MeasureToolState extends State<MeasureTool> {
   @override
   void initState() {
     super.initState();
-    loadImage('assets/41.jpg');
+    loadImage('assets/aw_r_quarter.jpg');
   }
 
   @override
@@ -164,13 +239,33 @@ class _MeasureToolState extends State<MeasureTool> {
       body: Padding(
         padding: const EdgeInsets.all(10.0),
         child: Column(
+          // mainAxisAlignment: MainAxisAlignment.center,
+          crossAxisAlignment: CrossAxisAlignment.center,
           children: [
             Expanded(
-              child: RotatedBox(
-                quarterTurns: 1,
-                child: Image(
-                  image: displayImage(imageHistory.last),
-                ),
+              // child: RotatedBox(
+              //   quarterTurns: 1,
+              //   child: Image(
+              //     image: displayImage(imageHistory.last),
+              //   ),
+              // ),
+              child: Stack(
+                children: [
+                  Image(
+                    key: _imageKey,
+                    image: displayImage(imageHistory.last),
+                  ),
+                  if (corners.isNotEmpty)
+                    FramingTool(
+                      imageKey: _imageKey,
+                      points: corners,
+                      setCorners: (List<Offset> corners) {
+                        setState(() {
+                          this.corners = corners;
+                        });
+                      },
+                    ),
+                ],
               ),
             ),
             Row(
@@ -179,8 +274,8 @@ class _MeasureToolState extends State<MeasureTool> {
                   onPressed: toGreyscale,
                   child: Text("Greyscale"),
                 ),
-                FloatingActionButton(
-                    onPressed: extendImage, child: Text("Extend")),
+                // FloatingActionButton(
+                //     onPressed: extendImage, child: Text("Extend")),
                 FloatingActionButton(
                   onPressed: applyGaussian,
                   child: Text("Blur"),
@@ -216,6 +311,22 @@ class _MeasureToolState extends State<MeasureTool> {
                 FloatingActionButton(
                   onPressed: floodfill,
                   child: Text("Floodfill"),
+                ),
+              ].map((e) => Flexible(flex: 1, child: e)).toList(),
+            ),
+            Row(
+              children: <Widget>[
+                FloatingActionButton(
+                  onPressed: findCorners,
+                  child: Text("Corners"),
+                ),
+                FloatingActionButton(
+                  onPressed: crop,
+                  child: Text("Crop"),
+                ),
+                FloatingActionButton(
+                  onPressed: calcInvariant,
+                  child: Text("Invariant"),
                 ),
                 FloatingActionButton(
                   onPressed: undo,

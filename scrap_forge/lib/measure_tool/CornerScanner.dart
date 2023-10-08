@@ -78,8 +78,8 @@ class CornerScanner {
       int y = yStart;
 
       while ((0 <= x) && (x < image.width) && (0 <= y) && (y < image.height)) {
-        int pRed = image.getPixel(x, y).r.toInt();
-        if (pRed < 255) {
+        num pRed = image.getPixel(x, y).r;
+        if (pRed == 0) {
           return imgLib.Point(x, y);
         }
 
@@ -100,22 +100,23 @@ class CornerScanner {
 
       while ((0 <= x) && (x < image.width) && (0 <= y) && (y < image.height)) {
         int pRed = image.getPixel(x, y).r.toInt();
-        if (pRed < 255) {
+        if (pRed == 0) {
           return imgLib.Point(x, y);
         }
 
         x += xStep;
         y += yStep;
       }
-      xStart += xJump;
+      yStart += yJump;
     }
-    xStart -= xJump;
-    yStart += yJump;
+    xStart += xJump;
+    yStart -= yJump;
     return fallback;
   }
 
   imgLib.Point scanForCorner(int corner) {
     configureCorner(corner);
+
     imgLib.Point point = fallback;
     if (corner % 2 == 0) {
       point = scanXPhase();
@@ -136,7 +137,7 @@ class CornerScanner {
       scanForCorner(0),
       scanForCorner(1),
       scanForCorner(2),
-      scanForCorner(3)
+      scanForCorner(3),
     ]);
   }
 }
