@@ -7,6 +7,7 @@ import 'package:scrap_forge/measure_tool/CornerScanner.dart';
 import 'package:scrap_forge/measure_tool/FramingTool.dart';
 import 'package:scrap_forge/measure_tool/ImageProcessor.dart';
 import 'package:scrap_forge/measure_tool/TriangleTexturer.dart';
+import 'package:scrap_forge/measure_tool/AutoBoundingBoxScanner.dart';
 
 class MeasureTool extends StatefulWidget {
   const MeasureTool({super.key});
@@ -208,6 +209,19 @@ class _MeasureToolState extends State<MeasureTool> {
     });
   }
 
+  void extend() {
+    setState(() {
+      addToHistory(
+          AutoBoundingBoxScanner.getExpandedToDiagonals(imageHistory.last));
+    });
+  }
+
+  void rotate() {
+    setState(() {
+      addToHistory(AutoBoundingBoxScanner.rotate(imageHistory.last, 60));
+    });
+  }
+
   void clearHistory() {
     setState(() {
       imageHistory = List.from([imageHistory.last]);
@@ -327,6 +341,14 @@ class _MeasureToolState extends State<MeasureTool> {
                 FloatingActionButton(
                   onPressed: calcInvariant,
                   child: Text("Invariant"),
+                ),
+                FloatingActionButton(
+                  onPressed: extend,
+                  child: Text("extend"),
+                ),
+                FloatingActionButton(
+                  onPressed: rotate,
+                  child: Text("Rotate"),
                 ),
                 FloatingActionButton(
                   onPressed: undo,
