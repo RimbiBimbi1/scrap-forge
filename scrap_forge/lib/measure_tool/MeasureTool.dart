@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:image/image.dart' as imgLib;
@@ -37,6 +39,12 @@ class _MeasureToolState extends State<MeasureTool> {
         imageHistory.add(image);
       });
     }
+  }
+
+  Future<bool> saveImage() async {
+    print(Directory.current.path);
+    await imgLib.encodeJpgFile("assets/saved.jpg", imageHistory.last);
+    return true;
   }
 
   MemoryImage displayImage(imgLib.Image image) {
@@ -189,8 +197,9 @@ class _MeasureToolState extends State<MeasureTool> {
       imgLib.Point(0, a4Height),
       imgLib.Point(0, 0)
     ]);
-    TriangleTexturer tt =
-        TriangleTexturer(photo, a4, URTriangleTexture, URTriangleResult);
+    // TriangleTexturer tt = TriangleTexturer(photo, a4, URTriangleTexture, URTriangleResult);
+    TriangleTexturer tt = TriangleTexturer(
+        imageHistory.last, a4, URTriangleTexture, URTriangleResult);
 
     tt.texture();
 
@@ -218,7 +227,7 @@ class _MeasureToolState extends State<MeasureTool> {
 
   void rotate() {
     setState(() {
-      addToHistory(AutoBoundingBoxScanner.rotate(imageHistory.last, 60));
+      addToHistory(AutoBoundingBoxScanner.getBoundingAngle(imageHistory.last));
     });
   }
 
@@ -239,7 +248,7 @@ class _MeasureToolState extends State<MeasureTool> {
   @override
   void initState() {
     super.initState();
-    loadImage('assets/aw_r_quarter.jpg');
+    loadImage('assets/binary0.jpg');
   }
 
   @override
@@ -353,6 +362,10 @@ class _MeasureToolState extends State<MeasureTool> {
                 FloatingActionButton(
                   onPressed: undo,
                   child: Text("<-"),
+                ),
+                FloatingActionButton(
+                  onPressed: saveImage,
+                  child: Text("save"),
                 ),
                 FloatingActionButton(
                   onPressed: clearHistory,

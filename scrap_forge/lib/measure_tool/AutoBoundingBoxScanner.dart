@@ -62,6 +62,8 @@ class AutoBoundingBoxScanner {
   }
 
   static imgLib.Image rotate(imgLib.Image image, int angle) {
+    if (angle % 360 == 0) return image;
+
     imgLib.Image result =
         imgLib.Image(width: image.width, height: image.height);
     int w = image.width;
@@ -96,14 +98,120 @@ class AutoBoundingBoxScanner {
       for (int x = 0; x < w; x++) {
         List<double> pixelVector =
             matrixXVector(resultMatrix, [x.toDouble(), y.toDouble(), 1]);
-        try {
+        if (0 <= pixelVector[0] &&
+            pixelVector[0] < w &&
+            0 <= pixelVector[1] &&
+            pixelVector[1] < h) {
           result.setPixel(x, y,
-              image.getPixel(pixelVector[0].round(), pixelVector[1].round()));
-        } catch (e) {
+              image.getPixel(pixelVector[0].floor(), pixelVector[1].floor()));
+        } else {
           result.setPixelRgb(x, y, 0, 0, 0);
         }
       }
     }
     return result;
+  }
+
+  static List<int> _getAxisDelimiters(imgLib.Image binImage) {
+    int minX = binImage.width;
+    int maxX = 0;
+    int minY = binImage.height;
+    int maxY = 0;
+
+    for (int y = 0; y < binImage.height; y++) {
+      for (int x = 0; x < binImage.width; x++) {
+        if (binImage.getPixel(x, y).r == 255) {
+          if (x < minX) minX = x;
+          if (x > maxX) maxX = x;
+          if (y < minY) minY = y;
+          if (y > maxY) maxY = y;
+        }
+      }
+    }
+
+    return List.from([minX, minY, maxX, maxY]);
+  }
+
+  static double _getBoundaryCoverage(
+      imgLib.Image binImage, List<int> delimiters, int errorMargin) {
+    if (delimiters.length < 2) return 0;
+
+    int imgW = binImage.width;
+    int imgH = binImage.height;
+    int boundaryW = (delimiters[2] - delimiters[0]);
+    int boundaryH = (delimiters[3] - delimiters[1]);
+
+    int boundaryLength = 2 * boundaryW + 2 * boundaryH;
+    int coveredBoundaryPixels = 0;
+
+    for (int x = delimiters[0]; x <= delimiters[2]; x++) {
+      for (final int y in [delimiters[1], delimiters[3]]) {
+        bool found = false;
+        for (int e = -errorMargin; e <= errorMargin; e++) {
+          try {
+            if (binImage.getPixel(x, y + e).r == 255) {
+              found = true;
+            }
+          } catch (e) {
+            continue;
+          }
+        }
+        if (found) coveredBoundaryPixels++;
+      }
+    }
+
+    for (int y = delimiters[1]; y <= delimiters[3]; y++) {
+      for (final int x in [delimiters[0], delimiters[2]]) {
+        bool found = false;
+        for (int e = -errorMargin; e <= errorMargin; e++) {
+          try {
+            if (binImage.getPixel(x + e, y).r == 255) {
+              found = true;
+            }
+          } catch (e) {
+            continue;
+          }
+        }
+        if (found) coveredBoundaryPixels++;
+      }
+    }
+
+    return math.min(coveredBoundaryPixels / boundaryLength, 1);
+  }
+
+  static imgLib.Image getBoundingAngle(imgLib.Image binImage) {
+    // static int getBoundingAngle(imgLib.Image binImage) {
+    double l = binImage.length.toDouble();
+    int boundingAngle = 0;
+    double maxScore = 0;
+
+    imgLib.Image result = imgLib.Image.empty();
+    //
+
+    for (int angle = 0; angle < 90; angle++) {
+      imgLib.Image rotated = rotate(binImage, angle);
+      List<int> delimiters = _getAxisDelimiters(rotated);
+      double boxToImageRatio = ((delimiters[2] - delimiters[0]) *
+              (delimiters[3] - delimiters[1]).toDouble()) /
+          l;
+      double boundaryCoverage = _getBoundaryCoverage(rotated, delimiters, 1);
+      // double score = coverage / field;
+      double score =
+          (boundaryCoverage * boxToImageRatio) + (1 - boxToImageRatio);
+      // double score = (l / field);
+
+      if (score > maxScore) {
+        print(angle);
+        print(score);
+        print(boxToImageRatio);
+        print(boundaryCoverage);
+        maxScore = score;
+        boundingAngle = angle;
+        result = rotated;
+      }
+    }
+
+    return result;
+    // return boundingAngle;
   }
 }
