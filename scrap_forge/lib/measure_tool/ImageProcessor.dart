@@ -1,11 +1,5 @@
-import 'dart:ffi';
 import 'dart:math' as math;
-
-import 'package:big_decimal/big_decimal.dart';
-import 'package:flutter/cupertino.dart';
-import 'package:flutter/services.dart';
 import 'package:image/image.dart' as imgLib;
-import 'package:scrap_forge/measure_tool/CornerScanner.dart';
 
 class ImageProcessor {
   imgLib.Image image;
@@ -428,7 +422,7 @@ class ImageProcessor {
     for (int y = 0; y < h; y++) {
       for (int x = 0; x < w; x++) {
         X[x][y] = X[x][y] - meanX;
-        Y[x][y] = Y[x][y] - meanX;
+        Y[x][y] = Y[x][y] - meanY;
         XY[x][y] = X[x][y] * Y[x][y];
         // covXY += BigDecimal.parse(XY[x][y].toString());
         // sumXabs += BigDecimal.parse(X[x][y].abs().toString());

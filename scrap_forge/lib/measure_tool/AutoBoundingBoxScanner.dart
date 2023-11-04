@@ -1,5 +1,4 @@
 import 'package:image/image.dart' as imgLib;
-import 'ImageProcessor.dart' as iP;
 import 'dart:math' as math;
 
 class AutoBoundingBoxScanner {
@@ -61,7 +60,7 @@ class AutoBoundingBoxScanner {
     return result;
   }
 
-  static imgLib.Image rotate(imgLib.Image image, int angle) {
+  static imgLib.Image rotate(imgLib.Image image, double angle) {
     if (angle % 360 == 0) return image;
 
     imgLib.Image result =
@@ -120,7 +119,7 @@ class AutoBoundingBoxScanner {
 
     for (int y = 0; y < binImage.height; y++) {
       for (int x = 0; x < binImage.width; x++) {
-        if (binImage.getPixel(x, y).r == 255) {
+        if (50 < binImage.getPixel(x, y).r) {
           if (x < minX) minX = x;
           if (x > maxX) maxX = x;
           if (y < minY) minY = y;
@@ -132,37 +131,97 @@ class AutoBoundingBoxScanner {
     return List.from([minX, minY, maxX, maxY]);
   }
 
+  // static double _getBoundaryCoverage(
+  //     imgLib.Image binImage, List<int> delimiters, int errorMargin) {
+  //   if (delimiters.length < 2) return 0;
+
+  //   int imgW = binImage.width;
+  //   int imgH = binImage.height;
+  //   int boundaryW = (delimiters[2] - delimiters[0]);
+  //   int boundaryH = (delimiters[3] - delimiters[1]);
+
+  //   int boundaryLength = 2 * boundaryW + 2 * boundaryH;
+  //   int coveredBoundaryPixels = 0;
+
+  //   for (int x = delimiters[0]; x <= delimiters[2]; x++) {
+  //     for (final int y in [delimiters[1], delimiters[3]]) {
+  //       bool found = false;
+  //       for (int e = -errorMargin; e <= errorMargin; e++) {
+  //         try {
+  //           if (binImage.getPixel(x, y + e).r == 255) {
+  //             found = true;
+  //           }
+  //         } catch (e) {
+  //           continue;
+  //         }
+  //       }
+  //       if (found) coveredBoundaryPixels++;
+  //     }
+  //   }
+
+  //   for (int y = delimiters[1]; y <= delimiters[3]; y++) {
+  //     for (final int x in [delimiters[0], delimiters[2]]) {
+  //       bool found = false;
+  //       for (int e = -errorMargin; e <= errorMargin; e++) {
+  //         try {
+  //           if (binImage.getPixel(x + e, y).r == 255) {
+  //             found = true;
+  //           }
+  //         } catch (e) {
+  //           continue;
+  //         }
+  //       }
+  //       if (found) coveredBoundaryPixels++;
+  //     }
+  //   }
+
+  //   return math.min(coveredBoundaryPixels / boundaryLength, 1);
+  // }
+
   static double _getBoundaryCoverage(
       imgLib.Image binImage, List<int> delimiters, int errorMargin) {
-    if (delimiters.length < 2) return 0;
+    if (delimiters.length < 4) return 0;
 
-    int imgW = binImage.width;
-    int imgH = binImage.height;
     int boundaryW = (delimiters[2] - delimiters[0]);
     int boundaryH = (delimiters[3] - delimiters[1]);
 
     int boundaryLength = 2 * boundaryW + 2 * boundaryH;
     int coveredBoundaryPixels = 0;
 
-    for (int x = delimiters[0]; x <= delimiters[2]; x++) {
-      for (final int y in [delimiters[1], delimiters[3]]) {
+    for (final int y in [delimiters[1], delimiters[3]]) {
+      int left = -1;
+      int right = -1;
+
+      for (int x = delimiters[0]; x <= delimiters[2]; x++) {
         bool found = false;
+
         for (int e = -errorMargin; e <= errorMargin; e++) {
           try {
-            if (binImage.getPixel(x, y + e).r == 255) {
+            if (50 < binImage.getPixel(x, y + e).r) {
               found = true;
             }
           } catch (e) {
             continue;
           }
         }
-        if (found) coveredBoundaryPixels++;
+        if (found) {
+          if (left == -1) {
+            left = x;
+          }
+          right = x + 1;
+        }
       }
+
+      coveredBoundaryPixels += (right - left).abs();
     }
 
-    for (int y = delimiters[1]; y <= delimiters[3]; y++) {
-      for (final int x in [delimiters[0], delimiters[2]]) {
+    for (final int x in [delimiters[0], delimiters[2]]) {
+      int top = -1;
+      int bottom = -1;
+
+      for (int y = delimiters[1]; y <= delimiters[3]; y++) {
         bool found = false;
+
         for (int e = -errorMargin; e <= errorMargin; e++) {
           try {
             if (binImage.getPixel(x + e, y).r == 255) {
@@ -172,8 +231,14 @@ class AutoBoundingBoxScanner {
             continue;
           }
         }
-        if (found) coveredBoundaryPixels++;
+        if (found) {
+          if (top == -1) {
+            top = x;
+          }
+          bottom = x + 1;
+        }
       }
+      coveredBoundaryPixels += (bottom - top).abs();
     }
 
     return math.min(coveredBoundaryPixels / boundaryLength, 1);
@@ -182,36 +247,82 @@ class AutoBoundingBoxScanner {
   static imgLib.Image getBoundingAngle(imgLib.Image binImage) {
     // static int getBoundingAngle(imgLib.Image binImage) {
     double l = binImage.length.toDouble();
-    int boundingAngle = 0;
+    int width = binImage.width;
+    double boundingAngle = 0;
     double maxScore = 0;
 
-    imgLib.Image result = imgLib.Image.empty();
-    //
+    List<double> boundaryCoverageArray = List.filled(181, 0);
+    List<double> boxAreaArray = List.filled(181, 0);
 
-    for (int angle = 0; angle < 90; angle++) {
-      imgLib.Image rotated = rotate(binImage, angle);
+    double minBoxArea = 0;
+    double maxBoxArea = l;
+
+    imgLib.Image result = binImage;
+
+    int minAngle = -90;
+    int maxAngle = 90;
+
+    for (int angle = minAngle; angle <= maxAngle; angle++) {
+      imgLib.Image rotated = rotate(binImage, angle.toDouble() / 2);
       List<int> delimiters = _getAxisDelimiters(rotated);
-      double boxToImageRatio = ((delimiters[2] - delimiters[0]) *
-              (delimiters[3] - delimiters[1]).toDouble()) /
-          l;
-      double boundaryCoverage = _getBoundaryCoverage(rotated, delimiters, 1);
+
+      boxAreaArray[angle - minAngle] = (delimiters[2] - delimiters[0]) *
+          (delimiters[3] - delimiters[1]).toDouble();
+      boundaryCoverageArray[angle - minAngle] =
+          _getBoundaryCoverage(rotated, delimiters, 1);
+
+      if (boxAreaArray[angle - minAngle] < minBoxArea) {
+        minBoxArea = boxAreaArray[angle - minAngle];
+      } else if (maxBoxArea < boxAreaArray[angle - minAngle]) {
+        maxBoxArea = boxAreaArray[angle - minAngle];
+      }
+
       // double score = coverage / field;
-      double score =
-          (boundaryCoverage * boxToImageRatio) + (1 - boxToImageRatio);
+      // double score = (boundaryCoverage * boxToImageRatio) + (1 - boxToImageRatio);
+      // double score = boundaryCoverage + (1 - boxToImageRatio);
       // double score = (l / field);
 
+      // if (score > maxScore) {
+      //   print(angle);
+      //   print(score);
+      //   print(boxToImageRatio);
+      //   print(boundaryCoverage);
+      //   maxScore = score;
+      //   boundingAngle = angle;
+      //   result = rotated;
+      // }
+    }
+
+    for (int i = 0; i <= 180; i++) {
+      boxAreaArray[i] =
+          (boxAreaArray[i] - minBoxArea) / (maxBoxArea - minBoxArea);
+      double score = (1 - boxAreaArray[i]) * boundaryCoverageArray[i];
       if (score > maxScore) {
-        print(angle);
+        print((i + minAngle).toDouble() / 2);
         print(score);
-        print(boxToImageRatio);
-        print(boundaryCoverage);
+        print(boxAreaArray[i]);
+        print(boundaryCoverageArray[i]);
         maxScore = score;
-        boundingAngle = angle;
-        result = rotated;
+        boundingAngle = (i + minAngle).toDouble() / 2;
       }
     }
 
+    result = rotate(binImage, boundingAngle);
+    List<int> delimiters = _getAxisDelimiters(result);
+    result = drawPoint(result, delimiters[0], delimiters[1], 3);
+    result = drawPoint(result, delimiters[0], delimiters[3], 3);
+    result = drawPoint(result, delimiters[2], delimiters[1], 3);
+    result = drawPoint(result, delimiters[2], delimiters[3], 3);
     return result;
     // return boundingAngle;
+  }
+
+  static imgLib.Image drawPoint(imgLib.Image img, int x0, int y0, int size) {
+    for (int x = -size; x < size; x++) {
+      for (int y = -size; y < size; y++) {
+        img.setPixelRgb(x + x0, y + y0, 0, 255, 0);
+      }
+    }
+    return img;
   }
 }

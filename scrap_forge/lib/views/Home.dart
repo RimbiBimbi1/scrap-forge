@@ -1,5 +1,8 @@
 import 'package:flutter/material.dart';
 
+import 'dart:io';
+import 'package:permission_handler/permission_handler.dart';
+
 class Home extends StatefulWidget {
   const Home({super.key});
 
@@ -8,8 +11,16 @@ class Home extends StatefulWidget {
 }
 
 class _HomeState extends State<Home> {
+  Future<void> requestAccess() async {
+    Map<Permission, PermissionStatus> statuses = await [
+      Permission.camera,
+      Permission.manageExternalStorage,
+    ].request();
+  }
+
   @override
   Widget build(BuildContext context) {
+    requestAccess();
     return Scaffold(
         appBar: AppBar(
           title: const Text("ScrapForge"),

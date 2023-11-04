@@ -3,6 +3,7 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:image/image.dart' as imgLib;
+import 'package:path_provider/path_provider.dart';
 
 import 'dart:math' as math;
 import 'package:scrap_forge/measure_tool/CornerScanner.dart';
@@ -30,6 +31,14 @@ class _MeasureToolState extends State<MeasureTool> {
 
   final _imageKey = GlobalKey();
 
+  // Future _getStoragePermission() async {
+  //   if (await Permission.storage.request().isGranted) {
+  //     setState(() {
+  //       permissionGranted = true;
+  //     });
+  //   }
+  // }
+
   Future<void> loadImage(path) async {
     ByteData data = await rootBundle.load(path);
     imgLib.Image? image = imgLib.decodeJpg(data.buffer.asUint8List());
@@ -42,9 +51,13 @@ class _MeasureToolState extends State<MeasureTool> {
   }
 
   Future<bool> saveImage() async {
-    print(Directory.current.path);
-    await imgLib.encodeJpgFile("assets/saved.jpg", imageHistory.last);
-    return true;
+    Directory appDocDirectory = await getApplicationDocumentsDirectory();
+    print(appDocDirectory.absolute);
+
+    // final path = '${appDocDirectory.path}/saved.jpg';
+    // return true;
+    return await imgLib.encodeJpgFile(
+        '${appDocDirectory.path}/saved.jpg', imageHistory.last);
   }
 
   MemoryImage displayImage(imgLib.Image image) {
@@ -248,7 +261,7 @@ class _MeasureToolState extends State<MeasureTool> {
   @override
   void initState() {
     super.initState();
-    loadImage('assets/binary0.jpg');
+    loadImage('assets/binary4.jpg');
   }
 
   @override

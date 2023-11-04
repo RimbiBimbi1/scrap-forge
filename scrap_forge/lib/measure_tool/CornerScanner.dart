@@ -1,5 +1,3 @@
-import 'dart:math';
-
 import 'package:image/image.dart' as imgLib;
 
 class CornerScanner {
