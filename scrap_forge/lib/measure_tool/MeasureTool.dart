@@ -261,7 +261,7 @@ class _MeasureToolState extends State<MeasureTool> {
   @override
   void initState() {
     super.initState();
-    loadImage('assets/binary4.jpg');
+    loadImage('assets/binary1.jpg');
   }
 
   @override
