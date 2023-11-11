@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:image/image.dart' as imgLib;
 import 'package:path_provider/path_provider.dart';
+import 'package:scrap_forge/measure_tool/BoundingTool.dart';
 
 import 'dart:math' as math;
 import 'package:scrap_forge/measure_tool/CornerScanner.dart';
@@ -28,6 +29,7 @@ class _MeasureToolState extends State<MeasureTool> {
   List<List<double>> ySobel = List.empty();
 
   List<Offset> corners = List.empty();
+  List<Offset> boundingCorners = List.empty();
 
   final _imageKey = GlobalKey();
 
@@ -173,8 +175,7 @@ class _MeasureToolState extends State<MeasureTool> {
 
     setState(() {
       corners = scanned
-          .map((e) => Offset(e.x.toDouble() / imgW * displayW,
-              e.y.toDouble() / imgH * displayH))
+          .map((e) => Offset(e.x / imgW * displayW, e.y / imgH * displayH))
           .toList();
     });
   }
@@ -238,9 +239,25 @@ class _MeasureToolState extends State<MeasureTool> {
     });
   }
 
-  void rotate() {
+  // void rotate() {
+  //   setState(() {
+  //     addToHistory(AutoBoundingBoxScanner.getBoundingAngle(imageHistory.last));
+  //   });
+  // }
+
+  void findBoundingBox() {
+    List<imgLib.Point> scanned =
+        AutoBoundingBoxScanner.getBoundingBox(imageHistory.last);
+    double imgW = imageHistory.last.width.toDouble();
+    double imgH = imageHistory.last.height.toDouble();
+    Size displaySize = _imageKey.currentContext?.size ?? const Size(0, 0);
+    double displayW = displaySize.width;
+    double displayH = displaySize.height;
+
     setState(() {
-      addToHistory(AutoBoundingBoxScanner.getBoundingAngle(imageHistory.last));
+      boundingCorners = scanned
+          .map((e) => Offset(e.x / imgW * displayW, e.y / imgH * displayH))
+          .toList();
     });
   }
 
@@ -298,6 +315,16 @@ class _MeasureToolState extends State<MeasureTool> {
                       setCorners: (List<Offset> corners) {
                         setState(() {
                           this.corners = corners;
+                        });
+                      },
+                    ),
+                  if (boundingCorners.isNotEmpty)
+                    BoundingTool(
+                      imageKey: _imageKey,
+                      points: boundingCorners,
+                      setCorners: (List<Offset> boundingCorners) {
+                        setState(() {
+                          this.boundingCorners = boundingCorners;
                         });
                       },
                     ),
@@ -364,13 +391,17 @@ class _MeasureToolState extends State<MeasureTool> {
                   onPressed: calcInvariant,
                   child: Text("Invariant"),
                 ),
+                // FloatingActionButton(
+                //   onPressed: extend,
+                //   child: Text("extend"),
+                // ),
+                // FloatingActionButton(
+                //   onPressed: rotate,
+                //   child: Text("Rotate"),
+                // ),
                 FloatingActionButton(
-                  onPressed: extend,
-                  child: Text("extend"),
-                ),
-                FloatingActionButton(
-                  onPressed: rotate,
-                  child: Text("Rotate"),
+                  onPressed: findBoundingBox,
+                  child: Text("BBox"),
                 ),
                 FloatingActionButton(
                   onPressed: undo,

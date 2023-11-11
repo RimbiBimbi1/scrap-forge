@@ -31,17 +31,17 @@ class _FramingToolState extends State<FramingTool> {
 
   void getClosestCorner(DragStartDetails details) {
     int i = 0;
-    double minDistance = double.infinity;
-    double distance = double.infinity;
+    double minDistance2 = double.infinity;
+    double distance2 = double.infinity;
 
     double x = details.localPosition.dx;
     double y = details.localPosition.dy;
     // Offset position = Offset(x, y);
 
     for (final (index, p) in widget.points.indexed) {
-      distance = (x - p.dx) * (x - p.dx) + (y - p.dy) * (y - p.dy);
-      if (distance < minDistance) {
-        minDistance = distance;
+      distance2 = (x - p.dx) * (x - p.dx) + (y - p.dy) * (y - p.dy);
+      if (distance2 < minDistance2) {
+        minDistance2 = distance2;
         i = index;
       }
     }
@@ -63,14 +63,12 @@ class _FramingToolState extends State<FramingTool> {
 
     if (newPosition.dx < 0) {
       newPosition = Offset(0, newPosition.dy);
+    } else if (newPosition.dx > maxXOffset) {
+      newPosition = Offset(maxXOffset, newPosition.dy);
     }
     if (newPosition.dy < 0) {
       newPosition = Offset(newPosition.dx, 0);
-    }
-    if (newPosition.dx > maxXOffset) {
-      newPosition = Offset(maxXOffset, newPosition.dy);
-    }
-    if (newPosition.dy > maxYOffset) {
+    } else if (newPosition.dy > maxYOffset) {
       newPosition = Offset(newPosition.dx, maxYOffset);
     }
 
