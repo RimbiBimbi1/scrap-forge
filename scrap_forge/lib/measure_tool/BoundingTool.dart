@@ -86,50 +86,46 @@ class _FramingToolState extends State<BoundingTool> {
   }
 
   void calcMagnifierPositions(DragUpdateDetails details) {
-    Offset current1 = widget.points[activeArea];
-    Offset current2 = widget.points[(activeArea + 1) % 4];
+    if (0 <= activeArea && activeArea < 4) {
+      Offset current1 = widget.points[activeArea];
+      Offset current2 = widget.points[(activeArea + 1) % 4];
 
-    Offset finger = details.delta;
+      Offset finger = details.delta;
 
-    double bUpdated = finger.dy -
-        finger.dx * linearCoefficients[activeArea][0] +
-        linearCoefficients[activeArea][1];
+      double bUpdated = finger.dy -
+          finger.dx * linearCoefficients[activeArea][0] +
+          linearCoefficients[activeArea][1];
 
-    List<int> perpendicularEdges =
-        List.from([(activeArea - 1) % 4, (activeArea + 1) % 4]);
+      List<int> perpendicularEdges =
+          List.from([(activeArea - 1) % 4, (activeArea + 1) % 4]);
 
-    List<Offset> newPositions = List.empty(growable: true);
+      List<Offset> newPositions = List.empty(growable: true);
 
-    for (final i in perpendicularEdges) {
-      double x = (linearCoefficients[i][1] - bUpdated) /
-          (linearCoefficients[activeArea][0] - linearCoefficients[i][0]);
-      double y = linearCoefficients[activeArea][0] * x + bUpdated;
+      for (final i in perpendicularEdges) {
+        double x = (linearCoefficients[i][1] - bUpdated) /
+            (linearCoefficients[activeArea][0] - linearCoefficients[i][0]);
+        double y = linearCoefficients[activeArea][0] * x + bUpdated;
 
-      newPositions.add(Offset(x, y));
+        newPositions.add(Offset(x, y));
+      }
+
+      setState(() {
+        linearCoefficients[activeArea][1] = bUpdated;
+
+        widget.points[activeArea] = newPositions[0];
+        widget.points[(activeArea + 1) % 4] = newPositions[1];
+      });
+    } else {
+      setState(() {
+        List<Offset> newCorners =
+            widget.points.map((e) => e + details.delta).toList();
+
+        widget.points[0] = newCorners[0];
+        widget.points[1] = newCorners[1];
+        widget.points[2] = newCorners[2];
+        widget.points[3] = newCorners[3];
+      });
     }
-
-    // Size widgetSize = _getSize();
-
-    // double maxXOffset = widgetSize.width;
-    // double maxYOffset = widgetSize.height;
-
-    // if (newPosition.dx < 0) {
-    //   newPosition = Offset(0, newPosition.dy);
-    // } else if (newPosition.dx > maxXOffset) {
-    //   newPosition = Offset(maxXOffset, newPosition.dy);
-    // }
-    // if (newPosition.dy < 0) {
-    //   newPosition = Offset(newPosition.dx, 0);
-    // } else if (newPosition.dy > maxYOffset) {
-    //   newPosition = Offset(newPosition.dx, maxYOffset);
-    // }
-
-    setState(() {
-      linearCoefficients[activeArea][1] = bUpdated;
-
-      widget.points[activeArea] = newPositions[0];
-      widget.points[(activeArea + 1) % 4] = newPositions[1];
-    });
   }
 
   // @override
