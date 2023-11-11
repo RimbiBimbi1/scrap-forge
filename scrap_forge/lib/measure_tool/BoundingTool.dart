@@ -55,7 +55,6 @@ class _FramingToolState extends State<BoundingTool> {
 
       //two points for two offsets (0 degree monomials) of linear functions
       for (final j in [0, 2]) {
-        //j*2 for getting the parallel line index
         int k = i + j;
         double b = points[k].dy - points[k].dx * a;
 
@@ -64,13 +63,28 @@ class _FramingToolState extends State<BoundingTool> {
       }
     }
 
-    double minDistance = double.infinity;
-    double distance = double.infinity;
+    double minAxisDistance = double.infinity;
 
     for (final (i, l) in temp.indexed) {
-      distance = (l[0] * x - y + l[1]).abs() / math.sqrt(l[0] * l[0] + 1);
-      if ((distance < 50) && (distance < minDistance)) {
-        minDistance = distance;
+      int j = (i + 1) % 4;
+
+      double axisDistance =
+          (l[0] * x - y + l[1]).abs() / math.sqrt(l[0] * l[0] + 1);
+
+      double p1Distance2 = (x - points[i].dx) * (x - points[i].dx) +
+          (y - points[i].dy) * (y - points[i].dy);
+      double p2Distance2 = (x - points[j].dx) * (x - points[j].dx) +
+          (y - points[j].dy) * (y - points[j].dy);
+
+      double borderLength2 =
+          (points[j].dx - points[i].dx) * (points[j].dx - points[i].dx) +
+              (points[j].dy - points[i].dy) * (points[j].dy - points[i].dy);
+
+      if ((p1Distance2 < borderLength2) &&
+          (p2Distance2 < borderLength2) &&
+          (axisDistance < magnifierRadius) &&
+          (axisDistance < minAxisDistance)) {
+        minAxisDistance = axisDistance;
         index = i;
       }
     }
@@ -87,9 +101,6 @@ class _FramingToolState extends State<BoundingTool> {
 
   void calcMagnifierPositions(DragUpdateDetails details) {
     if (0 <= activeArea && activeArea < 4) {
-      Offset current1 = widget.points[activeArea];
-      Offset current2 = widget.points[(activeArea + 1) % 4];
-
       Offset finger = details.delta;
 
       double bUpdated = finger.dy -
