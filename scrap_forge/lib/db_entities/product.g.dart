@@ -1,6 +1,6 @@
 // GENERATED CODE - DO NOT MODIFY BY HAND
 
-part of 'Product.dart';
+part of 'product.dart';
 
 // **************************************************************************
 // IsarCollectionGenerator
@@ -37,20 +37,35 @@ const ProductSchema = CollectionSchema(
       name: r'finishedTimestamp',
       type: IsarType.long,
     ),
-    r'imagePaths': PropertySchema(
+    r'height': PropertySchema(
       id: 4,
-      name: r'imagePaths',
-      type: IsarType.stringList,
+      name: r'height',
+      type: IsarType.long,
     ),
     r'isMaterial': PropertySchema(
       id: 5,
       name: r'isMaterial',
       type: IsarType.bool,
     ),
-    r'name': PropertySchema(
+    r'length': PropertySchema(
       id: 6,
+      name: r'length',
+      type: IsarType.long,
+    ),
+    r'name': PropertySchema(
+      id: 7,
       name: r'name',
       type: IsarType.string,
+    ),
+    r'projectionArea': PropertySchema(
+      id: 8,
+      name: r'projectionArea',
+      type: IsarType.long,
+    ),
+    r'width': PropertySchema(
+      id: 9,
+      name: r'width',
+      type: IsarType.long,
     )
   },
   estimateSize: _productEstimateSize,
@@ -59,7 +74,27 @@ const ProductSchema = CollectionSchema(
   deserializeProp: _productDeserializeProp,
   idName: r'id',
   indexes: {},
-  links: {},
+  links: {
+    r'photos': LinkSchema(
+      id: 702814432234517715,
+      name: r'photos',
+      target: r'Photo',
+      single: false,
+    ),
+    r'madeFrom': LinkSchema(
+      id: 3338612161385220881,
+      name: r'madeFrom',
+      target: r'Product',
+      single: false,
+    ),
+    r'usedIn': LinkSchema(
+      id: 3175565128530135166,
+      name: r'usedIn',
+      target: r'Product',
+      single: false,
+      linkName: r'madeFrom',
+    )
+  },
   embeddedSchemas: {},
   getId: _productGetId,
   getLinks: _productGetLinks,
@@ -86,18 +121,6 @@ int _productEstimateSize(
     }
   }
   {
-    final list = object.imagePaths;
-    if (list != null) {
-      bytesCount += 3 + list.length * 3;
-      {
-        for (var i = 0; i < list.length; i++) {
-          final value = list[i];
-          bytesCount += value.length * 3;
-        }
-      }
-    }
-  }
-  {
     final value = object.name;
     if (value != null) {
       bytesCount += 3 + value.length * 3;
@@ -116,9 +139,12 @@ void _productSerialize(
   writer.writeString(offsets[1], object.category);
   writer.writeString(offsets[2], object.description);
   writer.writeLong(offsets[3], object.finishedTimestamp);
-  writer.writeStringList(offsets[4], object.imagePaths);
+  writer.writeLong(offsets[4], object.height);
   writer.writeBool(offsets[5], object.isMaterial);
-  writer.writeString(offsets[6], object.name);
+  writer.writeLong(offsets[6], object.length);
+  writer.writeString(offsets[7], object.name);
+  writer.writeLong(offsets[8], object.projectionArea);
+  writer.writeLong(offsets[9], object.width);
 }
 
 Product _productDeserialize(
@@ -132,10 +158,13 @@ Product _productDeserialize(
   object.category = reader.readStringOrNull(offsets[1]);
   object.description = reader.readStringOrNull(offsets[2]);
   object.finishedTimestamp = reader.readLongOrNull(offsets[3]);
+  object.height = reader.readLongOrNull(offsets[4]);
   object.id = id;
-  object.imagePaths = reader.readStringList(offsets[4]);
   object.isMaterial = reader.readBoolOrNull(offsets[5]);
-  object.name = reader.readStringOrNull(offsets[6]);
+  object.length = reader.readLongOrNull(offsets[6]);
+  object.name = reader.readStringOrNull(offsets[7]);
+  object.projectionArea = reader.readLongOrNull(offsets[8]);
+  object.width = reader.readLongOrNull(offsets[9]);
   return object;
 }
 
@@ -155,11 +184,17 @@ P _productDeserializeProp<P>(
     case 3:
       return (reader.readLongOrNull(offset)) as P;
     case 4:
-      return (reader.readStringList(offset)) as P;
+      return (reader.readLongOrNull(offset)) as P;
     case 5:
       return (reader.readBoolOrNull(offset)) as P;
     case 6:
+      return (reader.readLongOrNull(offset)) as P;
+    case 7:
       return (reader.readStringOrNull(offset)) as P;
+    case 8:
+      return (reader.readLongOrNull(offset)) as P;
+    case 9:
+      return (reader.readLongOrNull(offset)) as P;
     default:
       throw IsarError('Unknown property with id $propertyId');
   }
@@ -170,11 +205,14 @@ Id _productGetId(Product object) {
 }
 
 List<IsarLinkBase<dynamic>> _productGetLinks(Product object) {
-  return [];
+  return [object.photos, object.madeFrom, object.usedIn];
 }
 
 void _productAttach(IsarCollection<dynamic> col, Id id, Product object) {
   object.id = id;
+  object.photos.attach(col, col.isar.collection<Photo>(), r'photos', id);
+  object.madeFrom.attach(col, col.isar.collection<Product>(), r'madeFrom', id);
+  object.usedIn.attach(col, col.isar.collection<Product>(), r'usedIn', id);
 }
 
 extension ProductQueryWhereSort on QueryBuilder<Product, Product, QWhere> {
@@ -692,6 +730,75 @@ extension ProductQueryFilter
     });
   }
 
+  QueryBuilder<Product, Product, QAfterFilterCondition> heightIsNull() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(const FilterCondition.isNull(
+        property: r'height',
+      ));
+    });
+  }
+
+  QueryBuilder<Product, Product, QAfterFilterCondition> heightIsNotNull() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(const FilterCondition.isNotNull(
+        property: r'height',
+      ));
+    });
+  }
+
+  QueryBuilder<Product, Product, QAfterFilterCondition> heightEqualTo(
+      int? value) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.equalTo(
+        property: r'height',
+        value: value,
+      ));
+    });
+  }
+
+  QueryBuilder<Product, Product, QAfterFilterCondition> heightGreaterThan(
+    int? value, {
+    bool include = false,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.greaterThan(
+        include: include,
+        property: r'height',
+        value: value,
+      ));
+    });
+  }
+
+  QueryBuilder<Product, Product, QAfterFilterCondition> heightLessThan(
+    int? value, {
+    bool include = false,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.lessThan(
+        include: include,
+        property: r'height',
+        value: value,
+      ));
+    });
+  }
+
+  QueryBuilder<Product, Product, QAfterFilterCondition> heightBetween(
+    int? lower,
+    int? upper, {
+    bool includeLower = true,
+    bool includeUpper = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.between(
+        property: r'height',
+        lower: lower,
+        includeLower: includeLower,
+        upper: upper,
+        includeUpper: includeUpper,
+      ));
+    });
+  }
+
   QueryBuilder<Product, Product, QAfterFilterCondition> idEqualTo(Id value) {
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(FilterCondition.equalTo(
@@ -744,244 +851,6 @@ extension ProductQueryFilter
     });
   }
 
-  QueryBuilder<Product, Product, QAfterFilterCondition> imagePathsIsNull() {
-    return QueryBuilder.apply(this, (query) {
-      return query.addFilterCondition(const FilterCondition.isNull(
-        property: r'imagePaths',
-      ));
-    });
-  }
-
-  QueryBuilder<Product, Product, QAfterFilterCondition> imagePathsIsNotNull() {
-    return QueryBuilder.apply(this, (query) {
-      return query.addFilterCondition(const FilterCondition.isNotNull(
-        property: r'imagePaths',
-      ));
-    });
-  }
-
-  QueryBuilder<Product, Product, QAfterFilterCondition>
-      imagePathsElementEqualTo(
-    String value, {
-    bool caseSensitive = true,
-  }) {
-    return QueryBuilder.apply(this, (query) {
-      return query.addFilterCondition(FilterCondition.equalTo(
-        property: r'imagePaths',
-        value: value,
-        caseSensitive: caseSensitive,
-      ));
-    });
-  }
-
-  QueryBuilder<Product, Product, QAfterFilterCondition>
-      imagePathsElementGreaterThan(
-    String value, {
-    bool include = false,
-    bool caseSensitive = true,
-  }) {
-    return QueryBuilder.apply(this, (query) {
-      return query.addFilterCondition(FilterCondition.greaterThan(
-        include: include,
-        property: r'imagePaths',
-        value: value,
-        caseSensitive: caseSensitive,
-      ));
-    });
-  }
-
-  QueryBuilder<Product, Product, QAfterFilterCondition>
-      imagePathsElementLessThan(
-    String value, {
-    bool include = false,
-    bool caseSensitive = true,
-  }) {
-    return QueryBuilder.apply(this, (query) {
-      return query.addFilterCondition(FilterCondition.lessThan(
-        include: include,
-        property: r'imagePaths',
-        value: value,
-        caseSensitive: caseSensitive,
-      ));
-    });
-  }
-
-  QueryBuilder<Product, Product, QAfterFilterCondition>
-      imagePathsElementBetween(
-    String lower,
-    String upper, {
-    bool includeLower = true,
-    bool includeUpper = true,
-    bool caseSensitive = true,
-  }) {
-    return QueryBuilder.apply(this, (query) {
-      return query.addFilterCondition(FilterCondition.between(
-        property: r'imagePaths',
-        lower: lower,
-        includeLower: includeLower,
-        upper: upper,
-        includeUpper: includeUpper,
-        caseSensitive: caseSensitive,
-      ));
-    });
-  }
-
-  QueryBuilder<Product, Product, QAfterFilterCondition>
-      imagePathsElementStartsWith(
-    String value, {
-    bool caseSensitive = true,
-  }) {
-    return QueryBuilder.apply(this, (query) {
-      return query.addFilterCondition(FilterCondition.startsWith(
-        property: r'imagePaths',
-        value: value,
-        caseSensitive: caseSensitive,
-      ));
-    });
-  }
-
-  QueryBuilder<Product, Product, QAfterFilterCondition>
-      imagePathsElementEndsWith(
-    String value, {
-    bool caseSensitive = true,
-  }) {
-    return QueryBuilder.apply(this, (query) {
-      return query.addFilterCondition(FilterCondition.endsWith(
-        property: r'imagePaths',
-        value: value,
-        caseSensitive: caseSensitive,
-      ));
-    });
-  }
-
-  QueryBuilder<Product, Product, QAfterFilterCondition>
-      imagePathsElementContains(String value, {bool caseSensitive = true}) {
-    return QueryBuilder.apply(this, (query) {
-      return query.addFilterCondition(FilterCondition.contains(
-        property: r'imagePaths',
-        value: value,
-        caseSensitive: caseSensitive,
-      ));
-    });
-  }
-
-  QueryBuilder<Product, Product, QAfterFilterCondition>
-      imagePathsElementMatches(String pattern, {bool caseSensitive = true}) {
-    return QueryBuilder.apply(this, (query) {
-      return query.addFilterCondition(FilterCondition.matches(
-        property: r'imagePaths',
-        wildcard: pattern,
-        caseSensitive: caseSensitive,
-      ));
-    });
-  }
-
-  QueryBuilder<Product, Product, QAfterFilterCondition>
-      imagePathsElementIsEmpty() {
-    return QueryBuilder.apply(this, (query) {
-      return query.addFilterCondition(FilterCondition.equalTo(
-        property: r'imagePaths',
-        value: '',
-      ));
-    });
-  }
-
-  QueryBuilder<Product, Product, QAfterFilterCondition>
-      imagePathsElementIsNotEmpty() {
-    return QueryBuilder.apply(this, (query) {
-      return query.addFilterCondition(FilterCondition.greaterThan(
-        property: r'imagePaths',
-        value: '',
-      ));
-    });
-  }
-
-  QueryBuilder<Product, Product, QAfterFilterCondition> imagePathsLengthEqualTo(
-      int length) {
-    return QueryBuilder.apply(this, (query) {
-      return query.listLength(
-        r'imagePaths',
-        length,
-        true,
-        length,
-        true,
-      );
-    });
-  }
-
-  QueryBuilder<Product, Product, QAfterFilterCondition> imagePathsIsEmpty() {
-    return QueryBuilder.apply(this, (query) {
-      return query.listLength(
-        r'imagePaths',
-        0,
-        true,
-        0,
-        true,
-      );
-    });
-  }
-
-  QueryBuilder<Product, Product, QAfterFilterCondition> imagePathsIsNotEmpty() {
-    return QueryBuilder.apply(this, (query) {
-      return query.listLength(
-        r'imagePaths',
-        0,
-        false,
-        999999,
-        true,
-      );
-    });
-  }
-
-  QueryBuilder<Product, Product, QAfterFilterCondition>
-      imagePathsLengthLessThan(
-    int length, {
-    bool include = false,
-  }) {
-    return QueryBuilder.apply(this, (query) {
-      return query.listLength(
-        r'imagePaths',
-        0,
-        true,
-        length,
-        include,
-      );
-    });
-  }
-
-  QueryBuilder<Product, Product, QAfterFilterCondition>
-      imagePathsLengthGreaterThan(
-    int length, {
-    bool include = false,
-  }) {
-    return QueryBuilder.apply(this, (query) {
-      return query.listLength(
-        r'imagePaths',
-        length,
-        include,
-        999999,
-        true,
-      );
-    });
-  }
-
-  QueryBuilder<Product, Product, QAfterFilterCondition> imagePathsLengthBetween(
-    int lower,
-    int upper, {
-    bool includeLower = true,
-    bool includeUpper = true,
-  }) {
-    return QueryBuilder.apply(this, (query) {
-      return query.listLength(
-        r'imagePaths',
-        lower,
-        includeLower,
-        upper,
-        includeUpper,
-      );
-    });
-  }
-
   QueryBuilder<Product, Product, QAfterFilterCondition> isMaterialIsNull() {
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(const FilterCondition.isNull(
@@ -1004,6 +873,75 @@ extension ProductQueryFilter
       return query.addFilterCondition(FilterCondition.equalTo(
         property: r'isMaterial',
         value: value,
+      ));
+    });
+  }
+
+  QueryBuilder<Product, Product, QAfterFilterCondition> lengthIsNull() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(const FilterCondition.isNull(
+        property: r'length',
+      ));
+    });
+  }
+
+  QueryBuilder<Product, Product, QAfterFilterCondition> lengthIsNotNull() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(const FilterCondition.isNotNull(
+        property: r'length',
+      ));
+    });
+  }
+
+  QueryBuilder<Product, Product, QAfterFilterCondition> lengthEqualTo(
+      int? value) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.equalTo(
+        property: r'length',
+        value: value,
+      ));
+    });
+  }
+
+  QueryBuilder<Product, Product, QAfterFilterCondition> lengthGreaterThan(
+    int? value, {
+    bool include = false,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.greaterThan(
+        include: include,
+        property: r'length',
+        value: value,
+      ));
+    });
+  }
+
+  QueryBuilder<Product, Product, QAfterFilterCondition> lengthLessThan(
+    int? value, {
+    bool include = false,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.lessThan(
+        include: include,
+        property: r'length',
+        value: value,
+      ));
+    });
+  }
+
+  QueryBuilder<Product, Product, QAfterFilterCondition> lengthBetween(
+    int? lower,
+    int? upper, {
+    bool includeLower = true,
+    bool includeUpper = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.between(
+        property: r'length',
+        lower: lower,
+        includeLower: includeLower,
+        upper: upper,
+        includeUpper: includeUpper,
       ));
     });
   }
@@ -1153,13 +1091,322 @@ extension ProductQueryFilter
       ));
     });
   }
+
+  QueryBuilder<Product, Product, QAfterFilterCondition> projectionAreaIsNull() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(const FilterCondition.isNull(
+        property: r'projectionArea',
+      ));
+    });
+  }
+
+  QueryBuilder<Product, Product, QAfterFilterCondition>
+      projectionAreaIsNotNull() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(const FilterCondition.isNotNull(
+        property: r'projectionArea',
+      ));
+    });
+  }
+
+  QueryBuilder<Product, Product, QAfterFilterCondition> projectionAreaEqualTo(
+      int? value) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.equalTo(
+        property: r'projectionArea',
+        value: value,
+      ));
+    });
+  }
+
+  QueryBuilder<Product, Product, QAfterFilterCondition>
+      projectionAreaGreaterThan(
+    int? value, {
+    bool include = false,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.greaterThan(
+        include: include,
+        property: r'projectionArea',
+        value: value,
+      ));
+    });
+  }
+
+  QueryBuilder<Product, Product, QAfterFilterCondition> projectionAreaLessThan(
+    int? value, {
+    bool include = false,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.lessThan(
+        include: include,
+        property: r'projectionArea',
+        value: value,
+      ));
+    });
+  }
+
+  QueryBuilder<Product, Product, QAfterFilterCondition> projectionAreaBetween(
+    int? lower,
+    int? upper, {
+    bool includeLower = true,
+    bool includeUpper = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.between(
+        property: r'projectionArea',
+        lower: lower,
+        includeLower: includeLower,
+        upper: upper,
+        includeUpper: includeUpper,
+      ));
+    });
+  }
+
+  QueryBuilder<Product, Product, QAfterFilterCondition> widthIsNull() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(const FilterCondition.isNull(
+        property: r'width',
+      ));
+    });
+  }
+
+  QueryBuilder<Product, Product, QAfterFilterCondition> widthIsNotNull() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(const FilterCondition.isNotNull(
+        property: r'width',
+      ));
+    });
+  }
+
+  QueryBuilder<Product, Product, QAfterFilterCondition> widthEqualTo(
+      int? value) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.equalTo(
+        property: r'width',
+        value: value,
+      ));
+    });
+  }
+
+  QueryBuilder<Product, Product, QAfterFilterCondition> widthGreaterThan(
+    int? value, {
+    bool include = false,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.greaterThan(
+        include: include,
+        property: r'width',
+        value: value,
+      ));
+    });
+  }
+
+  QueryBuilder<Product, Product, QAfterFilterCondition> widthLessThan(
+    int? value, {
+    bool include = false,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.lessThan(
+        include: include,
+        property: r'width',
+        value: value,
+      ));
+    });
+  }
+
+  QueryBuilder<Product, Product, QAfterFilterCondition> widthBetween(
+    int? lower,
+    int? upper, {
+    bool includeLower = true,
+    bool includeUpper = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.between(
+        property: r'width',
+        lower: lower,
+        includeLower: includeLower,
+        upper: upper,
+        includeUpper: includeUpper,
+      ));
+    });
+  }
 }
 
 extension ProductQueryObject
     on QueryBuilder<Product, Product, QFilterCondition> {}
 
 extension ProductQueryLinks
-    on QueryBuilder<Product, Product, QFilterCondition> {}
+    on QueryBuilder<Product, Product, QFilterCondition> {
+  QueryBuilder<Product, Product, QAfterFilterCondition> photos(
+      FilterQuery<Photo> q) {
+    return QueryBuilder.apply(this, (query) {
+      return query.link(q, r'photos');
+    });
+  }
+
+  QueryBuilder<Product, Product, QAfterFilterCondition> photosLengthEqualTo(
+      int length) {
+    return QueryBuilder.apply(this, (query) {
+      return query.linkLength(r'photos', length, true, length, true);
+    });
+  }
+
+  QueryBuilder<Product, Product, QAfterFilterCondition> photosIsEmpty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.linkLength(r'photos', 0, true, 0, true);
+    });
+  }
+
+  QueryBuilder<Product, Product, QAfterFilterCondition> photosIsNotEmpty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.linkLength(r'photos', 0, false, 999999, true);
+    });
+  }
+
+  QueryBuilder<Product, Product, QAfterFilterCondition> photosLengthLessThan(
+    int length, {
+    bool include = false,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.linkLength(r'photos', 0, true, length, include);
+    });
+  }
+
+  QueryBuilder<Product, Product, QAfterFilterCondition> photosLengthGreaterThan(
+    int length, {
+    bool include = false,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.linkLength(r'photos', length, include, 999999, true);
+    });
+  }
+
+  QueryBuilder<Product, Product, QAfterFilterCondition> photosLengthBetween(
+    int lower,
+    int upper, {
+    bool includeLower = true,
+    bool includeUpper = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.linkLength(
+          r'photos', lower, includeLower, upper, includeUpper);
+    });
+  }
+
+  QueryBuilder<Product, Product, QAfterFilterCondition> madeFrom(
+      FilterQuery<Product> q) {
+    return QueryBuilder.apply(this, (query) {
+      return query.link(q, r'madeFrom');
+    });
+  }
+
+  QueryBuilder<Product, Product, QAfterFilterCondition> madeFromLengthEqualTo(
+      int length) {
+    return QueryBuilder.apply(this, (query) {
+      return query.linkLength(r'madeFrom', length, true, length, true);
+    });
+  }
+
+  QueryBuilder<Product, Product, QAfterFilterCondition> madeFromIsEmpty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.linkLength(r'madeFrom', 0, true, 0, true);
+    });
+  }
+
+  QueryBuilder<Product, Product, QAfterFilterCondition> madeFromIsNotEmpty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.linkLength(r'madeFrom', 0, false, 999999, true);
+    });
+  }
+
+  QueryBuilder<Product, Product, QAfterFilterCondition> madeFromLengthLessThan(
+    int length, {
+    bool include = false,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.linkLength(r'madeFrom', 0, true, length, include);
+    });
+  }
+
+  QueryBuilder<Product, Product, QAfterFilterCondition>
+      madeFromLengthGreaterThan(
+    int length, {
+    bool include = false,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.linkLength(r'madeFrom', length, include, 999999, true);
+    });
+  }
+
+  QueryBuilder<Product, Product, QAfterFilterCondition> madeFromLengthBetween(
+    int lower,
+    int upper, {
+    bool includeLower = true,
+    bool includeUpper = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.linkLength(
+          r'madeFrom', lower, includeLower, upper, includeUpper);
+    });
+  }
+
+  QueryBuilder<Product, Product, QAfterFilterCondition> usedIn(
+      FilterQuery<Product> q) {
+    return QueryBuilder.apply(this, (query) {
+      return query.link(q, r'usedIn');
+    });
+  }
+
+  QueryBuilder<Product, Product, QAfterFilterCondition> usedInLengthEqualTo(
+      int length) {
+    return QueryBuilder.apply(this, (query) {
+      return query.linkLength(r'usedIn', length, true, length, true);
+    });
+  }
+
+  QueryBuilder<Product, Product, QAfterFilterCondition> usedInIsEmpty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.linkLength(r'usedIn', 0, true, 0, true);
+    });
+  }
+
+  QueryBuilder<Product, Product, QAfterFilterCondition> usedInIsNotEmpty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.linkLength(r'usedIn', 0, false, 999999, true);
+    });
+  }
+
+  QueryBuilder<Product, Product, QAfterFilterCondition> usedInLengthLessThan(
+    int length, {
+    bool include = false,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.linkLength(r'usedIn', 0, true, length, include);
+    });
+  }
+
+  QueryBuilder<Product, Product, QAfterFilterCondition> usedInLengthGreaterThan(
+    int length, {
+    bool include = false,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.linkLength(r'usedIn', length, include, 999999, true);
+    });
+  }
+
+  QueryBuilder<Product, Product, QAfterFilterCondition> usedInLengthBetween(
+    int lower,
+    int upper, {
+    bool includeLower = true,
+    bool includeUpper = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.linkLength(
+          r'usedIn', lower, includeLower, upper, includeUpper);
+    });
+  }
+}
 
 extension ProductQuerySortBy on QueryBuilder<Product, Product, QSortBy> {
   QueryBuilder<Product, Product, QAfterSortBy> sortByAddedTimestamp() {
@@ -1210,6 +1457,18 @@ extension ProductQuerySortBy on QueryBuilder<Product, Product, QSortBy> {
     });
   }
 
+  QueryBuilder<Product, Product, QAfterSortBy> sortByHeight() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'height', Sort.asc);
+    });
+  }
+
+  QueryBuilder<Product, Product, QAfterSortBy> sortByHeightDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'height', Sort.desc);
+    });
+  }
+
   QueryBuilder<Product, Product, QAfterSortBy> sortByIsMaterial() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'isMaterial', Sort.asc);
@@ -1222,6 +1481,18 @@ extension ProductQuerySortBy on QueryBuilder<Product, Product, QSortBy> {
     });
   }
 
+  QueryBuilder<Product, Product, QAfterSortBy> sortByLength() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'length', Sort.asc);
+    });
+  }
+
+  QueryBuilder<Product, Product, QAfterSortBy> sortByLengthDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'length', Sort.desc);
+    });
+  }
+
   QueryBuilder<Product, Product, QAfterSortBy> sortByName() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'name', Sort.asc);
@@ -1231,6 +1502,30 @@ extension ProductQuerySortBy on QueryBuilder<Product, Product, QSortBy> {
   QueryBuilder<Product, Product, QAfterSortBy> sortByNameDesc() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'name', Sort.desc);
+    });
+  }
+
+  QueryBuilder<Product, Product, QAfterSortBy> sortByProjectionArea() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'projectionArea', Sort.asc);
+    });
+  }
+
+  QueryBuilder<Product, Product, QAfterSortBy> sortByProjectionAreaDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'projectionArea', Sort.desc);
+    });
+  }
+
+  QueryBuilder<Product, Product, QAfterSortBy> sortByWidth() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'width', Sort.asc);
+    });
+  }
+
+  QueryBuilder<Product, Product, QAfterSortBy> sortByWidthDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'width', Sort.desc);
     });
   }
 }
@@ -1285,6 +1580,18 @@ extension ProductQuerySortThenBy
     });
   }
 
+  QueryBuilder<Product, Product, QAfterSortBy> thenByHeight() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'height', Sort.asc);
+    });
+  }
+
+  QueryBuilder<Product, Product, QAfterSortBy> thenByHeightDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'height', Sort.desc);
+    });
+  }
+
   QueryBuilder<Product, Product, QAfterSortBy> thenById() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'id', Sort.asc);
@@ -1309,6 +1616,18 @@ extension ProductQuerySortThenBy
     });
   }
 
+  QueryBuilder<Product, Product, QAfterSortBy> thenByLength() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'length', Sort.asc);
+    });
+  }
+
+  QueryBuilder<Product, Product, QAfterSortBy> thenByLengthDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'length', Sort.desc);
+    });
+  }
+
   QueryBuilder<Product, Product, QAfterSortBy> thenByName() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'name', Sort.asc);
@@ -1318,6 +1637,30 @@ extension ProductQuerySortThenBy
   QueryBuilder<Product, Product, QAfterSortBy> thenByNameDesc() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'name', Sort.desc);
+    });
+  }
+
+  QueryBuilder<Product, Product, QAfterSortBy> thenByProjectionArea() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'projectionArea', Sort.asc);
+    });
+  }
+
+  QueryBuilder<Product, Product, QAfterSortBy> thenByProjectionAreaDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'projectionArea', Sort.desc);
+    });
+  }
+
+  QueryBuilder<Product, Product, QAfterSortBy> thenByWidth() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'width', Sort.asc);
+    });
+  }
+
+  QueryBuilder<Product, Product, QAfterSortBy> thenByWidthDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'width', Sort.desc);
     });
   }
 }
@@ -1350,9 +1693,9 @@ extension ProductQueryWhereDistinct
     });
   }
 
-  QueryBuilder<Product, Product, QDistinct> distinctByImagePaths() {
+  QueryBuilder<Product, Product, QDistinct> distinctByHeight() {
     return QueryBuilder.apply(this, (query) {
-      return query.addDistinctBy(r'imagePaths');
+      return query.addDistinctBy(r'height');
     });
   }
 
@@ -1362,10 +1705,28 @@ extension ProductQueryWhereDistinct
     });
   }
 
+  QueryBuilder<Product, Product, QDistinct> distinctByLength() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addDistinctBy(r'length');
+    });
+  }
+
   QueryBuilder<Product, Product, QDistinct> distinctByName(
       {bool caseSensitive = true}) {
     return QueryBuilder.apply(this, (query) {
       return query.addDistinctBy(r'name', caseSensitive: caseSensitive);
+    });
+  }
+
+  QueryBuilder<Product, Product, QDistinct> distinctByProjectionArea() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addDistinctBy(r'projectionArea');
+    });
+  }
+
+  QueryBuilder<Product, Product, QDistinct> distinctByWidth() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addDistinctBy(r'width');
     });
   }
 }
@@ -1402,9 +1763,9 @@ extension ProductQueryProperty
     });
   }
 
-  QueryBuilder<Product, List<String>?, QQueryOperations> imagePathsProperty() {
+  QueryBuilder<Product, int?, QQueryOperations> heightProperty() {
     return QueryBuilder.apply(this, (query) {
-      return query.addPropertyName(r'imagePaths');
+      return query.addPropertyName(r'height');
     });
   }
 
@@ -1414,9 +1775,27 @@ extension ProductQueryProperty
     });
   }
 
+  QueryBuilder<Product, int?, QQueryOperations> lengthProperty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addPropertyName(r'length');
+    });
+  }
+
   QueryBuilder<Product, String?, QQueryOperations> nameProperty() {
     return QueryBuilder.apply(this, (query) {
       return query.addPropertyName(r'name');
+    });
+  }
+
+  QueryBuilder<Product, int?, QQueryOperations> projectionAreaProperty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addPropertyName(r'projectionArea');
+    });
+  }
+
+  QueryBuilder<Product, int?, QQueryOperations> widthProperty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addPropertyName(r'width');
     });
   }
 }

@@ -4,14 +4,14 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:image/image.dart' as imgLib;
 import 'package:path_provider/path_provider.dart';
-import 'package:scrap_forge/measure_tool/BoundingTool.dart';
+import 'package:scrap_forge/measure_tool/bounding_tool.dart';
 
 import 'dart:math' as math;
-import 'package:scrap_forge/measure_tool/CornerScanner.dart';
-import 'package:scrap_forge/measure_tool/FramingTool.dart';
-import 'package:scrap_forge/measure_tool/ImageProcessor.dart';
-import 'package:scrap_forge/measure_tool/TriangleTexturer.dart';
-import 'package:scrap_forge/measure_tool/AutoBoundingBoxScanner.dart';
+import 'package:scrap_forge/measure_tool/corner_scanner.dart';
+import 'package:scrap_forge/measure_tool/framing_tool.dart';
+import 'package:scrap_forge/measure_tool/image_processor.dart';
+import 'package:scrap_forge/measure_tool/triangle_texturer.dart';
+import 'package:scrap_forge/measure_tool/auto_bounding_box_scanner.dart';
 
 class MeasureTool extends StatefulWidget {
   const MeasureTool({super.key});
