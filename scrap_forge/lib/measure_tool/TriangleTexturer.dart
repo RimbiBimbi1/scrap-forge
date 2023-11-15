@@ -1,5 +1,4 @@
 import 'package:image/image.dart' as imgLib;
-import 'dart:math' as math;
 
 class TriangleTexturer {
   imgLib.Image textureImg;
