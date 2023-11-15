@@ -1,18 +1,10 @@
 import 'package:flutter/material.dart';
-import 'package:isar/isar.dart';
-import 'package:path_provider/path_provider.dart';
-import 'package:scrap_forge/db_entities/product.dart';
+import 'package:scrap_forge/isar_service.dart';
 
 import 'package:scrap_forge/pages/home.dart';
 import 'package:scrap_forge/pages/loading.dart';
 
 Future<void> main() async {
-  final dir = await getApplicationDocumentsDirectory();
-  final isar = await Isar.open(
-    [],
-    directory: dir.path,
-  );
-
   return runApp(
     MaterialApp(
       initialRoute: '/home',

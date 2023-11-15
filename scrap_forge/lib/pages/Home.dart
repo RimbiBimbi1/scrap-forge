@@ -1,10 +1,13 @@
 import 'package:flutter/material.dart';
+import 'package:scrap_forge/isar_service.dart';
 
 // import 'package:permission_handler/permission_handler.dart';
 
 class Home extends StatefulWidget {
   final ThemeData themeData;
-  const Home({super.key, required this.themeData});
+  final dbService = IsarService();
+
+  Home({super.key, required this.themeData});
 
   @override
   State<Home> createState() => _HomeState();
