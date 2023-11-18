@@ -49,7 +49,10 @@ class _ProjectStripState extends State<ProjectStrip> {
     if (widget.product.name != null) {
       name = widget.product.name!;
     }
-    return Text(name);
+    return Text(
+      name,
+      textScaleFactor: 1.2,
+    );
   }
 
   @override
