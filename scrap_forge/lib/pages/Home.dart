@@ -1,11 +1,14 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_svg/flutter_svg.dart';
+import 'package:scrap_forge/db_entities/product.dart';
 import 'package:scrap_forge/isar_service.dart';
+import 'package:scrap_forge/widgets/project_strip.dart';
+import 'package:scrap_forge/widgets/custom_grid_tile.dart';
 
 // import 'package:permission_handler/permission_handler.dart';
 
 class Home extends StatefulWidget {
   final ThemeData themeData;
-  final dbService = IsarService();
 
   Home({super.key, required this.themeData});
 
@@ -14,6 +17,9 @@ class Home extends StatefulWidget {
 }
 
 class _HomeState extends State<Home> {
+  final dbService = IsarService();
+  List<Product> recentlyViewed = List.generate(3, (index) => Product());
+
   // Future<void> requestAccess() async {
   //   Map<Permission, PermissionStatus> statuses = await [
   //     Permission.camera,
@@ -27,6 +33,19 @@ class _HomeState extends State<Home> {
   //   requestAccess();
   //   super.initState();
   // }
+  Future<void> getRecentProjects() async {
+    List<Product> projects = await dbService.getAllProducts();
+
+    setState(() {
+      recentlyViewed = projects;
+    });
+  }
+
+  @override
+  void initState() {
+    getRecentProjects();
+    super.initState();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -52,20 +71,31 @@ class _HomeState extends State<Home> {
                   mainAxisAlignment: MainAxisAlignment.start,
                   crossAxisAlignment: CrossAxisAlignment.stretch,
                   children: [
-                    Text("projekt1\n\n"),
-                    Text("projekt2\n\n"),
-                    Text("projekt3\n\n"),
+                    ...recentlyViewed
+                        .map((e) => ProjectStrip(product: e))
+                        .toList()
                   ],
                 ),
                 Expanded(
                   child: GridView.count(
                     crossAxisCount: 2,
+                    mainAxisSpacing: 20,
+                    crossAxisSpacing: 20,
                     children: [
-                      Container(
-                        child: Text("Projekty"),
+                      CustomGridTile(
+                        onPressed: () => {},
+                        title: "Projekty",
+                        background: Colors.red[400],
+                        child: SvgPicture.asset(
+                          'assets/image-placeholder.svg',
+                          fit: BoxFit.cover,
+                        ),
                       ),
-                      Container(
-                        child: Text("Materiały"),
+                      CustomGridTile(
+                        onPressed: () => {},
+                        title: "Materiały",
+                        child: Placeholder(),
+                        background: Colors.blueGrey,
                       ),
                     ],
                   ),

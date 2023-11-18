@@ -14,8 +14,8 @@ Future<void> main() async {
               themeData: ThemeData(
                 colorScheme: ColorScheme.fromSeed(
                     seedColor: Colors.red,
-                    background: Colors.white70,
-                    onBackground: Colors.black,
+                    background: Colors.grey[900],
+                    onBackground: Colors.white,
                     primary: Colors.red[600],
                     onPrimary: Colors.white,
                     primaryContainer: Colors.orange,
