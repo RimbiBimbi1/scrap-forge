@@ -4,14 +4,14 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:image/image.dart' as imgLib;
 import 'package:path_provider/path_provider.dart';
-import 'package:scrap_forge/measure_tool/BoundingTool.dart';
+import 'package:scrap_forge/measure_tool/bounding_tool.dart';
 
 import 'dart:math' as math;
-import 'package:scrap_forge/measure_tool/CornerScanner.dart';
-import 'package:scrap_forge/measure_tool/FramingTool.dart';
-import 'package:scrap_forge/measure_tool/ImageProcessor.dart';
-import 'package:scrap_forge/measure_tool/TriangleTexturer.dart';
-import 'package:scrap_forge/measure_tool/AutoBoundingBoxScanner.dart';
+import 'package:scrap_forge/measure_tool/corner_scanner.dart';
+import 'package:scrap_forge/measure_tool/framing_tool.dart';
+import 'package:scrap_forge/measure_tool/image_processor.dart';
+import 'package:scrap_forge/measure_tool/triangle_texturer.dart';
+import 'package:scrap_forge/measure_tool/auto_bounding_box_scanner.dart';
 
 class MeasureTool extends StatefulWidget {
   const MeasureTool({super.key});
@@ -21,6 +21,11 @@ class MeasureTool extends StatefulWidget {
 }
 
 class _MeasureToolState extends State<MeasureTool> {
+  final sheetWmm = 210;
+  final sheetHmm = 297;
+  final sheetWpx = 840;
+  final sheetHpx = 1188;
+
   imgLib.Image photo = imgLib.Image(width: 0, height: 0);
   List<imgLib.Image> imageHistory =
       List.of([imgLib.Image(width: 0, height: 0)]);
@@ -181,16 +186,13 @@ class _MeasureToolState extends State<MeasureTool> {
   }
 
   void crop() {
-    int a4Width = 840;
-    int a4Height = 1188;
-
     double imgW = imageHistory.last.width.toDouble();
     double imgH = imageHistory.last.height.toDouble();
     Size displaySize = _imageKey.currentContext?.size ?? const Size(0, 0);
     double displayW = displaySize.width;
     double displayH = displaySize.height;
 
-    imgLib.Image a4 = imgLib.Image(width: a4Width, height: a4Height);
+    imgLib.Image a4 = imgLib.Image(width: sheetWpx, height: sheetHpx);
 
     List<imgLib.Point> URTriangleTexture = [0, 1, 2]
         .map((i) => imgLib.Point(
@@ -203,12 +205,12 @@ class _MeasureToolState extends State<MeasureTool> {
         .toList();
     List<imgLib.Point> URTriangleResult = List.from([
       imgLib.Point(0, 0),
-      imgLib.Point(a4Width, 0),
-      imgLib.Point(a4Width, a4Height)
+      imgLib.Point(sheetWpx, 0),
+      imgLib.Point(sheetWpx, sheetHpx)
     ]);
     List<imgLib.Point> DLTriangleResult = List.from([
-      imgLib.Point(a4Width, a4Height),
-      imgLib.Point(0, a4Height),
+      imgLib.Point(sheetWpx, sheetHpx),
+      imgLib.Point(0, sheetHpx),
       imgLib.Point(0, 0)
     ]);
     // TriangleTexturer tt = TriangleTexturer(photo, a4, URTriangleTexture, URTriangleResult);
@@ -259,6 +261,25 @@ class _MeasureToolState extends State<MeasureTool> {
           .map((e) => Offset(e.x / imgW * displayW, e.y / imgH * displayH))
           .toList();
     });
+  }
+
+  void measure() {
+    Size displaySize = _imageKey.currentContext?.size ?? const Size(0, 0);
+    double displayW = displaySize.width;
+    double displayH = displaySize.height;
+    final realCorners = boundingCorners
+        .map((c) =>
+            Offset(c.dx / displayW * sheetWmm, c.dy / displayH * sheetHmm))
+        .toList();
+
+    List<double> dimensions = List.from([0.0, 0.0]);
+
+    for (final i in [0, 1]) {
+      double deltaX = realCorners[i + 1].dx - realCorners[i].dx;
+      double deltaY = realCorners[i + 1].dy - realCorners[i].dy;
+      dimensions[i] = math.sqrt(deltaX * deltaX + deltaY * deltaY);
+      print(dimensions[i]);
+    }
   }
 
   void clearHistory() {
@@ -402,6 +423,10 @@ class _MeasureToolState extends State<MeasureTool> {
                 FloatingActionButton(
                   onPressed: findBoundingBox,
                   child: Text("BBox"),
+                ),
+                FloatingActionButton(
+                  onPressed: measure,
+                  child: Text("Measure"),
                 ),
                 FloatingActionButton(
                   onPressed: undo,

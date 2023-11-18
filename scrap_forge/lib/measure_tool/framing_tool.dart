@@ -19,7 +19,10 @@ class FramingTool extends StatefulWidget {
 
 class _FramingToolState extends State<FramingTool> {
   Offset magnifierPosition = Offset.zero;
-  int movingCorner = -1;
+  int activeCorner = -1;
+
+  final Color defaultColor = Colors.white;
+  final focusColor = Colors.amber;
 
   Size _getSize() {
     final size = widget.imageKey.currentContext!.size;
@@ -47,12 +50,12 @@ class _FramingToolState extends State<FramingTool> {
     }
 
     setState(() {
-      movingCorner = i;
+      activeCorner = i;
     });
   }
 
   void calcMagnifierPosition(DragUpdateDetails details) {
-    Offset current = widget.points[movingCorner];
+    Offset current = widget.points[activeCorner];
 
     Offset newPosition = current + details.delta;
 
@@ -73,7 +76,7 @@ class _FramingToolState extends State<FramingTool> {
     }
 
     setState(() {
-      widget.points[movingCorner] = newPosition;
+      widget.points[activeCorner] = newPosition;
     });
   }
 
@@ -94,8 +97,12 @@ class _FramingToolState extends State<FramingTool> {
         GestureDetector(
           onPanStart: getClosestCorner,
           onPanUpdate: calcMagnifierPosition,
-          onPanEnd: (DragEndDetails details) =>
-              {widget.setCorners(widget.points)},
+          onPanEnd: (DragEndDetails details) => {
+            widget.setCorners(widget.points),
+            setState(() {
+              activeCorner = -1;
+            })
+          },
         ),
         ...widget.points.map((e) => Positioned(
             left: e.dx - magnifierRadius,
@@ -103,14 +110,18 @@ class _FramingToolState extends State<FramingTool> {
             child: const RawMagnifier(
               decoration: MagnifierDecoration(
                 shape: CircleBorder(
-                  side: BorderSide(color: Colors.red, width: 2),
+                  side: BorderSide(color: Colors.white, width: 2),
                 ),
               ),
               size: Size(magnifierRadius * 2, magnifierRadius * 2),
               magnificationScale: 2,
             ))),
         CustomPaint(
-          painter: FramePainter(points: widget.points),
+          painter: FramePainter(
+              points: widget.points,
+              activeCorner: activeCorner,
+              defaultColor: defaultColor,
+              focusColor: focusColor),
         )
       ],
     );
@@ -119,18 +130,26 @@ class _FramingToolState extends State<FramingTool> {
 
 class FramePainter extends CustomPainter {
   final List<Offset> points;
+  final activeCorner;
+  final defaultColor;
+  final focusColor;
 
-  FramePainter({required this.points});
+  FramePainter(
+      {required this.points,
+      required this.activeCorner,
+      required this.defaultColor,
+      required this.focusColor});
 
   @override
   void paint(Canvas canvas, Size size) {
-    final paint = Paint()
-      ..color = Colors.red
-      ..strokeWidth = 2;
+    for (int i = 0; i < points.length; i++) {
+      final j = (i + 1) % points.length;
 
-    canvas.drawLine(points.last, points[0], paint);
-    for (int i = 1; i < points.length; i++) {
-      canvas.drawLine(points[i - 1], points[i], paint);
+      final paint = Paint()
+        ..color = defaultColor
+        ..strokeWidth = 2;
+
+      canvas.drawLine(points[i], points[j], paint);
     }
   }
 

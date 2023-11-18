@@ -23,6 +23,9 @@ class _FramingToolState extends State<BoundingTool> {
   Offset magnifierPosition = Offset.zero;
   int activeArea = -1;
 
+  final Color defaultColor = Colors.white;
+  final focusColor = Colors.amber;
+
   List<List<double>> linearCoefficients = List.empty();
 
   Size _getSize() {
@@ -150,7 +153,6 @@ class _FramingToolState extends State<BoundingTool> {
   @override
   Widget build(BuildContext context) {
     // widget.setCorners(points);
-
     return Stack(
       children: [
         GestureDetector(
@@ -163,20 +165,24 @@ class _FramingToolState extends State<BoundingTool> {
             })
           },
         ),
-        ...widget.points.map((e) => Positioned(
-            left: e.dx - magnifierRadius,
-            top: e.dy - magnifierRadius,
-            child: const RawMagnifier(
-              decoration: MagnifierDecoration(
-                shape: CircleBorder(
-                  side: BorderSide(color: Colors.red, width: 2),
-                ),
-              ),
-              size: Size(magnifierRadius * 2, magnifierRadius * 2),
-              magnificationScale: 2,
-            ))),
+        // ...widget.points.map((e) => Positioned(
+        //     left: e.dx - magnifierRadius,
+        //     top: e.dy - magnifierRadius,
+        //     child: const RawMagnifier(
+        //       decoration: MagnifierDecoration(
+        //         shape: CircleBorder(
+        //           side: BorderSide(color: Colors.white, width: 2),
+        //         ),
+        //       ),
+        //       size: Size(magnifierRadius * 2, magnifierRadius * 2),
+        //       magnificationScale: 2,
+        //     ))),
         CustomPaint(
-          painter: FramePainter(points: widget.points),
+          painter: FramePainter(
+              points: widget.points,
+              activeArea: activeArea,
+              defaultColor: defaultColor,
+              focusColor: focusColor),
         )
       ],
     );
@@ -185,18 +191,28 @@ class _FramingToolState extends State<BoundingTool> {
 
 class FramePainter extends CustomPainter {
   final List<Offset> points;
+  final activeArea;
+  final defaultColor;
+  final focusColor;
 
-  FramePainter({required this.points});
+  FramePainter(
+      {required this.points,
+      required this.activeArea,
+      required this.defaultColor,
+      required this.focusColor});
 
   @override
   void paint(Canvas canvas, Size size) {
-    final paint = Paint()
-      ..color = Colors.red
-      ..strokeWidth = 2;
+    for (int i = 0; i < points.length; i++) {
+      final j = (i + 1) % points.length;
 
-    canvas.drawLine(points.last, points[0], paint);
-    for (int i = 1; i < points.length; i++) {
-      canvas.drawLine(points[i - 1], points[i], paint);
+      final color =
+          (activeArea == 4 || i == activeArea) ? focusColor : defaultColor;
+      final paint = Paint()
+        ..color = color
+        ..strokeWidth = 2;
+
+      canvas.drawLine(points[i], points[j], paint);
     }
   }
 

@@ -1,12 +1,50 @@
 import 'package:flutter/material.dart';
-import 'package:scrap_forge/measure_tool/MeasureTool.dart';
+import 'package:scrap_forge/isar_service.dart';
 
-import 'package:scrap_forge/views/Home.dart';
+import 'package:scrap_forge/pages/home.dart';
+import 'package:scrap_forge/pages/loading.dart';
 
-void main() => runApp(const MaterialApp(
-      // home: Home(),
-      home: MeasureTool(),
-    ));
+Future<void> main() async {
+  return runApp(
+    MaterialApp(
+      initialRoute: '/home',
+      routes: {
+        '/': (context) => Loading(),
+        '/home': (context) => Home(
+              themeData: ThemeData(
+                colorScheme: ColorScheme.fromSeed(
+                    seedColor: Colors.red,
+                    background: Colors.grey[900],
+                    onBackground: Colors.white,
+                    primary: Colors.red[600],
+                    onPrimary: Colors.white,
+                    primaryContainer: Colors.orange,
+                    secondary: Colors.grey[900],
+                    onSecondary: Colors.white,
+                    tertiary: Colors.amber,
+                    tertiaryContainer: Colors.amberAccent),
+                textTheme: const TextTheme(
+                  displayLarge: TextStyle(
+                    fontSize: 50,
+                    fontWeight: FontWeight.bold,
+                  ),
+                  displayMedium: TextStyle(
+                    fontSize: 40,
+                    fontWeight: FontWeight.normal,
+                  ),
+                  displaySmall: TextStyle(
+                    fontSize: 25,
+                    fontWeight: FontWeight.normal,
+                  ),
+                ),
+              ),
+            ),
+      },
+      // home: MeasureTool(),
+    ),
+  );
+}
+
 
 // void main() {
 //   runApp(BaseflowPluginExample(
