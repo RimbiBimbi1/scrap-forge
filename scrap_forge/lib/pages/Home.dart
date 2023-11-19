@@ -5,7 +5,6 @@ import 'package:scrap_forge/isar_service.dart';
 import 'package:scrap_forge/widgets/custom_tile.dart';
 import 'package:scrap_forge/widgets/home_section.dart';
 import 'package:scrap_forge/widgets/project_strip.dart';
-import 'package:scrap_forge/widgets/custom_grid_tile.dart';
 
 // import 'package:permission_handler/permission_handler.dart';
 
@@ -104,7 +103,7 @@ class _HomeState extends State<Home> {
                     ),
                     CustomTile(
                       onPressed: () {},
-                      background: Colors.grey[700],
+                      background: Colors.grey[800],
                       color: Colors.white,
                       title: "W trakcie realizacji",
                       child: SvgPicture.asset(
@@ -152,7 +151,7 @@ class _HomeState extends State<Home> {
                     ),
                     CustomTile(
                       onPressed: () {},
-                      background: Colors.grey[700],
+                      background: Colors.grey[800],
                       color: Colors.white,
                       title: "Gotowe do użycia",
                       child: SvgPicture.asset(
