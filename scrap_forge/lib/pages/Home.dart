@@ -2,8 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:scrap_forge/db_entities/product.dart';
 import 'package:scrap_forge/isar_service.dart';
+import 'package:scrap_forge/widgets/custom_tile.dart';
+import 'package:scrap_forge/widgets/home_section.dart';
 import 'package:scrap_forge/widgets/project_strip.dart';
-import 'package:scrap_forge/widgets/custom_grid_tile.dart';
 
 // import 'package:permission_handler/permission_handler.dart';
 
@@ -52,6 +53,7 @@ class _HomeState extends State<Home> {
     return Theme(
       data: widget.themeData,
       child: Scaffold(
+        backgroundColor: Colors.grey[900],
         appBar: AppBar(
           title: const Text("Moja kuźnia"),
           actions: [
@@ -76,30 +78,172 @@ class _HomeState extends State<Home> {
                         .toList()
                   ],
                 ),
-                Expanded(
-                  child: GridView.count(
-                    crossAxisCount: 2,
-                    mainAxisSpacing: 20,
-                    crossAxisSpacing: 20,
-                    children: [
-                      CustomGridTile(
-                        onPressed: () => {},
-                        title: "Projekty",
-                        background: Colors.red[400],
-                        child: SvgPicture.asset(
-                          'assets/image-placeholder.svg',
-                          fit: BoxFit.cover,
-                        ),
-                      ),
-                      CustomGridTile(
-                        onPressed: () => {},
-                        title: "Materiały",
-                        child: Placeholder(),
-                        background: Colors.blueGrey,
-                      ),
-                    ],
+                HomeSection(
+                  header: const Text(
+                    "Projekty",
+                    style: TextStyle(
+                      color: Colors.red,
+                      letterSpacing: 0.5,
+                    ),
+                    textScaleFactor: 1.2,
                   ),
+                  children: [
+                    CustomTile(
+                      onPressed: () {},
+                      background: Colors.grey[800],
+                      color: Colors.white,
+                      title: "Ukończone",
+                      child: SvgPicture.asset(
+                        'assets/image-placeholder.svg',
+                        fit: BoxFit.fill,
+                      ),
+                    ),
+                    const Spacer(
+                      flex: 1,
+                    ),
+                    CustomTile(
+                      onPressed: () {},
+                      background: Colors.grey[800],
+                      color: Colors.white,
+                      title: "W trakcie realizacji",
+                      child: SvgPicture.asset(
+                        'assets/image-placeholder.svg',
+                        fit: BoxFit.fill,
+                      ),
+                    ),
+                    const Spacer(
+                      flex: 1,
+                    ),
+                    CustomTile(
+                      onPressed: () {},
+                      background: Colors.grey[800],
+                      color: Colors.white,
+                      title: "Planowane",
+                      child: SvgPicture.asset(
+                        'assets/image-placeholder.svg',
+                        fit: BoxFit.fill,
+                      ),
+                    ),
+                  ],
                 ),
+                HomeSection(
+                  header: const Text(
+                    "Materiały",
+                    style: TextStyle(
+                      color: Colors.red,
+                      letterSpacing: 0.5,
+                    ),
+                    textScaleFactor: 1.2,
+                  ),
+                  children: [
+                    CustomTile(
+                      onPressed: () {},
+                      background: Colors.grey[800],
+                      color: Colors.white,
+                      title: "Już wykorzystane",
+                      child: SvgPicture.asset(
+                        'assets/image-placeholder.svg',
+                        fit: BoxFit.fill,
+                      ),
+                    ),
+                    const Spacer(
+                      flex: 1,
+                    ),
+                    CustomTile(
+                      onPressed: () {},
+                      background: Colors.grey[800],
+                      color: Colors.white,
+                      title: "Gotowe do użycia",
+                      child: SvgPicture.asset(
+                        'assets/image-placeholder.svg',
+                        fit: BoxFit.fill,
+                      ),
+                    ),
+                    const Spacer(
+                      flex: 1,
+                    ),
+                    CustomTile(
+                      onPressed: () {},
+                      background: Colors.grey[800],
+                      color: Colors.white,
+                      title: "Brakujące",
+                      child: SvgPicture.asset(
+                        'assets/image-placeholder.svg',
+                        fit: BoxFit.fill,
+                      ),
+                    ),
+                  ],
+                ),
+
+                // Column(
+                //   crossAxisAlignment: CrossAxisAlignment.start,
+                //   children: [
+                //     const Padding(
+                //       padding:
+                //           EdgeInsets.symmetric(vertical: 10, horizontal: 0),
+                //       child: Text(
+                //         "Projekty",
+                //         textScaleFactor: 1.2,
+                //       ),
+                //     ),
+                //     Row(
+                //       children: [
+                //         CustomTile(
+                //           onPressed: () {},
+                //           background: Colors.grey[800],
+                //           color: Colors.white,
+                //           title: "Ukończone",
+                //           child: SvgPicture.asset(
+                //             'assets/image-placeholder.svg',
+                //             fit: BoxFit.fill,
+                //           ),
+                //         ),
+                //         const Spacer(
+                //           flex: 1,
+                //         ),
+                //         CustomTile(
+                //           onPressed: () {},
+                //           background: Colors.grey[800],
+                //           color: Colors.white,
+                //           title: "W trakcie realizacji",
+                //           child: SvgPicture.asset(
+                //             'assets/image-placeholder.svg',
+                //             fit: BoxFit.fill,
+                //           ),
+                //         ),
+                //         const Spacer(
+                //           flex: 1,
+                //         ),
+                //         CustomTile(
+                //           onPressed: () {},
+                //           background: Colors.grey[800],
+                //           color: Colors.white,
+                //           title: "Planowane",
+                //           child: SvgPicture.asset(
+                //             'assets/image-placeholder.svg',
+                //             fit: BoxFit.fill,
+                //           ),
+                //         ),
+                //       ],
+                //     ),
+                //   ],
+                // ),
+                // Column(
+                //   crossAxisAlignment: CrossAxisAlignment.start,
+                //   children: [
+                //     const Padding(
+                //       padding:
+                //           EdgeInsets.symmetric(vertical: 10, horizontal: 0),
+                //       child: Text(
+                //         "Materiały",
+                //         textScaleFactor: 1.2,
+                //       ),
+                //     ),
+                //     Row(
+                //       children: [],
+                //     ),
+                //   ],
+                // ),
               ],
             ),
           ),
