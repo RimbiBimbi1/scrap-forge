@@ -21,9 +21,9 @@ class _ProductEditorState extends State<ProductEditor> {
   final _formKey = GlobalKey<FormState>();
 
   ProductDTO edited = ProductDTO(
-    photos: List.empty(),
-    madeFromIds: List.empty(),
-    usedInIds: List.empty(),
+    photos: List.empty(growable: true),
+    madeFromIds: List.empty(growable: true),
+    usedInIds: List.empty(growable: true),
   );
 
   Future<Uint8List> fromXFile(XFile file) async {
@@ -53,7 +53,7 @@ class _ProductEditorState extends State<ProductEditor> {
       Uint8List bytes = await image.readAsBytes();
       ProductDTO copy = ProductDTO.copy(edited);
 
-      copy.photos.add(await image.readAsBytes());
+      copy.photos.add(bytes);
       setState(() {
         this.edited = copy;
       });
@@ -134,105 +134,140 @@ class _ProductEditorState extends State<ProductEditor> {
                   type: TextInputType.multiline,
                   maxLines: null,
                 ),
-                const Text(
-                  "Zdjęcia:",
-                  textScaleFactor: 1.2,
-                  style: TextStyle(color: Colors.white),
-                ),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.end,
+                Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Flexible(
-                      flex: 10,
-                      child: OutlinedButton(
-                        onPressed: () {
-                          pickImagesFromGallery();
-                        },
-                        child:
-                            Icon(IconData(0xe057, fontFamily: 'MaterialIcons')),
-                      ),
+                    const Text(
+                      "Zdjęcia:",
+                      textScaleFactor: 1.2,
+                      style: TextStyle(color: Colors.white),
                     ),
-                    Spacer(
-                      flex: 1,
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.end,
+                      children: [
+                        Flexible(
+                          flex: 10,
+                          child: OutlinedButton(
+                            onPressed: () {
+                              pickImagesFromGallery();
+                            },
+                            child: Icon(
+                                IconData(0xe057, fontFamily: 'MaterialIcons')),
+                          ),
+                        ),
+                        Spacer(
+                          flex: 1,
+                        ),
+                        Flexible(
+                          flex: 10,
+                          child: OutlinedButton(
+                            onPressed: () {
+                              pickImageFromCamera();
+                            },
+                            child: Icon(
+                                IconData(0xe048, fontFamily: 'MaterialIcons')),
+                          ),
+                        ),
+                      ],
                     ),
-                    Flexible(
-                      flex: 10,
-                      child: OutlinedButton(
-                        onPressed: () {
-                          pickImageFromCamera();
-                        },
-                        child:
-                            Icon(IconData(0xe048, fontFamily: 'MaterialIcons')),
+                    SizedBox(
+                      height: (edited.photos.isNotEmpty) ? 200 : 0,
+                      child: ListView(
+                        shrinkWrap: true,
+                        scrollDirection: Axis.horizontal,
+                        children: [
+                          ...edited.photos.map(
+                            (bytes) => Padding(
+                              padding: const EdgeInsets.all(4.0),
+                              child: Container(
+                                height: 200,
+                                width: 135,
+                                clipBehavior: Clip.hardEdge,
+                                decoration: BoxDecoration(
+                                  borderRadius:
+                                      BorderRadius.all(Radius.circular(8)),
+                                  image: DecorationImage(
+                                      image: MemoryImage(bytes),
+                                      fit: BoxFit.cover),
+                                ),
+                              ),
+                            ),
+                          ),
+
+                          // child: Image(image: MemoryImage(bytes))))
+                        ],
                       ),
                     ),
                   ],
                 ),
-                // ListView(
-                //   scrollDirection: Axis.horizontal,
-                // ),
-                const Text(
-                  "Wymiary (w mm):",
-                  textScaleFactor: 1.2,
-                  style: TextStyle(color: Colors.white),
-                ),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Flexible(
-                      child: CustomTextField(
-                        label: "Długość:",
-                        initialValue: edited.length,
-                        onSaved: (value) {
-                          ProductDTO copy = ProductDTO.copy(edited);
-                          copy.length = value;
-                          setState(() {
-                            this.edited = copy;
-                          });
-                        },
-                        type: TextInputType.number,
-                      ),
+                    const Text(
+                      "Wymiary (w mm):",
+                      textScaleFactor: 1.2,
+                      style: TextStyle(color: Colors.white),
                     ),
-                    Flexible(
-                      child: CustomTextField(
-                        label: "Szerokość:",
-                        initialValue: edited.width,
-                        onSaved: (value) {
-                          ProductDTO copy = ProductDTO.copy(edited);
-                          copy.width = value;
-                          setState(() {
-                            this.edited = copy;
-                          });
-                        },
-                        type: TextInputType.number,
-                      ),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Flexible(
+                          child: CustomTextField(
+                            label: "Długość:",
+                            initialValue: edited.length,
+                            onSaved: (value) {
+                              ProductDTO copy = ProductDTO.copy(edited);
+                              copy.length = value;
+                              setState(() {
+                                this.edited = copy;
+                              });
+                            },
+                            type: TextInputType.number,
+                          ),
+                        ),
+                        Flexible(
+                          child: CustomTextField(
+                            label: "Szerokość:",
+                            initialValue: edited.width,
+                            onSaved: (value) {
+                              ProductDTO copy = ProductDTO.copy(edited);
+                              copy.width = value;
+                              setState(() {
+                                this.edited = copy;
+                              });
+                            },
+                            type: TextInputType.number,
+                          ),
+                        ),
+                        Flexible(
+                          child: CustomTextField(
+                            label: "Wysokość:",
+                            initialValue: edited.height,
+                            onSaved: (value) {
+                              ProductDTO copy = ProductDTO.copy(edited);
+                              copy.height = value;
+                              setState(() {
+                                this.edited = copy;
+                              });
+                            },
+                            type: TextInputType.number,
+                          ),
+                        )
+                      ],
                     ),
-                    Flexible(
-                      child: CustomTextField(
-                        label: "Wysokość:",
-                        initialValue: edited.height,
-                        onSaved: (value) {
-                          ProductDTO copy = ProductDTO.copy(edited);
-                          copy.height = value;
-                          setState(() {
-                            this.edited = copy;
-                          });
-                        },
-                        type: TextInputType.number,
-                      ),
-                    )
+                    CustomTextField(
+                      label: "Powierzchnia rzutu:",
+                      initialValue: edited.projectionArea,
+                      onSaved: (value) {
+                        ProductDTO copy = ProductDTO.copy(edited);
+                        copy.projectionArea = value;
+                        setState(() {
+                          this.edited = copy;
+                        });
+                      },
+                      type: TextInputType.number,
+                    ),
                   ],
-                ),
-                CustomTextField(
-                  label: "Powierzchnia rzutu:",
-                  initialValue: edited.projectionArea,
-                  onSaved: (value) {
-                    ProductDTO copy = ProductDTO.copy(edited);
-                    copy.projectionArea = value;
-                    setState(() {
-                      this.edited = copy;
-                    });
-                  },
-                  type: TextInputType.number,
                 ),
                 CustomTextField(
                   label: "Wykonany z:",
