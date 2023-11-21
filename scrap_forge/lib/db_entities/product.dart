@@ -26,4 +26,6 @@ class Product {
   int? width;
   int? height;
   int? projectionArea;
+
+  int? number;
 }

@@ -1,7 +1,11 @@
+import 'dart:convert';
+import 'dart:typed_data';
+
 import 'package:isar/isar.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:scrap_forge/db_entities/photo.dart';
 import 'package:scrap_forge/db_entities/product.dart';
+import 'package:scrap_forge/db_entities/product_dto.dart';
 
 class IsarService {
   late Future<Isar> db;
@@ -10,10 +14,32 @@ class IsarService {
     db = openDB();
   }
 
-  Future<void> saveProduct(Product newProduct) async {
+  // Future<Photo> savePhoto(Uint8List bytes) async {
+  //   final isar = await db;
+  //   final photo = Photo()..imgData = base64Encode(bytes);
+
+  //   return await isar
+  //       .writeTxn(() async => photo..id = await isar.photos.put(photo));
+  // }
+
+  Future<void> saveProduct(Product product) async {
     final isar = await db;
-    isar.writeTxnSync<int>(() => isar.products.putSync(newProduct));
+    // List<Photo> imageIDs = List.empty(growable: true);
+    // for (final bytes in product.photos) {
+    //   imageIDs.add((await savePhoto(bytes)));
+    // }
+
+    // isar.photos.putAllSync(images);
+
+    isar.writeTxnSync(() async => {await isar.products.put(product)});
+
+    //To do
   }
+
+  // Future<void> saveProduct(Product newProduct) async {
+  //   final isar = await db;
+  //   isar.writeTxnSync<int>(() => isar.products.putSync(newProduct));
+  // }
 
   Future<List<Product>> getAllProducts() async {
     final isar = await db;

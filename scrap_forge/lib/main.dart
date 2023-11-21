@@ -3,11 +3,12 @@ import 'package:scrap_forge/isar_service.dart';
 
 import 'package:scrap_forge/pages/home.dart';
 import 'package:scrap_forge/pages/loading.dart';
+import 'package:scrap_forge/pages/product_editor.dart';
 
 Future<void> main() async {
   return runApp(
     MaterialApp(
-      initialRoute: '/home',
+      initialRoute: '/productEditor',
       routes: {
         '/': (context) => Loading(),
         '/home': (context) => Home(
@@ -39,6 +40,7 @@ Future<void> main() async {
                 ),
               ),
             ),
+        '/productEditor': (context) => ProductEditor()
       },
       // home: MeasureTool(),
     ),

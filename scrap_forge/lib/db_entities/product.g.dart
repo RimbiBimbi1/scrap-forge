@@ -57,13 +57,18 @@ const ProductSchema = CollectionSchema(
       name: r'name',
       type: IsarType.string,
     ),
-    r'projectionArea': PropertySchema(
+    r'number': PropertySchema(
       id: 8,
+      name: r'number',
+      type: IsarType.long,
+    ),
+    r'projectionArea': PropertySchema(
+      id: 9,
       name: r'projectionArea',
       type: IsarType.long,
     ),
     r'width': PropertySchema(
-      id: 9,
+      id: 10,
       name: r'width',
       type: IsarType.long,
     )
@@ -143,8 +148,9 @@ void _productSerialize(
   writer.writeBool(offsets[5], object.isMaterial);
   writer.writeLong(offsets[6], object.length);
   writer.writeString(offsets[7], object.name);
-  writer.writeLong(offsets[8], object.projectionArea);
-  writer.writeLong(offsets[9], object.width);
+  writer.writeLong(offsets[8], object.number);
+  writer.writeLong(offsets[9], object.projectionArea);
+  writer.writeLong(offsets[10], object.width);
 }
 
 Product _productDeserialize(
@@ -163,8 +169,9 @@ Product _productDeserialize(
   object.isMaterial = reader.readBoolOrNull(offsets[5]);
   object.length = reader.readLongOrNull(offsets[6]);
   object.name = reader.readStringOrNull(offsets[7]);
-  object.projectionArea = reader.readLongOrNull(offsets[8]);
-  object.width = reader.readLongOrNull(offsets[9]);
+  object.number = reader.readLongOrNull(offsets[8]);
+  object.projectionArea = reader.readLongOrNull(offsets[9]);
+  object.width = reader.readLongOrNull(offsets[10]);
   return object;
 }
 
@@ -194,6 +201,8 @@ P _productDeserializeProp<P>(
     case 8:
       return (reader.readLongOrNull(offset)) as P;
     case 9:
+      return (reader.readLongOrNull(offset)) as P;
+    case 10:
       return (reader.readLongOrNull(offset)) as P;
     default:
       throw IsarError('Unknown property with id $propertyId');
@@ -1092,6 +1101,75 @@ extension ProductQueryFilter
     });
   }
 
+  QueryBuilder<Product, Product, QAfterFilterCondition> numberIsNull() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(const FilterCondition.isNull(
+        property: r'number',
+      ));
+    });
+  }
+
+  QueryBuilder<Product, Product, QAfterFilterCondition> numberIsNotNull() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(const FilterCondition.isNotNull(
+        property: r'number',
+      ));
+    });
+  }
+
+  QueryBuilder<Product, Product, QAfterFilterCondition> numberEqualTo(
+      int? value) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.equalTo(
+        property: r'number',
+        value: value,
+      ));
+    });
+  }
+
+  QueryBuilder<Product, Product, QAfterFilterCondition> numberGreaterThan(
+    int? value, {
+    bool include = false,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.greaterThan(
+        include: include,
+        property: r'number',
+        value: value,
+      ));
+    });
+  }
+
+  QueryBuilder<Product, Product, QAfterFilterCondition> numberLessThan(
+    int? value, {
+    bool include = false,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.lessThan(
+        include: include,
+        property: r'number',
+        value: value,
+      ));
+    });
+  }
+
+  QueryBuilder<Product, Product, QAfterFilterCondition> numberBetween(
+    int? lower,
+    int? upper, {
+    bool includeLower = true,
+    bool includeUpper = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.between(
+        property: r'number',
+        lower: lower,
+        includeLower: includeLower,
+        upper: upper,
+        includeUpper: includeUpper,
+      ));
+    });
+  }
+
   QueryBuilder<Product, Product, QAfterFilterCondition> projectionAreaIsNull() {
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(const FilterCondition.isNull(
@@ -1505,6 +1583,18 @@ extension ProductQuerySortBy on QueryBuilder<Product, Product, QSortBy> {
     });
   }
 
+  QueryBuilder<Product, Product, QAfterSortBy> sortByNumber() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'number', Sort.asc);
+    });
+  }
+
+  QueryBuilder<Product, Product, QAfterSortBy> sortByNumberDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'number', Sort.desc);
+    });
+  }
+
   QueryBuilder<Product, Product, QAfterSortBy> sortByProjectionArea() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'projectionArea', Sort.asc);
@@ -1640,6 +1730,18 @@ extension ProductQuerySortThenBy
     });
   }
 
+  QueryBuilder<Product, Product, QAfterSortBy> thenByNumber() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'number', Sort.asc);
+    });
+  }
+
+  QueryBuilder<Product, Product, QAfterSortBy> thenByNumberDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'number', Sort.desc);
+    });
+  }
+
   QueryBuilder<Product, Product, QAfterSortBy> thenByProjectionArea() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'projectionArea', Sort.asc);
@@ -1718,6 +1820,12 @@ extension ProductQueryWhereDistinct
     });
   }
 
+  QueryBuilder<Product, Product, QDistinct> distinctByNumber() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addDistinctBy(r'number');
+    });
+  }
+
   QueryBuilder<Product, Product, QDistinct> distinctByProjectionArea() {
     return QueryBuilder.apply(this, (query) {
       return query.addDistinctBy(r'projectionArea');
@@ -1784,6 +1892,12 @@ extension ProductQueryProperty
   QueryBuilder<Product, String?, QQueryOperations> nameProperty() {
     return QueryBuilder.apply(this, (query) {
       return query.addPropertyName(r'name');
+    });
+  }
+
+  QueryBuilder<Product, int?, QQueryOperations> numberProperty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addPropertyName(r'number');
     });
   }
 
