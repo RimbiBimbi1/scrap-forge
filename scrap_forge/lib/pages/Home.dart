@@ -19,7 +19,8 @@ class Home extends StatefulWidget {
 
 class _HomeState extends State<Home> {
   final dbService = IsarService();
-  List<Product> recentlyViewed = List.generate(3, (index) => Product());
+
+  List<Product> recentlyViewed = List.empty();
 
   // Future<void> requestAccess() async {
   //   Map<Permission, PermissionStatus> statuses = await [

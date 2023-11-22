@@ -24,6 +24,7 @@ class _ProjectStripState extends State<ProjectStrip> {
 
   Future<void> getImage() async {
     String? data;
+
     if (widget.product.photos.isEmpty) {
       return;
     }

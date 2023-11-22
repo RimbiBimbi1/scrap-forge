@@ -6,6 +6,7 @@ import 'package:image_picker/image_picker.dart';
 import 'package:isar/isar.dart';
 import 'package:scrap_forge/db_entities/product.dart';
 import 'package:scrap_forge/db_entities/product_dto.dart';
+import 'package:scrap_forge/isar_service.dart';
 import 'package:scrap_forge/widgets/custom_text_field.dart';
 
 class ProductEditor extends StatefulWidget {
@@ -18,13 +19,25 @@ class ProductEditor extends StatefulWidget {
 }
 
 class _ProductEditorState extends State<ProductEditor> {
+  IsarService db = IsarService();
+
   final _formKey = GlobalKey<FormState>();
 
-  ProductDTO edited = ProductDTO(
-    photos: List.empty(growable: true),
-    madeFromIds: List.empty(growable: true),
-    usedInIds: List.empty(growable: true),
-  );
+  final nameController = TextEditingController();
+  final descriptionController = TextEditingController();
+  final categoryController = TextEditingController();
+  final lengthController = TextEditingController();
+  final widthController = TextEditingController();
+  final heightController = TextEditingController();
+  final areaController = TextEditingController();
+
+  List<Uint8List> photos = List.empty();
+
+  // ProductDTO edited = ProductDTO(
+  //   photos: List.empty(growable: true),
+  //   madeFromIds: List.empty(growable: true),
+  //   usedInIds: List.empty(growable: true),
+  // );
 
   Future<Uint8List> fromXFile(XFile file) async {
     return await file.readAsBytes();
@@ -36,11 +49,12 @@ class _ProductEditorState extends State<ProductEditor> {
     List<Uint8List> bytes =
         await Future.wait(images.map((img) => img.readAsBytes()));
 
-    if (images.isNotEmpty) {
-      ProductDTO copy = ProductDTO.copy(edited);
-      copy.photos.addAll(bytes);
+    if (bytes.isNotEmpty) {
+      // ProductDTO copy = ProductDTO.copy(edited);
+      // copy.photos.addAll(bytes);
+
       setState(() {
-        this.edited = copy;
+        this.photos = List.from([...this.photos, ...bytes]);
       });
     }
   }
@@ -51,25 +65,25 @@ class _ProductEditorState extends State<ProductEditor> {
 
     if (image != null) {
       Uint8List bytes = await image.readAsBytes();
-      ProductDTO copy = ProductDTO.copy(edited);
+      // ProductDTO copy = ProductDTO.copy(edited);
 
-      copy.photos.add(bytes);
+      // copy.photos.add(bytes);
       setState(() {
-        this.edited = copy;
+        this.photos = List.from([...this.photos, bytes]);
       });
     }
   }
 
-  @override
-  void initState() {
-    if (widget.edit != null) {
-      Product p = widget.edit!;
-      setState(() async {
-        this.edited = await ProductDTO.fromProduct(p);
-      });
-    }
-    super.initState();
-  }
+  // @override
+  // void initState() {
+  //   if (widget.edit != null) {
+  //     Product p = widget.edit!;
+  //     setState(() async {
+  //       // this.edited = await ProductDTO.fromProduct(p);
+  //     });
+  //   }
+  //   super.initState();
+  // }
 
   Text label(String text) => Text(
         text,
@@ -101,36 +115,39 @@ class _ProductEditorState extends State<ProductEditor> {
               children: [
                 CustomTextField(
                   label: "Nazwa:",
-                  initialValue: edited.name,
-                  onSaved: (value) {
-                    ProductDTO copy = ProductDTO.copy(edited);
-                    copy.name = value;
-                    setState(() {
-                      this.edited = copy;
-                    });
-                  },
+                  // initialValue: edited.name,
+                  controller: nameController,
+                  // onSaved: (value) {
+                  //   ProductDTO copy = ProductDTO.copy(edited);
+                  //   copy.name = value;
+                  //   setState(() {
+                  //     this.edited = copy;
+                  //   });
+                  // },
                 ),
                 CustomTextField(
                   label: "Kategoria:",
-                  initialValue: edited.category,
-                  onSaved: (value) {
-                    ProductDTO copy = ProductDTO.copy(edited);
-                    copy.category = value;
-                    setState(() {
-                      this.edited = copy;
-                    });
-                  },
+                  // initialValue: edited.category,
+                  controller: categoryController,
+                  // onSaved: (value) {
+                  //   ProductDTO copy = ProductDTO.copy(edited);
+                  //   copy.category = value;
+                  //   setState(() {
+                  //     this.edited = copy;
+                  //   });
+                  // },
                 ),
                 CustomTextField(
                   label: "Opis:",
-                  initialValue: edited.description,
-                  onSaved: (value) {
-                    ProductDTO copy = ProductDTO.copy(edited);
-                    copy.description = value;
-                    setState(() {
-                      this.edited = copy;
-                    });
-                  },
+                  // initialValue: edited.description,
+                  controller: descriptionController,
+                  // onSaved: (value) {
+                  //   ProductDTO copy = ProductDTO.copy(edited);
+                  //   copy.description = value;
+                  //   setState(() {
+                  //     this.edited = copy;
+                  //   });
+                  // },
                   type: TextInputType.multiline,
                   maxLines: null,
                 ),
@@ -171,12 +188,12 @@ class _ProductEditorState extends State<ProductEditor> {
                       ],
                     ),
                     SizedBox(
-                      height: (edited.photos.isNotEmpty) ? 200 : 0,
+                      height: (photos.isNotEmpty) ? 200 : 0,
                       child: ListView(
                         shrinkWrap: true,
                         scrollDirection: Axis.horizontal,
                         children: [
-                          ...edited.photos.map(
+                          ...photos.map(
                             (bytes) => Padding(
                               padding: const EdgeInsets.all(4.0),
                               child: Container(
@@ -193,8 +210,6 @@ class _ProductEditorState extends State<ProductEditor> {
                               ),
                             ),
                           ),
-
-                          // child: Image(image: MemoryImage(bytes))))
                         ],
                       ),
                     ),
@@ -214,42 +229,45 @@ class _ProductEditorState extends State<ProductEditor> {
                         Flexible(
                           child: CustomTextField(
                             label: "Długość:",
-                            initialValue: edited.length,
-                            onSaved: (value) {
-                              ProductDTO copy = ProductDTO.copy(edited);
-                              copy.length = value;
-                              setState(() {
-                                this.edited = copy;
-                              });
-                            },
+                            // initialValue: edited.length,
+                            controller: lengthController,
+                            // onSaved: (value) {
+                            //   ProductDTO copy = ProductDTO.copy(edited);
+                            //   copy.length = value;
+                            //   setState(() {
+                            //     this.edited = copy;
+                            //   });
+                            // },
                             type: TextInputType.number,
                           ),
                         ),
                         Flexible(
                           child: CustomTextField(
                             label: "Szerokość:",
-                            initialValue: edited.width,
-                            onSaved: (value) {
-                              ProductDTO copy = ProductDTO.copy(edited);
-                              copy.width = value;
-                              setState(() {
-                                this.edited = copy;
-                              });
-                            },
+                            // initialValue: edited.width,
+                            controller: widthController,
+                            // onSaved: (value) {
+                            //   ProductDTO copy = ProductDTO.copy(edited);
+                            //   copy.width = value;
+                            //   setState(() {
+                            //     this.edited = copy;
+                            //   });
+                            // },
                             type: TextInputType.number,
                           ),
                         ),
                         Flexible(
                           child: CustomTextField(
                             label: "Wysokość:",
-                            initialValue: edited.height,
-                            onSaved: (value) {
-                              ProductDTO copy = ProductDTO.copy(edited);
-                              copy.height = value;
-                              setState(() {
-                                this.edited = copy;
-                              });
-                            },
+                            // initialValue: edited.height,
+                            controller: heightController,
+                            // onSaved: (value) {
+                            //   ProductDTO copy = ProductDTO.copy(edited);
+                            //   copy.height = value;
+                            //   setState(() {
+                            //     this.edited = copy;
+                            //   });
+                            // },
                             type: TextInputType.number,
                           ),
                         )
@@ -257,33 +275,48 @@ class _ProductEditorState extends State<ProductEditor> {
                     ),
                     CustomTextField(
                       label: "Powierzchnia rzutu:",
-                      initialValue: edited.projectionArea,
-                      onSaved: (value) {
-                        ProductDTO copy = ProductDTO.copy(edited);
-                        copy.projectionArea = value;
-                        setState(() {
-                          this.edited = copy;
-                        });
-                      },
+                      // initialValue: edited.projectionArea,
+                      controller: areaController,
+                      // onSaved: (value) {
+                      //   ProductDTO copy = ProductDTO.copy(edited);
+                      //   copy.projectionArea = value;
+                      //   setState(() {
+                      //     this.edited = copy;
+                      //   });
+                      // },
                       type: TextInputType.number,
                     ),
                   ],
                 ),
                 CustomTextField(
                   label: "Wykonany z:",
-                  onSaved: (value) {},
-                  // onSaved: (value) {
-                  //   setState(() {
-                  //     madeFrom = value;
-                  //   });
-                  // },
+                  controller: TextEditingController(),
+                  // onSaved: (value) {},
+                  // // onSaved: (value) {
+                  // //   setState(() {
+                  // //     madeFrom = value;
+                  // //   });
+                  // // },
                   type: TextInputType.number,
                 ),
                 ElevatedButton(
                   onPressed: () {
                     if (_formKey.currentState != null) {
                       if (_formKey.currentState!.validate()) {
-                        _formKey.currentState!.save();
+                        Product p = ProductDTO(
+                          name: nameController.text,
+                          description: descriptionController.text,
+                          category: categoryController.text,
+                          photos: photos,
+                          length: lengthController.text,
+                          width: widthController.text,
+                          height: heightController.text,
+                          projectionArea: areaController.text,
+                          madeFromIds: List.empty(),
+                          usedInIds: List.empty(),
+                        ).toProduct();
+
+                        db.saveProduct(p);
                       }
                     }
                   },

@@ -4,14 +4,14 @@ class CustomTextField extends StatelessWidget {
   String label;
   TextInputType type;
   int? maxLines;
-  String initialValue;
-  final onSaved;
+  String? initialValue;
+  TextEditingController controller;
 
   CustomTextField(
       {super.key,
       required this.label,
-      required this.onSaved,
-      this.initialValue = "",
+      required this.controller,
+      this.initialValue,
       this.type = TextInputType.text,
       this.maxLines = 1});
 
@@ -20,8 +20,9 @@ class CustomTextField extends StatelessWidget {
     return Padding(
       padding: const EdgeInsets.fromLTRB(0, 8, 0, 8),
       child: TextFormField(
+        controller: controller,
         initialValue: initialValue,
-        onSaved: onSaved,
+        // onSaved: onSaved,
         keyboardType: type,
         maxLines: maxLines,
         style: const TextStyle(

@@ -24,6 +24,8 @@ class IsarService {
 
   Future<void> saveProduct(Product product) async {
     final isar = await db;
+
+    // Product product = dto.toProduct();
     // List<Photo> imageIDs = List.empty(growable: true);
     // for (final bytes in product.photos) {
     //   imageIDs.add((await savePhoto(bytes)));
@@ -31,7 +33,14 @@ class IsarService {
 
     // isar.photos.putAllSync(images);
 
-    isar.writeTxnSync(() async => {await isar.products.put(product)});
+    // await isar.writeTxn(() async => {
+    //       await isar.products.put(product),
+    //       // await isar.photos.putAll(dto.photos),
+    //       for (final photo in product.photos) {await isar.photos.put(photo)},
+    //       await product.photos.save()
+    //     });
+
+    isar.writeTxnSync(() => isar.products.putSync(product));
 
     //To do
   }
