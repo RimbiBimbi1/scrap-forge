@@ -36,7 +36,7 @@ class _HomeState extends State<Home> {
   //   super.initState();
   // }
   Future<void> getRecentProjects() async {
-    List<Product> projects = await dbService.getAllProducts();
+    List<Product> projects = await dbService.getNewestProducts(3);
 
     setState(() {
       recentlyViewed = projects;
@@ -65,10 +65,10 @@ class _HomeState extends State<Home> {
         body: SafeArea(
           child: Padding(
             padding: const EdgeInsets.all(8.0),
-            child: Column(
+            child: ListView(
               // child: Image(image: AssetImage('assets/40.jpg')),
-              mainAxisAlignment: MainAxisAlignment.start,
-              crossAxisAlignment: CrossAxisAlignment.stretch,
+              // mainAxisAlignment: MainAxisAlignment.start,
+              // crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
                 Column(
                   mainAxisAlignment: MainAxisAlignment.start,

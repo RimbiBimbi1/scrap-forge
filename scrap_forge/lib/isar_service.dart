@@ -55,6 +55,15 @@ class IsarService {
     return await isar.products.where().findAll();
   }
 
+  Future<List<Product>> getNewestProducts(int number) async {
+    final isar = await db;
+    return await isar.products
+        .where()
+        .sortByAddedTimestamp()
+        .limit(number)
+        .findAll();
+  }
+
   Stream<List<Product>> listenToProducts() async* {
     final isar = await db;
     yield* isar.products.where().watch(fireImmediately: true);
