@@ -1,5 +1,8 @@
+import 'package:flutter/material.dart';
 import 'package:image/image.dart' as imgLib;
 import 'dart:math' as math;
+
+import 'package:scrap_forge/measure_tool/image_processor.dart';
 
 class AutoBoundingBoxScanner {
   imgLib.Image original;
@@ -22,6 +25,8 @@ class AutoBoundingBoxScanner {
             x + horizontalMargin, y + verticalMargin, image.getPixel(x, y));
       }
     }
+
+    result = ImageProcessor(result).getFloodfilled();
 
     return result;
   }
@@ -131,7 +136,7 @@ class AutoBoundingBoxScanner {
           result.setPixel(x, y,
               image.getPixel(pixelVector[0].round(), pixelVector[1].round()));
         } else {
-          result.setPixelRgb(x, y, 0, 0, 0);
+          result.setPixelRgb(x, y, 255, 255, 255);
         }
       }
     }
@@ -151,7 +156,7 @@ class AutoBoundingBoxScanner {
 
     for (int y = 0; y < h; y++) {
       for (int x = 0; x < w; x++) {
-        if (0 < binImage.getPixel(x, y).r) {
+        if (0 == binImage.getPixel(x, y).r) {
           List<double> pixelVector =
               matrixXVector(rotationMatrix, [x.toDouble(), y.toDouble(), 1]);
           if (0 <= pixelVector[0] &&
@@ -159,7 +164,7 @@ class AutoBoundingBoxScanner {
               0 <= pixelVector[1] &&
               pixelVector[1] < h) {
             result.setPixelRgb(
-                pixelVector[0].round(), pixelVector[1].round(), 255, 255, 255);
+                pixelVector[0].round(), pixelVector[1].round(), 0, 0, 0);
           }
         }
       }
@@ -175,7 +180,7 @@ class AutoBoundingBoxScanner {
 
     for (int y = 0; y < binImage.height; y++) {
       for (int x = 0; x < binImage.width; x++) {
-        if (binImage.getPixel(x, y).r == 255) {
+        if (binImage.getPixel(x, y).r == 0) {
           if (x < minX) minX = x;
           if (x > maxX) maxX = x;
           if (y < minY) minY = y;
@@ -256,7 +261,7 @@ class AutoBoundingBoxScanner {
               x < binImage.width &&
               0 <= (y + e) &&
               (y + e) < binImage.height &&
-              binImage.getPixel(x, y + e).r == 255) {
+              binImage.getPixel(x, y + e).r == 0) {
             found = true;
           }
         }
@@ -283,7 +288,7 @@ class AutoBoundingBoxScanner {
               (x + e) < binImage.width &&
               0 <= y &&
               y < binImage.height &&
-              binImage.getPixel(x + e, y).r == 255) {
+              binImage.getPixel(x + e, y).r == 0) {
             found = true;
           }
         }
@@ -429,18 +434,18 @@ class AutoBoundingBoxScanner {
     return offsetBoxCorners;
   }
 
-  static imgLib.Image drawPoint(imgLib.Image img, int x0, int y0, int size) {
-    for (int x = -size; x < size; x++) {
-      for (int y = -size; y < size; y++) {
-        int x1 = x0 + x;
-        int y1 = y0 + y;
-        if (0 <= x1 && x1 < img.width && 0 <= y1 && y1 < img.height) {
-          img.setPixelRgb(x1, y1, 0, 255, 0);
-        }
-      }
-    }
-    return img;
-  }
+  // static imgLib.Image drawPoint(imgLib.Image img, int x0, int y0, int size) {
+  //   for (int x = -size; x < size; x++) {
+  //     for (int y = -size; y < size; y++) {
+  //       int x1 = x0 + x;
+  //       int y1 = y0 + y;
+  //       if (0 <= x1 && x1 < img.width && 0 <= y1 && y1 < img.height) {
+  //         img.setPixelRgb(x1, y1, 255, 0, 255);
+  //       }
+  //     }
+  //   }
+  //   return img;
+  // }
 
   // static List<imgLib.Point> getBoundingBoxCorners(imgLib.Image binImage) {
   //   imgLib.Image expanded = getExpandedToDiagonals(binImage);

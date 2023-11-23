@@ -22,6 +22,7 @@ class BoundingTool extends StatefulWidget {
 class _FramingToolState extends State<BoundingTool> {
   Offset magnifierPosition = Offset.zero;
   int activeArea = -1;
+  bool trivialMode = false;
 
   final Color defaultColor = Colors.white;
   final focusColor = Colors.amber;
@@ -51,18 +52,20 @@ class _FramingToolState extends State<BoundingTool> {
       [0.0, 0.0],
     ]);
 
-    //two points for two perpendicular axis directions
-    for (final i in [0, 1]) {
-      double a =
-          (points[i + 1].dy - points[i].dy) / (points[i + 1].dx - points[i].dx);
+    if (!trivialMode) {
+      //two points for two perpendicular axis directions
+      for (final i in [0, 1]) {
+        double a = (points[i + 1].dy - points[i].dy) /
+            (points[i + 1].dx - points[i].dx);
 
-      //two points for two offsets (0 degree monomials) of linear functions
-      for (final j in [0, 2]) {
-        int k = i + j;
-        double b = points[k].dy - points[k].dx * a;
+        //two points for two offsets (0 degree monomials) of linear functions
+        for (final j in [0, 2]) {
+          int k = i + j;
+          double b = points[k].dy - points[k].dx * a;
 
-        temp[k][0] = a;
-        temp[k][1] = b;
+          temp[k][0] = a;
+          temp[k][1] = b;
+        }
       }
     }
 
@@ -71,8 +74,17 @@ class _FramingToolState extends State<BoundingTool> {
     for (final (i, l) in temp.indexed) {
       int j = (i + 1) % 4;
 
-      double axisDistance =
-          (l[0] * x - y + l[1]).abs() / math.sqrt(l[0] * l[0] + 1);
+      double axisDistance;
+
+      if (!trivialMode) {
+        axisDistance = (l[0] * x - y + l[1]).abs() / math.sqrt(l[0] * l[0] + 1);
+      } else {
+        if (points[j].dx == points[i].dx) {
+          axisDistance = (x - points[i].dx).abs();
+        } else {
+          axisDistance = (y - points[i].dy).abs();
+        }
+      }
 
       double p1Distance2 = (x - points[i].dx) * (x - points[i].dx) +
           (y - points[i].dy) * (y - points[i].dy);
@@ -106,29 +118,46 @@ class _FramingToolState extends State<BoundingTool> {
     if (0 <= activeArea && activeArea < 4) {
       Offset finger = details.delta;
 
-      double bUpdated = finger.dy -
-          finger.dx * linearCoefficients[activeArea][0] +
-          linearCoefficients[activeArea][1];
-
       List<int> perpendicularEdges =
           List.from([(activeArea - 1) % 4, (activeArea + 1) % 4]);
 
       List<Offset> newPositions = List.empty(growable: true);
 
-      for (final i in perpendicularEdges) {
-        double x = (linearCoefficients[i][1] - bUpdated) /
-            (linearCoefficients[activeArea][0] - linearCoefficients[i][0]);
-        double y = linearCoefficients[activeArea][0] * x + bUpdated;
+      if (!trivialMode) {
+        double bUpdated = finger.dy -
+            finger.dx * linearCoefficients[activeArea][0] +
+            linearCoefficients[activeArea][1];
 
-        newPositions.add(Offset(x, y));
+        for (final i in perpendicularEdges) {
+          double x = (linearCoefficients[i][1] - bUpdated) /
+              (linearCoefficients[activeArea][0] - linearCoefficients[i][0]);
+          double y = linearCoefficients[activeArea][0] * x + bUpdated;
+
+          newPositions.add(Offset(x, y));
+        }
+        setState(() {
+          linearCoefficients[activeArea][1] = bUpdated;
+
+          widget.points[activeArea] = newPositions[0];
+          widget.points[(activeArea + 1) % 4] = newPositions[1];
+        });
+      } else {
+        int i = activeArea;
+        int j = (activeArea + 1) % 4;
+        Offset corner1 = widget.points[i];
+        Offset corner2 = widget.points[j];
+        if (corner1.dx == corner2.dx) {
+          newPositions.add(Offset(corner1.dx + finger.dx, corner1.dy));
+          newPositions.add(Offset(corner2.dx + finger.dx, corner2.dy));
+        } else {
+          newPositions.add(Offset(corner1.dx, corner1.dy + finger.dy));
+          newPositions.add(Offset(corner2.dx, corner2.dy + finger.dy));
+        }
+        setState(() {
+          widget.points[activeArea] = newPositions[0];
+          widget.points[(activeArea + 1) % 4] = newPositions[1];
+        });
       }
-
-      setState(() {
-        linearCoefficients[activeArea][1] = bUpdated;
-
-        widget.points[activeArea] = newPositions[0];
-        widget.points[(activeArea + 1) % 4] = newPositions[1];
-      });
     } else {
       setState(() {
         List<Offset> newCorners =
@@ -142,13 +171,16 @@ class _FramingToolState extends State<BoundingTool> {
     }
   }
 
-  // @override
-  // void initState() {
-  //   super.initState();
-  //   setState(() {
-  //     widget.points = widget.points;
-  //   });
-  // }
+  @override
+  void initState() {
+    super.initState();
+    if ((widget.points[1].dx - widget.points[0].dx == 0) ||
+        (widget.points[1].dy - widget.points[0].dy == 0)) {
+      setState(() {
+        trivialMode = true;
+      });
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
