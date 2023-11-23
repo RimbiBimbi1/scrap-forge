@@ -1,4 +1,6 @@
 import 'dart:math' as math;
+import 'dart:typed_data';
+import 'package:flutter/material.dart';
 import 'package:image/image.dart' as imgLib;
 
 class ImageProcessor {
@@ -10,6 +12,11 @@ class ImageProcessor {
   ImageProcessor(this.image) {
     w = image.width;
     h = image.height;
+  }
+
+  imgLib.Image resize(imgLib.Image image) {
+    return imgLib.copyResize(image,
+        width: (image.width / 4).round(), height: (image.height / 4).round());
   }
 
   imgLib.Image getExtendedImage(int frameWidth) {

@@ -3,6 +3,7 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:image/image.dart' as imgLib;
+import 'package:image_picker/image_picker.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:scrap_forge/measure_tool/bounding_tool.dart';
 
@@ -46,13 +47,24 @@ class _MeasureToolState extends State<MeasureTool> {
   //   }
   // }
 
-  Future<void> loadImage(path) async {
-    ByteData data = await rootBundle.load(path);
-    imgLib.Image? image = imgLib.decodeJpg(data.buffer.asUint8List());
-    if (image != null) {
+  Future<void> loadImage({String path = ""}) async {
+    imgLib.Image? img;
+    if (path != "") {
+      ByteData data = await rootBundle.load(path);
+      img = imgLib.decodeJpg(data.buffer.asUint8List());
+    } else {
+      XFile? image = await ImagePicker().pickImage(source: ImageSource.camera);
+      if (image != null) {
+        Uint8List bytes = await image.readAsBytes();
+        // ProductDTO copy = ProductDTO.copy(edited);
+        img = imgLib.decodeJpg(bytes);
+      }
+    }
+
+    if (img != null) {
       setState(() {
-        photo = image;
-        imageHistory.add(image);
+        photo = img!;
+        imageHistory.add(img);
       });
     }
   }
@@ -214,8 +226,8 @@ class _MeasureToolState extends State<MeasureTool> {
       imgLib.Point(0, 0)
     ]);
     // TriangleTexturer tt = TriangleTexturer(photo, a4, URTriangleTexture, URTriangleResult);
-    TriangleTexturer tt = TriangleTexturer(
-        imageHistory.last, a4, URTriangleTexture, URTriangleResult);
+    TriangleTexturer tt =
+        TriangleTexturer(photo, a4, URTriangleTexture, URTriangleResult);
 
     tt.texture();
 
@@ -299,7 +311,9 @@ class _MeasureToolState extends State<MeasureTool> {
   @override
   void initState() {
     super.initState();
-    loadImage('assets/binary1.jpg');
+    // loadImage(path: 'assets/mw_r_2_quarter.jpg');
+    loadImage(path: 'assets/binary1.jpg');
+    // loadImage();
   }
 
   @override

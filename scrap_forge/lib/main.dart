@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:scrap_forge/isar_service.dart';
+import 'package:scrap_forge/measure_tool/measure_tool.dart';
 
 import 'package:scrap_forge/pages/home.dart';
 import 'package:scrap_forge/pages/loading.dart';
@@ -9,7 +10,8 @@ Future<void> main() async {
   return runApp(
     MaterialApp(
       // initialRoute: '/productEditor',
-      initialRoute: '/home',
+      initialRoute: '/measure',
+      // initialRoute: '/home',
       routes: {
         '/': (context) => Loading(),
         '/home': (context) => Home(
@@ -41,7 +43,8 @@ Future<void> main() async {
                 ),
               ),
             ),
-        '/productEditor': (context) => ProductEditor()
+        '/productEditor': (context) => ProductEditor(),
+        '/measure': (context) => MeasureTool()
       },
       // home: MeasureTool(),
     ),
