@@ -380,10 +380,14 @@ class ImageProcessor {
     return floodfilled;
   }
 
-  // Future<Void> loadImage(String imgAsset) async {
-  //   ByteData data = await rootBundle.load(imgAsset);
-  //   processedImage = decodeImage(data.buffer.asUint8List())!;
-  // }
+  imgLib.Image getBinaryInversed() {
+    return imgLib.Image.fromBytes(
+        width: w,
+        height: h,
+        bytes: Uint8List.fromList(image.getBytes().map((e) => 255 - e).toList())
+            .buffer);
+  }
+
   imgLib.Image getInvariant() {
     print("getInvariant");
     imgLib.Image invariant = imgLib.Image(width: w, height: h);

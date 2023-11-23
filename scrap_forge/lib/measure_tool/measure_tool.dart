@@ -260,8 +260,10 @@ class _MeasureToolState extends State<MeasureTool> {
   // }
 
   void findBoundingBox() {
+    imgLib.Image inversed =
+        ImageProcessor(imageHistory.last).getBinaryInversed();
     List<imgLib.Point> scanned =
-        AutoBoundingBoxScanner.getBoundingBox(imageHistory.last);
+        AutoBoundingBoxScanner.getBoundingBox(inversed);
     double imgW = imageHistory.last.width.toDouble();
     double imgH = imageHistory.last.height.toDouble();
     Size displaySize = _imageKey.currentContext?.size ?? const Size(0, 0);
