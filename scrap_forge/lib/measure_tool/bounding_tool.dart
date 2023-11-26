@@ -29,6 +29,17 @@ class _FramingToolState extends State<BoundingTool> {
 
   List<List<double>> linearCoefficients = List.empty();
 
+  @override
+  void initState() {
+    super.initState();
+    if ((widget.points[1].dx - widget.points[0].dx == 0) ||
+        (widget.points[1].dy - widget.points[0].dy == 0)) {
+      setState(() {
+        trivialMode = true;
+      });
+    }
+  }
+
   Size _getSize() {
     final size = widget.imageKey.currentContext!.size;
     if (size != null) {
@@ -51,6 +62,21 @@ class _FramingToolState extends State<BoundingTool> {
       [0.0, 0.0],
       [0.0, 0.0],
     ]);
+
+    List<double> cornerDistances = List.empty(growable: true);
+
+    for (final p in points) {
+      double distance =
+          math.sqrt((p.dx - x) * (p.dx - x) + (p.dy - y) * (p.dy - y));
+      if (distance <= magnifierRadius) {
+        setState(() {
+          activeArea = 4;
+        });
+        return;
+      }
+
+      cornerDistances.add(distance);
+    }
 
     if (!trivialMode) {
       //two points for two perpendicular axis directions
@@ -86,17 +112,12 @@ class _FramingToolState extends State<BoundingTool> {
         }
       }
 
-      double p1Distance2 = (x - points[i].dx) * (x - points[i].dx) +
-          (y - points[i].dy) * (y - points[i].dy);
-      double p2Distance2 = (x - points[j].dx) * (x - points[j].dx) +
-          (y - points[j].dy) * (y - points[j].dy);
-
       double borderLength2 =
           (points[j].dx - points[i].dx) * (points[j].dx - points[i].dx) +
               (points[j].dy - points[i].dy) * (points[j].dy - points[i].dy);
 
-      if ((p1Distance2 < borderLength2) &&
-          (p2Distance2 < borderLength2) &&
+      if ((cornerDistances[i] < borderLength2) &&
+          (cornerDistances[j] < borderLength2) &&
           (axisDistance < magnifierRadius) &&
           (axisDistance < minAxisDistance)) {
         minAxisDistance = axisDistance;
@@ -104,9 +125,7 @@ class _FramingToolState extends State<BoundingTool> {
       }
     }
 
-    if (index == -1) {
-      index = 4;
-    }
+    if (activeArea == -1) index = 5;
 
     setState(() {
       activeArea = index;
@@ -114,71 +133,77 @@ class _FramingToolState extends State<BoundingTool> {
     });
   }
 
-  void calcMagnifierPositions(DragUpdateDetails details) {
-    if (0 <= activeArea && activeArea < 4) {
-      Offset finger = details.delta;
+  void stretch(DragUpdateDetails details) {
+    Offset finger = details.delta;
 
-      List<int> perpendicularEdges =
-          List.from([(activeArea - 1) % 4, (activeArea + 1) % 4]);
+    List<int> perpendicularEdges =
+        List.from([(activeArea - 1) % 4, (activeArea + 1) % 4]);
 
-      List<Offset> newPositions = List.empty(growable: true);
+    List<Offset> newPositions = List.empty(growable: true);
 
-      if (!trivialMode) {
-        double bUpdated = finger.dy -
-            finger.dx * linearCoefficients[activeArea][0] +
-            linearCoefficients[activeArea][1];
+    if (!trivialMode) {
+      double bUpdated = finger.dy -
+          finger.dx * linearCoefficients[activeArea][0] +
+          linearCoefficients[activeArea][1];
 
-        for (final i in perpendicularEdges) {
-          double x = (linearCoefficients[i][1] - bUpdated) /
-              (linearCoefficients[activeArea][0] - linearCoefficients[i][0]);
-          double y = linearCoefficients[activeArea][0] * x + bUpdated;
+      for (final i in perpendicularEdges) {
+        double x = (linearCoefficients[i][1] - bUpdated) /
+            (linearCoefficients[activeArea][0] - linearCoefficients[i][0]);
+        double y = linearCoefficients[activeArea][0] * x + bUpdated;
 
-          newPositions.add(Offset(x, y));
-        }
-        setState(() {
+        newPositions.add(Offset(x, y));
+      }
+      setState(
+        () {
           linearCoefficients[activeArea][1] = bUpdated;
 
           widget.points[activeArea] = newPositions[0];
           widget.points[(activeArea + 1) % 4] = newPositions[1];
-        });
-      } else {
-        int i = activeArea;
-        int j = (activeArea + 1) % 4;
-        Offset corner1 = widget.points[i];
-        Offset corner2 = widget.points[j];
-        if (corner1.dx == corner2.dx) {
-          newPositions.add(Offset(corner1.dx + finger.dx, corner1.dy));
-          newPositions.add(Offset(corner2.dx + finger.dx, corner2.dy));
-        } else {
-          newPositions.add(Offset(corner1.dx, corner1.dy + finger.dy));
-          newPositions.add(Offset(corner2.dx, corner2.dy + finger.dy));
-        }
-        setState(() {
-          widget.points[activeArea] = newPositions[0];
-          widget.points[(activeArea + 1) % 4] = newPositions[1];
-        });
-      }
+        },
+      );
     } else {
+      int i = activeArea;
+      int j = (activeArea + 1) % 4;
+      Offset corner1 = widget.points[i];
+      Offset corner2 = widget.points[j];
+      if (corner1.dx == corner2.dx) {
+        newPositions.add(Offset(corner1.dx + finger.dx, corner1.dy));
+        newPositions.add(Offset(corner2.dx + finger.dx, corner2.dy));
+      } else {
+        newPositions.add(Offset(corner1.dx, corner1.dy + finger.dy));
+        newPositions.add(Offset(corner2.dx, corner2.dy + finger.dy));
+      }
       setState(() {
-        List<Offset> newCorners =
-            widget.points.map((e) => e + details.delta).toList();
-
-        widget.points[0] = newCorners[0];
-        widget.points[1] = newCorners[1];
-        widget.points[2] = newCorners[2];
-        widget.points[3] = newCorners[3];
+        widget.points[activeArea] = newPositions[0];
+        widget.points[(activeArea + 1) % 4] = newPositions[1];
       });
     }
   }
 
-  @override
-  void initState() {
-    super.initState();
-    if ((widget.points[1].dx - widget.points[0].dx == 0) ||
-        (widget.points[1].dy - widget.points[0].dy == 0)) {
-      setState(() {
-        trivialMode = true;
-      });
+  void rotate(DragUpdateDetails details) {}
+
+  void move(DragUpdateDetails details) {
+    setState(() {
+      widget.points[0] += details.delta;
+      widget.points[1] += details.delta;
+      widget.points[2] += details.delta;
+      widget.points[3] += details.delta;
+    });
+  }
+
+  void calcMagnifierPositions(DragUpdateDetails details) {
+    switch (activeArea) {
+      case 0:
+      case 1:
+      case 2:
+      case 3:
+        stretch(details);
+        break;
+      case 4:
+        rotate(details);
+        break;
+      default:
+        move(details);
     }
   }
 
@@ -191,31 +216,43 @@ class _FramingToolState extends State<BoundingTool> {
           onPanStart: getActiveArea,
           onPanUpdate: calcMagnifierPositions,
           onPanEnd: (DragEndDetails details) => {
-            widget.setCorners(widget.points),
+            // widget.setCorners(widget.points),
             setState(() {
               activeArea = -1;
             })
           },
         ),
-        // ...widget.points.map((e) => Positioned(
-        //     left: e.dx - magnifierRadius,
-        //     top: e.dy - magnifierRadius,
-        //     child: const RawMagnifier(
-        //       decoration: MagnifierDecoration(
-        //         shape: CircleBorder(
-        //           side: BorderSide(color: Colors.white, width: 2),
-        //         ),
-        //       ),
-        //       size: Size(magnifierRadius * 2, magnifierRadius * 2),
-        //       magnificationScale: 2,
-        //     ))),
+        ...widget.points.map((e) => Positioned(
+            left: e.dx - magnifierRadius,
+            top: e.dy - magnifierRadius,
+            child: const RawMagnifier(
+              decoration: MagnifierDecoration(
+                shape: CircleBorder(
+                  side: BorderSide(color: Colors.white, width: 2),
+                ),
+              ),
+              size: Size(magnifierRadius * 2, magnifierRadius * 2),
+              magnificationScale: 2,
+            ))),
         CustomPaint(
           painter: FramePainter(
               points: widget.points,
               activeArea: activeArea,
               defaultColor: defaultColor,
               focusColor: focusColor),
-        )
+        ),
+        Padding(
+          padding: const EdgeInsets.all(8.0),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceAround,
+            children: [
+              FloatingActionButton(
+                onPressed: () => {widget.setCorners(widget.points)},
+                child: Text(">"),
+              ),
+            ],
+          ),
+        ),
       ],
     );
   }
@@ -239,7 +276,7 @@ class FramePainter extends CustomPainter {
       final j = (i + 1) % points.length;
 
       final color =
-          (activeArea == 4 || i == activeArea) ? focusColor : defaultColor;
+          (activeArea == 5 || i == activeArea) ? focusColor : defaultColor;
       final paint = Paint()
         ..color = color
         ..strokeWidth = 2;

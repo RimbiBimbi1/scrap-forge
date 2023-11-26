@@ -7,11 +7,12 @@ class FramingTool extends StatefulWidget {
   final List<Offset> points;
   final ValueSetter<List<Offset>> setCorners;
 
-  const FramingTool(
-      {super.key,
-      required this.imageKey,
-      required this.points,
-      required this.setCorners});
+  const FramingTool({
+    super.key,
+    required this.imageKey,
+    required this.points,
+    required this.setCorners,
+  });
 
   @override
   State<FramingTool> createState() => _FramingToolState();
@@ -93,12 +94,12 @@ class _FramingToolState extends State<FramingTool> {
     // widget.setCorners(points);
 
     return Stack(
+      // alignment: AlignmentDirectional.bottomCenter,
       children: [
         GestureDetector(
           onPanStart: getClosestCorner,
           onPanUpdate: calcMagnifierPosition,
           onPanEnd: (DragEndDetails details) => {
-            widget.setCorners(widget.points),
             setState(() {
               activeCorner = -1;
             })
@@ -122,7 +123,19 @@ class _FramingToolState extends State<FramingTool> {
               activeCorner: activeCorner,
               defaultColor: defaultColor,
               focusColor: focusColor),
-        )
+        ),
+        Padding(
+          padding: const EdgeInsets.all(8.0),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceAround,
+            children: [
+              FloatingActionButton(
+                onPressed: () => {widget.setCorners(widget.points)},
+                child: Text(">"),
+              ),
+            ],
+          ),
+        ),
       ],
     );
   }

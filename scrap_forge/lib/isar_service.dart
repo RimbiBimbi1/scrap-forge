@@ -1,11 +1,7 @@
-import 'dart:convert';
-import 'dart:typed_data';
-
 import 'package:isar/isar.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:scrap_forge/db_entities/photo.dart';
 import 'package:scrap_forge/db_entities/product.dart';
-import 'package:scrap_forge/db_entities/product_dto.dart';
 
 class IsarService {
   late Future<Isar> db;
@@ -71,7 +67,7 @@ class IsarService {
 
   Future<Product?> getProductOnThe(Photo photo) async {
     final isar = await db;
-    return await isar.products
+    return isar.products
         .filter()
         .photos((q) => q.idEqualTo(photo.id))
         .findFirstSync();
