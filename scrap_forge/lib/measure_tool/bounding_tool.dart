@@ -5,14 +5,16 @@ import 'dart:math' as math;
 const double magnifierRadius = 50;
 
 class BoundingTool extends StatefulWidget {
-  final imageKey;
   final List<Offset> points;
+  final Widget image;
+  final Size size;
   final ValueSetter<List<Offset>> setCorners;
 
   const BoundingTool(
       {super.key,
-      required this.imageKey,
+      required this.image,
       required this.points,
+      required this.size,
       required this.setCorners});
 
   @override
@@ -40,14 +42,6 @@ class _FramingToolState extends State<BoundingTool> {
     }
   }
 
-  Size _getSize() {
-    final size = widget.imageKey.currentContext!.size;
-    if (size != null) {
-      return size;
-    }
-    return const Size(0, 0);
-  }
-
   void getActiveArea(DragStartDetails details) {
     int index = -1;
 
@@ -68,13 +62,12 @@ class _FramingToolState extends State<BoundingTool> {
     for (final p in points) {
       double distance =
           math.sqrt((p.dx - x) * (p.dx - x) + (p.dy - y) * (p.dy - y));
-      if (distance <= magnifierRadius) {
+      if (distance < magnifierRadius) {
         setState(() {
           activeArea = 4;
         });
         return;
       }
-
       cornerDistances.add(distance);
     }
 
@@ -202,7 +195,7 @@ class _FramingToolState extends State<BoundingTool> {
       case 4:
         rotate(details);
         break;
-      default:
+      case 5:
         move(details);
     }
   }
@@ -210,47 +203,52 @@ class _FramingToolState extends State<BoundingTool> {
   @override
   Widget build(BuildContext context) {
     // widget.setCorners(points);
-    return Stack(
+    return Column(
+      mainAxisAlignment: MainAxisAlignment.center,
+      crossAxisAlignment: CrossAxisAlignment.center,
       children: [
-        GestureDetector(
-          onPanStart: getActiveArea,
-          onPanUpdate: calcMagnifierPositions,
-          onPanEnd: (DragEndDetails details) => {
-            // widget.setCorners(widget.points),
-            setState(() {
-              activeArea = -1;
-            })
-          },
-        ),
-        ...widget.points.map((e) => Positioned(
-            left: e.dx - magnifierRadius,
-            top: e.dy - magnifierRadius,
-            child: const RawMagnifier(
-              decoration: MagnifierDecoration(
-                shape: CircleBorder(
-                  side: BorderSide(color: Colors.white, width: 2),
-                ),
-              ),
-              size: Size(magnifierRadius * 2, magnifierRadius * 2),
-              magnificationScale: 2,
-            ))),
-        CustomPaint(
-          painter: FramePainter(
-              points: widget.points,
-              activeArea: activeArea,
-              defaultColor: defaultColor,
-              focusColor: focusColor),
-        ),
-        Padding(
-          padding: const EdgeInsets.all(8.0),
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.spaceAround,
+        SizedBox(
+          width: widget.size.width,
+          height: widget.size.height,
+          child: Stack(
             children: [
-              FloatingActionButton(
-                onPressed: () => {widget.setCorners(widget.points)},
-                child: Text(">"),
+              widget.image,
+              GestureDetector(
+                onPanStart: getActiveArea,
+                onPanUpdate: calcMagnifierPositions,
+                onPanEnd: (DragEndDetails details) => {
+                  // widget.setCorners(widget.points),
+                  setState(() {
+                    activeArea = -1;
+                  })
+                },
+              ),
+              ...widget.points.map((e) => Positioned(
+                  left: e.dx - magnifierRadius,
+                  top: e.dy - magnifierRadius,
+                  child: const RawMagnifier(
+                    decoration: MagnifierDecoration(
+                      shape: CircleBorder(
+                        side: BorderSide(color: Colors.white, width: 2),
+                      ),
+                    ),
+                    size: Size(magnifierRadius * 2, magnifierRadius * 2),
+                    magnificationScale: 1,
+                  ))),
+              CustomPaint(
+                painter: FramePainter(
+                    points: widget.points,
+                    activeArea: activeArea,
+                    defaultColor: defaultColor,
+                    focusColor: focusColor),
               ),
             ],
+          ),
+        ),
+        Flexible(
+          child: ElevatedButton(
+            onPressed: () => widget.setCorners(widget.points),
+            child: Text("Zatwierdź"),
           ),
         ),
       ],

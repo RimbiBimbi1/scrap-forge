@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
-import 'package:scrap_forge/measure_tool/measure_tool.dart';
 
 import 'package:scrap_forge/pages/home.dart';
 import 'package:scrap_forge/pages/loading.dart';
-import 'package:scrap_forge/pages/measurement.dart';
+
+import 'package:scrap_forge/pages/measurement_hub.dart';
 import 'package:scrap_forge/pages/product_editor.dart';
 
 Future<void> main() async {
@@ -44,7 +44,8 @@ Future<void> main() async {
               ),
             ),
         '/productEditor': (context) => ProductEditor(),
-        '/measure': (context) => Measurement()
+        '/measure': (context) => MeasurementHub(),
+        // '/framingTool': (context) => FramingTool(),
         // '/measure': (context) => MeasureTool()
       },
       // home: MeasureTool(),
