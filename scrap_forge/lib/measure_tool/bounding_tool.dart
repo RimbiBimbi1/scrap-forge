@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'dart:math' as math;
 
-const double magnifierRadius = 50;
+const double magnifierRadius = 25;
 
 class BoundingTool extends StatefulWidget {
   final List<Offset> points;
@@ -104,12 +104,18 @@ class _FramingToolState extends State<BoundingTool> {
         }
       }
 
-      double borderLength2 =
+      double borderLength = math.sqrt(
           (points[j].dx - points[i].dx) * (points[j].dx - points[i].dx) +
-              (points[j].dy - points[i].dy) * (points[j].dy - points[i].dy);
+              (points[j].dy - points[i].dy) * (points[j].dy - points[i].dy));
 
-      if ((cornerDistances[i] < borderLength2) &&
-          (cornerDistances[j] < borderLength2) &&
+      print(i);
+      print(axisDistance);
+      print(borderLength);
+      print(cornerDistances[i]);
+      print(cornerDistances[j]);
+
+      if ((cornerDistances[i] < borderLength) &&
+          (cornerDistances[j] < borderLength) &&
           (axisDistance < magnifierRadius) &&
           (axisDistance < minAxisDistance)) {
         minAxisDistance = axisDistance;
@@ -117,7 +123,7 @@ class _FramingToolState extends State<BoundingTool> {
       }
     }
 
-    if (activeArea == -1) index = 5;
+    if (index == -1) index = 5;
 
     setState(() {
       activeArea = index;
@@ -184,6 +190,7 @@ class _FramingToolState extends State<BoundingTool> {
   }
 
   void calcMagnifierPositions(DragUpdateDetails details) {
+    print(activeArea);
     switch (activeArea) {
       case 0:
       case 1:

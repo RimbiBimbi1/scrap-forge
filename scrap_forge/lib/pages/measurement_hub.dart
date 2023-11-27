@@ -204,9 +204,10 @@ class _MeasurementHubState extends State<MeasurementHub> {
     double displayH = MediaQuery.of(context).size.height * 0.75;
     double displayW = (imgW * displayH) / imgH;
 
-    Image displayImage(imgLib.Image image) {
+    Widget displayImage(imgLib.Image image) {
       List<int>? withHeader = imgLib.encodeJpg(image);
-      return Image(image: MemoryImage(Uint8List.fromList(withHeader)));
+      return Center(
+          child: Image(image: MemoryImage(Uint8List.fromList(withHeader))));
     }
 
     Widget renderContent() {

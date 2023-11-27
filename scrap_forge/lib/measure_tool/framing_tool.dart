@@ -6,7 +6,6 @@ import 'package:image/image.dart' as imgLib;
 const double magnifierRadius = 50;
 
 class FramingTool extends StatefulWidget {
-  // final imageKey;
   final Size size;
   final Widget image;
   final List<Offset> points;
@@ -15,7 +14,6 @@ class FramingTool extends StatefulWidget {
   const FramingTool({
     super.key,
     required this.size,
-    // required this.imageKey,
     required this.image,
     required this.points,
     required this.setCorners,
@@ -32,14 +30,6 @@ class _FramingToolState extends State<FramingTool> {
   final Color defaultColor = Colors.white;
   final focusColor = Colors.amber;
 
-  // Size _getSize() {
-  //   final size = widget.imageKey.currentContext!.size;
-  //   if (size != null) {
-  //     return size;
-  //   }
-  //   return const Size(0, 0);
-  // }
-
   void getClosestCorner(DragStartDetails details) {
     int i = 0;
     double minDistance2 = double.infinity;
@@ -47,7 +37,6 @@ class _FramingToolState extends State<FramingTool> {
 
     double x = details.localPosition.dx;
     double y = details.localPosition.dy;
-    // Offset position = Offset(x, y);
 
     for (final (index, p) in widget.points.indexed) {
       distance2 = (x - p.dx) * (x - p.dx) + (y - p.dy) * (y - p.dy);
@@ -66,8 +55,6 @@ class _FramingToolState extends State<FramingTool> {
     Offset current = widget.points[activeCorner];
 
     Offset newPosition = current + details.delta;
-
-    // Size widgetSize = _getSize();
 
     double maxXOffset = widget.size.width;
     double maxYOffset = widget.size.height;
@@ -88,18 +75,8 @@ class _FramingToolState extends State<FramingTool> {
     });
   }
 
-  // @override
-  // void initState() {
-  //   super.initState();
-  //   setState(() {
-  //     widget.points = widget.points;
-  //   });
-  // }
-
   @override
   Widget build(BuildContext context) {
-    // widget.setCorners(points);
-
     return Column(
       mainAxisAlignment: MainAxisAlignment.center,
       crossAxisAlignment: CrossAxisAlignment.center,
