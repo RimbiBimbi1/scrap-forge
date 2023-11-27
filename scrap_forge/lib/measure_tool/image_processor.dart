@@ -3,10 +3,6 @@ import 'dart:typed_data';
 import 'package:image/image.dart' as imgLib;
 
 class ImageProcessor {
-  // imgLib.Image image;
-
-  // ImageProcessor({required this.image});
-
   static imgLib.Image getResized(imgLib.Image image) {
     return imgLib.copyResize(image,
         width: (image.width / 4).round(), height: (image.height / 4).round());
@@ -43,7 +39,6 @@ class ImageProcessor {
       {int kernelRadius = 1, double sd = 1.4}) {
     int w = image.width;
     int h = image.height;
-    // imgLib.Image gb = getExtendedImage(kernelRadius);
     imgLib.Image gb = imgLib.Image(width: w, height: h);
 
     List<imgLib.Point> kernel = getKernel(kernelRadius);
@@ -98,20 +93,6 @@ class ImageProcessor {
     int h = image.height;
     imgLib.Image result = imgLib.Image(width: w, height: h);
 
-    // List<List<int>> Kx = [
-    //   [-1, 0, 1],
-    //   [-2, 0, 2],
-    //   [-1, 0, 1]
-    // ];
-    // List<List<int>> Ky = [
-    //   [1, 2, 1],
-    //   [0, 0, 0],
-    //   [-1, -2, -1]
-    // ];
-
-    // List<List<double>> xSobel = getDirectionalSobel(Kx);
-    // List<List<double>> ySobel = getDirectionalSobel(Ky);
-
     List<List<double>> G =
         List.generate(w, (int index) => List.generate(h, (int index) => 0.0));
 
@@ -143,15 +124,11 @@ class ImageProcessor {
 
   static List<List<double>> getDirectionalSobel(
       imgLib.Image image, List<List<int>> kernel) {
-    print("getDirectionalSobel");
     int w = image.width;
     int h = image.height;
-    //getextededimage
 
     List<List<double>> gradient =
         List.generate(w, (int index) => List.generate(h, (int index) => 0.0));
-
-    // imgLib.Image extended = getExtendedImage(1);
 
     for (int y = 1; y < h - 1; y++) {
       for (int x = 1; x < w - 1; x++) {
@@ -161,7 +138,6 @@ class ImageProcessor {
             gray += kernel[kx][ky] * image.getPixel(x - 1 + kx, y - 1 + ky).r;
           }
         }
-        // gradient[x][y] = math.min(255, math.max(0, gray));
         gradient[x][y] = gray;
       }
     }
@@ -171,7 +147,6 @@ class ImageProcessor {
 
   static imgLib.Image getNonMaxSuppressed(
       imgLib.Image image, List<List<double>> direction) {
-    print("getNonMaxSuppression");
     int w = image.width;
     int h = image.height;
 
@@ -423,7 +398,6 @@ class ImageProcessor {
   ) {
     int w = image.width;
     int h = image.height;
-    print("getInvariant");
     imgLib.Image invariant = imgLib.Image(width: w, height: h);
 
     num l = w * h;
@@ -469,9 +443,6 @@ class ImageProcessor {
         X[x][y] = X[x][y] - meanX;
         Y[x][y] = Y[x][y] - meanY;
         XY[x][y] = X[x][y] * Y[x][y];
-        // covXY += BigDecimal.parse(XY[x][y].toString());
-        // sumXabs += BigDecimal.parse(X[x][y].abs().toString());
-        // sumYabs += BigDecimal.parse(Y[x][y].abs().toString());
         covXY += XY[x][y];
         sumXabs += X[x][y].abs();
         sumYabs += Y[x][y].abs();

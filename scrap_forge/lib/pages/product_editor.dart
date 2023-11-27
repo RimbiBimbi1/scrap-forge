@@ -1,9 +1,7 @@
-import 'dart:ffi';
 import 'dart:typed_data';
 
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
-import 'package:isar/isar.dart';
 import 'package:scrap_forge/db_entities/product.dart';
 import 'package:scrap_forge/db_entities/product_dto.dart';
 import 'package:scrap_forge/isar_service.dart';
@@ -32,12 +30,6 @@ class _ProductEditorState extends State<ProductEditor> {
   final areaController = TextEditingController();
 
   List<Uint8List> photos = List.empty();
-
-  // ProductDTO edited = ProductDTO(
-  //   photos: List.empty(growable: true),
-  //   madeFromIds: List.empty(growable: true),
-  //   usedInIds: List.empty(growable: true),
-  // );
 
   Future<Uint8List> fromXFile(XFile file) async {
     return await file.readAsBytes();
@@ -74,17 +66,6 @@ class _ProductEditorState extends State<ProductEditor> {
     }
   }
 
-  // @override
-  // void initState() {
-  //   if (widget.edit != null) {
-  //     Product p = widget.edit!;
-  //     setState(() async {
-  //       // this.edited = await ProductDTO.fromProduct(p);
-  //     });
-  //   }
-  //   super.initState();
-  // }
-
   Text label(String text) => Text(
         text,
         style: TextStyle(color: Colors.white),
@@ -110,12 +91,9 @@ class _ProductEditorState extends State<ProductEditor> {
           child: Form(
             key: _formKey,
             child: ListView(
-              // shrinkWrap: true,
-              // crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 CustomTextField(
                   label: "Nazwa:",
-                  // initialValue: edited.name,
                   controller: nameController,
                   // onSaved: (value) {
                   //   ProductDTO copy = ProductDTO.copy(edited);

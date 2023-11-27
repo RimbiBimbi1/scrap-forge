@@ -8,7 +8,7 @@ import 'package:scrap_forge/measure_tool/auto_bounding_box_scanner.dart';
 import 'package:scrap_forge/measure_tool/bounding_tool.dart';
 import 'package:scrap_forge/measure_tool/corner_scanner.dart';
 import 'package:scrap_forge/measure_tool/framing_tool.dart';
-import 'package:scrap_forge/measure_tool/image_processor2.dart';
+import 'package:scrap_forge/measure_tool/image_processor.dart';
 import 'package:scrap_forge/measure_tool/triangle_texturer.dart';
 
 class MeasurementHub extends StatefulWidget {
@@ -220,7 +220,6 @@ class _MeasurementHubState extends State<MeasurementHub> {
           );
         case 'sheetDetected':
           return FramingTool(
-            // imageKey: _imageKey,
             points: sheetCorners,
             image: displayImage(displayed),
             size: Size(displayW, displayH),
@@ -247,25 +246,6 @@ class _MeasurementHubState extends State<MeasurementHub> {
               ),
             ],
           );
-
-        // case 'sheetDetection':
-        //   return [
-        //     Flexible(
-        //         flex: 10,
-        //         child: SizedBox(
-        //           height: MediaQuery.of(context).size.height * 0.75,
-        //           child: Stack(
-        //             alignment: Alignment.center,
-        //             children: [displayImage(originalPhoto)],
-        //           ),
-        //         )),
-        //     Flexible(
-        //       flex: 1,
-        //       child: FloatingActionButton(
-        //         onPressed: () => detectSheet(originalPhoto),
-        //       ),
-        //     ),
-        //   ];
       }
       return Placeholder();
     }

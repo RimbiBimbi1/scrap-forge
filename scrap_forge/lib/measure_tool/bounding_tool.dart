@@ -1,4 +1,3 @@
-import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'dart:math' as math;
 
@@ -202,7 +201,6 @@ class _FramingToolState extends State<BoundingTool> {
 
   @override
   Widget build(BuildContext context) {
-    // widget.setCorners(points);
     return Column(
       mainAxisAlignment: MainAxisAlignment.center,
       crossAxisAlignment: CrossAxisAlignment.center,
