@@ -108,12 +108,6 @@ class _FramingToolState extends State<BoundingTool> {
           (points[j].dx - points[i].dx) * (points[j].dx - points[i].dx) +
               (points[j].dy - points[i].dy) * (points[j].dy - points[i].dy));
 
-      print(i);
-      print(axisDistance);
-      print(borderLength);
-      print(cornerDistances[i]);
-      print(cornerDistances[j]);
-
       if ((cornerDistances[i] < borderLength) &&
           (cornerDistances[j] < borderLength) &&
           (axisDistance < magnifierRadius) &&
@@ -190,7 +184,6 @@ class _FramingToolState extends State<BoundingTool> {
   }
 
   void calcMagnifierPositions(DragUpdateDetails details) {
-    print(activeArea);
     switch (activeArea) {
       case 0:
       case 1:
