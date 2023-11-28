@@ -6,6 +6,7 @@ const double magnifierRadius = 25;
 class BoundingTool extends StatefulWidget {
   final List<Offset> points;
   final Widget image;
+  final double mmHeight;
   final Size size;
   final ValueSetter<List<Offset>> setCorners;
 
@@ -14,6 +15,7 @@ class BoundingTool extends StatefulWidget {
       required this.image,
       required this.points,
       required this.size,
+      required this.mmHeight,
       required this.setCorners});
 
   @override
@@ -232,8 +234,17 @@ class _FramingToolState extends State<BoundingTool> {
     }
   }
 
+  List<double> calculateDimensions() {
+    double ratio = widget.mmHeight / widget.size.height;
+    double dim1 = (widget.points[0] - widget.points[1]).distance * ratio;
+    double dim2 = (widget.points[1] - widget.points[2]).distance * ratio;
+
+    return List.from([dim1, dim2]);
+  }
+
   @override
   Widget build(BuildContext context) {
+    List<double> dimensions = calculateDimensions();
     return Column(
       mainAxisAlignment: MainAxisAlignment.center,
       crossAxisAlignment: CrossAxisAlignment.center,
@@ -277,9 +288,29 @@ class _FramingToolState extends State<BoundingTool> {
           ),
         ),
         Flexible(
-          child: ElevatedButton(
-            onPressed: () => widget.setCorners(widget.points),
-            child: Text("Zatwierdź"),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceAround,
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: [
+              Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    "Długość: ${dimensions[0].round()}mm",
+                    style: TextStyle(color: Colors.white),
+                  ),
+                  Text(
+                    "Szerokość: ${dimensions[1].round()}mm",
+                    style: TextStyle(color: Colors.white),
+                  ),
+                ],
+              ),
+              ElevatedButton(
+                onPressed: () => widget.setCorners(widget.points),
+                child: Text("Zatwierdź"),
+              ),
+            ],
           ),
         ),
       ],

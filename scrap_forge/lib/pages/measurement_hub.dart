@@ -216,8 +216,11 @@ class _MeasurementHubState extends State<MeasurementHub> {
           return BoundingTool(
             points: itemBoundingBox,
             image: displayImage(displayed),
+            mmHeight: sheetHmm.toDouble(),
             size: Size(displayW, displayH),
-            setCorners: (List<Offset> corners) {},
+            setCorners: (List<Offset> corners) {
+              // TO DO:
+            },
           );
         case 'sheetDetected':
           return FramingTool(
