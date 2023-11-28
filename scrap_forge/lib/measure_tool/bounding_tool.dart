@@ -58,12 +58,12 @@ class _FramingToolState extends State<BoundingTool> {
 
     List<double> cornerDistances = List.empty(growable: true);
 
-    for (final p in points) {
+    for (final (i, p) in points.indexed) {
       double distance =
           math.sqrt((p.dx - x) * (p.dx - x) + (p.dy - y) * (p.dy - y));
       if (distance < magnifierRadius) {
         setState(() {
-          activeArea = 4;
+          activeArea = 4 + i;
         });
         return;
       }
@@ -117,7 +117,7 @@ class _FramingToolState extends State<BoundingTool> {
       }
     }
 
-    if (index == -1) index = 5;
+    if (index == -1) index = 8;
 
     setState(() {
       activeArea = index;
@@ -172,7 +172,37 @@ class _FramingToolState extends State<BoundingTool> {
     }
   }
 
-  void rotate(DragUpdateDetails details) {}
+  void rotate(DragUpdateDetails details) {
+    List<Offset> points = widget.points;
+    int i = activeArea % 4;
+    Offset linePrecursor = widget.points[i] + details.delta;
+    Offset rectangleCenter = Offset(
+      (points[i].dx + points[(i + 2) % 4].dx) / 2,
+      (points[i].dy + points[(i + 2) % 4].dy) / 2,
+    );
+
+    Offset centerToCornerVector = points[i] - rectangleCenter;
+    Offset centerToNeighborVector = points[(i + 1) % 4] - rectangleCenter;
+    double rotationAngle = (linePrecursor - rectangleCenter).direction -
+        (centerToCornerVector).direction;
+
+    double sin = math.sin(rotationAngle);
+    double cos = math.cos(rotationAngle);
+
+    Offset cTCVRotated = Offset(
+        centerToCornerVector.dx * cos - centerToCornerVector.dy * sin,
+        centerToCornerVector.dx * sin + centerToCornerVector.dy * cos);
+    Offset cTNVRotated = Offset(
+        centerToNeighborVector.dx * cos - centerToNeighborVector.dy * sin,
+        centerToNeighborVector.dx * sin + centerToNeighborVector.dy * cos);
+
+    setState(() {
+      widget.points[i] = rectangleCenter + cTCVRotated;
+      widget.points[(i + 1) % 4] = rectangleCenter + cTNVRotated;
+      widget.points[(i + 2) % 4] = rectangleCenter - cTCVRotated;
+      widget.points[(i + 3) % 4] = rectangleCenter - cTNVRotated;
+    });
+  }
 
   void move(DragUpdateDetails details) {
     setState(() {
@@ -192,9 +222,12 @@ class _FramingToolState extends State<BoundingTool> {
         stretch(details);
         break;
       case 4:
+      case 5:
+      case 6:
+      case 7:
         rotate(details);
         break;
-      case 5:
+      case 8:
         move(details);
     }
   }
@@ -272,7 +305,7 @@ class FramePainter extends CustomPainter {
       final j = (i + 1) % points.length;
 
       final color =
-          (activeArea == 5 || i == activeArea) ? focusColor : defaultColor;
+          (activeArea == 8 || i == activeArea) ? focusColor : defaultColor;
       final paint = Paint()
         ..color = color
         ..strokeWidth = 2;
