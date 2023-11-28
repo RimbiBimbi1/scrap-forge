@@ -6,8 +6,7 @@ part 'photo.g.dart';
 @collection
 class Photo {
   Id id = Isar.autoIncrement; // you can also use id = null to auto increment
-  String? name;
-  String? path;
+  String? imgData;
 
   @Backlink(to: "photos")
   final product = IsarLink<Product>();

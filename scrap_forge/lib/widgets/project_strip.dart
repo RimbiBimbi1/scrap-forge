@@ -1,7 +1,10 @@
+import 'dart:convert';
 import 'dart:io';
+import 'dart:typed_data';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
+import 'package:isar/isar.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:scrap_forge/db_entities/product.dart';
 
@@ -14,34 +17,29 @@ class ProjectStrip extends StatefulWidget {
 }
 
 class _ProjectStripState extends State<ProjectStrip> {
-  File? image;
+  Widget thumbnail = SvgPicture.asset(
+    'assets/image-placeholder.svg',
+    fit: BoxFit.fill,
+  );
 
   Future<void> getImage() async {
-    String? imagePath;
+    String? data;
+
     if (widget.product.photos.isEmpty) {
       return;
     }
 
-    imagePath = widget.product.photos.first.path;
-    if (imagePath == null) {
-      return;
+    data = widget.product.photos.first.imgData;
+    if (data != null) {
+      Uint8List bytes = base64Decode(data);
+      setState(() {
+        thumbnail = Image(image: MemoryImage(bytes));
+      });
     }
+    return;
 
-    String dir = (await getApplicationDocumentsDirectory()).path;
-    File file = File('$dir/$imagePath');
-    setState(() {
-      image = file;
-    });
-  }
-
-  Widget displayImage() {
-    if (image == null) {
-      return SvgPicture.asset(
-        'assets/image-placeholder.svg',
-        fit: BoxFit.fill,
-      );
-    }
-    return Image.file(image!);
+    // String dir = (await getApplicationDocumentsDirectory()).path;
+    // File file = File('$dir/$imagePath');
   }
 
   Text displayName() {
@@ -68,15 +66,13 @@ class _ProjectStripState extends State<ProjectStrip> {
       child: Row(
         children: [
           SizedBox(
-            child: displayImage(),
             width: 60,
             height: 60,
+            child: thumbnail,
           ),
-          Container(
-            child: Padding(
-              padding: EdgeInsets.all(10),
-              child: displayName(),
-            ),
+          Padding(
+            padding: EdgeInsets.all(10),
+            child: displayName(),
           ),
         ],
       ),

@@ -10,14 +10,54 @@ class IsarService {
     db = openDB();
   }
 
-  Future<void> saveProduct(Product newProduct) async {
+  // Future<Photo> savePhoto(Uint8List bytes) async {
+  //   final isar = await db;
+  //   final photo = Photo()..imgData = base64Encode(bytes);
+
+  //   return await isar
+  //       .writeTxn(() async => photo..id = await isar.photos.put(photo));
+  // }
+
+  Future<void> saveProduct(Product product) async {
     final isar = await db;
-    isar.writeTxnSync<int>(() => isar.products.putSync(newProduct));
+
+    // Product product = dto.toProduct();
+    // List<Photo> imageIDs = List.empty(growable: true);
+    // for (final bytes in product.photos) {
+    //   imageIDs.add((await savePhoto(bytes)));
+    // }
+
+    // isar.photos.putAllSync(images);
+
+    // await isar.writeTxn(() async => {
+    //       await isar.products.put(product),
+    //       // await isar.photos.putAll(dto.photos),
+    //       for (final photo in product.photos) {await isar.photos.put(photo)},
+    //       await product.photos.save()
+    //     });
+
+    isar.writeTxnSync(() => isar.products.putSync(product));
+
+    //To do
   }
+
+  // Future<void> saveProduct(Product newProduct) async {
+  //   final isar = await db;
+  //   isar.writeTxnSync<int>(() => isar.products.putSync(newProduct));
+  // }
 
   Future<List<Product>> getAllProducts() async {
     final isar = await db;
     return await isar.products.where().findAll();
+  }
+
+  Future<List<Product>> getNewestProducts(int number) async {
+    final isar = await db;
+    return await isar.products
+        .where()
+        .sortByAddedTimestamp()
+        .limit(number)
+        .findAll();
   }
 
   Stream<List<Product>> listenToProducts() async* {
@@ -27,7 +67,7 @@ class IsarService {
 
   Future<Product?> getProductOnThe(Photo photo) async {
     final isar = await db;
-    return await isar.products
+    return isar.products
         .filter()
         .photos((q) => q.idEqualTo(photo.id))
         .findFirstSync();

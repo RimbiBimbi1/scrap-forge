@@ -1,18 +1,16 @@
 import 'dart:math' as math;
+import 'dart:typed_data';
 import 'package:image/image.dart' as imgLib;
 
 class ImageProcessor {
-  imgLib.Image image;
-
-  int w = 0;
-  int h = 0;
-
-  ImageProcessor(this.image) {
-    w = image.width;
-    h = image.height;
+  static imgLib.Image getResized(imgLib.Image image) {
+    return imgLib.copyResize(image,
+        width: (image.width / 4).round(), height: (image.height / 4).round());
   }
 
-  imgLib.Image getExtendedImage(int frameWidth) {
+  static imgLib.Image getExtendedImage(imgLib.Image image, int frameWidth) {
+    int w = image.width;
+    int h = image.height;
     imgLib.Image ext =
         imgLib.Image(width: w + (2 * frameWidth), height: h + (2 * frameWidth));
     for (int y = 0; y < h; y++) {
@@ -23,7 +21,9 @@ class ImageProcessor {
     return ext;
   }
 
-  imgLib.Image getGrayscale() {
+  static imgLib.Image getGrayscale(imgLib.Image image) {
+    int w = image.width;
+    int h = image.height;
     imgLib.Image gs = imgLib.Image(width: w, height: h);
     for (int y = 0; y < h; y++) {
       for (int x = 0; x < w; x++) {
@@ -35,8 +35,10 @@ class ImageProcessor {
     return gs;
   }
 
-  imgLib.Image getGaussianBlurred({int kernelRadius = 1, double sd = 1.4}) {
-    // imgLib.Image gb = getExtendedImage(kernelRadius);
+  static imgLib.Image getGaussianBlurred(imgLib.Image image,
+      {int kernelRadius = 1, double sd = 1.4}) {
+    int w = image.width;
+    int h = image.height;
     imgLib.Image gb = imgLib.Image(width: w, height: h);
 
     List<imgLib.Point> kernel = getKernel(kernelRadius);
@@ -68,7 +70,7 @@ class ImageProcessor {
     return gb;
   }
 
-  List<double> getGaussianKernelMultipliers(
+  static List<double> getGaussianKernelMultipliers(
       List<imgLib.Point> kernel, radius, sd) {
     List<double> gaussianKernel = List.empty(growable: true);
     double mulltiplier = 1 / (2 * math.pi * sd * sd);
@@ -85,23 +87,11 @@ class ImageProcessor {
     return gaussianKernel.map((e) => e / sum).toList();
   }
 
-  imgLib.Image getSobel(List<List<double>> xSobel, List<List<double>> ySobel) {
-    print("getSobel");
+  static imgLib.Image getSobel(imgLib.Image image, List<List<double>> xSobel,
+      List<List<double>> ySobel) {
+    int w = image.width;
+    int h = image.height;
     imgLib.Image result = imgLib.Image(width: w, height: h);
-
-    // List<List<int>> Kx = [
-    //   [-1, 0, 1],
-    //   [-2, 0, 2],
-    //   [-1, 0, 1]
-    // ];
-    // List<List<int>> Ky = [
-    //   [1, 2, 1],
-    //   [0, 0, 0],
-    //   [-1, -2, -1]
-    // ];
-
-    // List<List<double>> xSobel = getDirectionalSobel(Kx);
-    // List<List<double>> ySobel = getDirectionalSobel(Ky);
 
     List<List<double>> G =
         List.generate(w, (int index) => List.generate(h, (int index) => 0.0));
@@ -117,9 +107,10 @@ class ImageProcessor {
     return result;
   }
 
-  List<List<double>> getSobelDirection(
+  static List<List<double>> getSobelDirection(imgLib.Image image,
       List<List<double>> xSobel, List<List<double>> ySobel) {
-    print("getSobelDirection");
+    int w = image.width;
+    int h = image.height;
     List<List<double>> direction =
         List.generate(w, (int index) => List.generate(h, (int index) => 0.0));
 
@@ -131,14 +122,13 @@ class ImageProcessor {
     return direction;
   }
 
-  List<List<double>> getDirectionalSobel(List<List<int>> kernel) {
-    print("getDirectionalSobel");
-    //getextededimage
+  static List<List<double>> getDirectionalSobel(
+      imgLib.Image image, List<List<int>> kernel) {
+    int w = image.width;
+    int h = image.height;
 
     List<List<double>> gradient =
         List.generate(w, (int index) => List.generate(h, (int index) => 0.0));
-
-    // imgLib.Image extended = getExtendedImage(1);
 
     for (int y = 1; y < h - 1; y++) {
       for (int x = 1; x < w - 1; x++) {
@@ -148,7 +138,6 @@ class ImageProcessor {
             gray += kernel[kx][ky] * image.getPixel(x - 1 + kx, y - 1 + ky).r;
           }
         }
-        // gradient[x][y] = math.min(255, math.max(0, gray));
         gradient[x][y] = gray;
       }
     }
@@ -156,8 +145,10 @@ class ImageProcessor {
     return gradient;
   }
 
-  imgLib.Image getNonMaxSuppression(List<List<double>> direction) {
-    print("getNonMaxSuppression");
+  static imgLib.Image getNonMaxSuppressed(
+      imgLib.Image image, List<List<double>> direction) {
+    int w = image.width;
+    int h = image.height;
 
     imgLib.Image supressed = imgLib.Image(width: w, height: h);
 
@@ -207,11 +198,13 @@ class ImageProcessor {
     return supressed;
   }
 
-  imgLib.Image getDoubleThresholded(
+  static imgLib.Image getDoubleThresholded(imgLib.Image image,
       {double lowThresholdRatio = 0.25, double highThresholdRatio = 0.25}) {
+    int w = image.width;
+    int h = image.height;
     imgLib.Image thresholded = imgLib.Image(width: w, height: h);
 
-    double maxRed = getMaxRed();
+    double maxRed = getMaxRed(image);
     double highThreshold = maxRed * highThresholdRatio;
     double lowThreshold = highThreshold * highThresholdRatio;
 
@@ -230,7 +223,11 @@ class ImageProcessor {
     return thresholded;
   }
 
-  double getMaxRed() {
+  static double getMaxRed(
+    imgLib.Image image,
+  ) {
+    int w = image.width;
+    int h = image.height;
     double result = 0.0;
     for (int y = 0; y < h; y++) {
       for (int x = 0; x < w; x++) {
@@ -243,7 +240,10 @@ class ImageProcessor {
     return result.toDouble();
   }
 
-  imgLib.Image getHysteresised({int kernelRadius = 1}) {
+  static imgLib.Image getHysteresised(imgLib.Image image,
+      {int kernelRadius = 1}) {
+    int w = image.width;
+    int h = image.height;
     imgLib.Image result = imgLib.Image.from(image);
     List<imgLib.Point> tracked = List.empty(growable: true);
 
@@ -287,7 +287,7 @@ class ImageProcessor {
     return result;
   }
 
-  List<imgLib.Point> getKernel(int kernelRadius,
+  static List<imgLib.Point> getKernel(int kernelRadius,
       {bool excludeCenter = false, bool round = false}) {
     List<imgLib.Point> kernel = List.empty(growable: true);
     int radius2 = kernelRadius * kernelRadius;
@@ -308,11 +308,15 @@ class ImageProcessor {
     return kernel;
   }
 
-  imgLib.Image getDilated() {
-    return getEroded(erodeTo: 0);
+  static imgLib.Image getDilated(
+    imgLib.Image image,
+  ) {
+    return getEroded(image, erodeTo: 0);
   }
 
-  imgLib.Image getEroded({erodeTo = 255}) {
+  static imgLib.Image getEroded(imgLib.Image image, {erodeTo = 255}) {
+    int w = image.width;
+    int h = image.height;
     int erodeFrom = (255 - erodeTo).toInt();
     imgLib.Color bg = imgLib.ColorRgb8(erodeFrom, erodeFrom, erodeFrom);
 
@@ -344,7 +348,11 @@ class ImageProcessor {
     return eroded;
   }
 
-  imgLib.Image getFloodfilled() {
+  static imgLib.Image getFloodfilled(
+    imgLib.Image image,
+  ) {
+    int w = image.width;
+    int h = image.height;
     imgLib.Image floodfilled = imgLib.Image.from(image);
 
     List<imgLib.Point> flooded = List.empty(growable: true);
@@ -373,12 +381,23 @@ class ImageProcessor {
     return floodfilled;
   }
 
-  // Future<Void> loadImage(String imgAsset) async {
-  //   ByteData data = await rootBundle.load(imgAsset);
-  //   processedImage = decodeImage(data.buffer.asUint8List())!;
-  // }
-  imgLib.Image getInvariant() {
-    print("getInvariant");
+  static imgLib.Image getBinaryInversed(
+    imgLib.Image image,
+  ) {
+    int w = image.width;
+    int h = image.height;
+    return imgLib.Image.fromBytes(
+        width: w,
+        height: h,
+        bytes: Uint8List.fromList(image.getBytes().map((e) => 255 - e).toList())
+            .buffer);
+  }
+
+  static imgLib.Image getInvariant(
+    imgLib.Image image,
+  ) {
+    int w = image.width;
+    int h = image.height;
     imgLib.Image invariant = imgLib.Image(width: w, height: h);
 
     num l = w * h;
@@ -424,9 +443,6 @@ class ImageProcessor {
         X[x][y] = X[x][y] - meanX;
         Y[x][y] = Y[x][y] - meanY;
         XY[x][y] = X[x][y] * Y[x][y];
-        // covXY += BigDecimal.parse(XY[x][y].toString());
-        // sumXabs += BigDecimal.parse(X[x][y].abs().toString());
-        // sumYabs += BigDecimal.parse(Y[x][y].abs().toString());
         covXY += XY[x][y];
         sumXabs += X[x][y].abs();
         sumYabs += Y[x][y].abs();
@@ -472,7 +488,7 @@ class ImageProcessor {
     return invariant;
   }
 
-  num acot(num x) {
+  static num acot(num x) {
     if (x < 0) {
       return -math.atan(x) - math.pi / 2;
     }

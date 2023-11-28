@@ -1,17 +1,23 @@
+import 'dart:typed_data';
+
 import 'package:flutter/material.dart';
+import 'package:image/image.dart' as imgLib;
 
 const double magnifierRadius = 50;
 
 class FramingTool extends StatefulWidget {
-  final imageKey;
+  final Size size;
+  final Widget image;
   final List<Offset> points;
   final ValueSetter<List<Offset>> setCorners;
 
-  const FramingTool(
-      {super.key,
-      required this.imageKey,
-      required this.points,
-      required this.setCorners});
+  const FramingTool({
+    super.key,
+    required this.size,
+    required this.image,
+    required this.points,
+    required this.setCorners,
+  });
 
   @override
   State<FramingTool> createState() => _FramingToolState();
@@ -24,14 +30,6 @@ class _FramingToolState extends State<FramingTool> {
   final Color defaultColor = Colors.white;
   final focusColor = Colors.amber;
 
-  Size _getSize() {
-    final size = widget.imageKey.currentContext!.size;
-    if (size != null) {
-      return size;
-    }
-    return const Size(0, 0);
-  }
-
   void getClosestCorner(DragStartDetails details) {
     int i = 0;
     double minDistance2 = double.infinity;
@@ -39,7 +37,6 @@ class _FramingToolState extends State<FramingTool> {
 
     double x = details.localPosition.dx;
     double y = details.localPosition.dy;
-    // Offset position = Offset(x, y);
 
     for (final (index, p) in widget.points.indexed) {
       distance2 = (x - p.dx) * (x - p.dx) + (y - p.dy) * (y - p.dy);
@@ -59,10 +56,8 @@ class _FramingToolState extends State<FramingTool> {
 
     Offset newPosition = current + details.delta;
 
-    Size widgetSize = _getSize();
-
-    double maxXOffset = widgetSize.width;
-    double maxYOffset = widgetSize.height;
+    double maxXOffset = widget.size.width;
+    double maxYOffset = widget.size.height;
 
     if (newPosition.dx < 0) {
       newPosition = Offset(0, newPosition.dy);
@@ -80,49 +75,55 @@ class _FramingToolState extends State<FramingTool> {
     });
   }
 
-  // @override
-  // void initState() {
-  //   super.initState();
-  //   setState(() {
-  //     widget.points = widget.points;
-  //   });
-  // }
-
   @override
   Widget build(BuildContext context) {
-    // widget.setCorners(points);
-
-    return Stack(
+    return Column(
+      mainAxisAlignment: MainAxisAlignment.center,
+      crossAxisAlignment: CrossAxisAlignment.center,
       children: [
-        GestureDetector(
-          onPanStart: getClosestCorner,
-          onPanUpdate: calcMagnifierPosition,
-          onPanEnd: (DragEndDetails details) => {
-            widget.setCorners(widget.points),
-            setState(() {
-              activeCorner = -1;
-            })
-          },
-        ),
-        ...widget.points.map((e) => Positioned(
-            left: e.dx - magnifierRadius,
-            top: e.dy - magnifierRadius,
-            child: const RawMagnifier(
-              decoration: MagnifierDecoration(
-                shape: CircleBorder(
-                  side: BorderSide(color: Colors.white, width: 2),
-                ),
+        SizedBox(
+          width: widget.size.width,
+          height: widget.size.height,
+          child: Stack(
+            children: [
+              widget.image,
+              GestureDetector(
+                onPanStart: getClosestCorner,
+                onPanUpdate: calcMagnifierPosition,
+                onPanEnd: (DragEndDetails details) => {
+                  setState(() {
+                    activeCorner = -1;
+                  })
+                },
               ),
-              size: Size(magnifierRadius * 2, magnifierRadius * 2),
-              magnificationScale: 2,
-            ))),
-        CustomPaint(
-          painter: FramePainter(
-              points: widget.points,
-              activeCorner: activeCorner,
-              defaultColor: defaultColor,
-              focusColor: focusColor),
-        )
+              ...widget.points.map((e) => Positioned(
+                  left: e.dx - magnifierRadius,
+                  top: e.dy - magnifierRadius,
+                  child: const RawMagnifier(
+                    decoration: MagnifierDecoration(
+                      shape: CircleBorder(
+                        side: BorderSide(color: Colors.white, width: 2),
+                      ),
+                    ),
+                    size: Size(magnifierRadius * 2, magnifierRadius * 2),
+                    magnificationScale: 2,
+                  ))),
+              CustomPaint(
+                painter: FramePainter(
+                    points: widget.points,
+                    activeCorner: activeCorner,
+                    defaultColor: defaultColor,
+                    focusColor: focusColor),
+              ),
+            ],
+          ),
+        ),
+        Flexible(
+          child: ElevatedButton(
+            onPressed: () => widget.setCorners(widget.points),
+            child: Text("Zatwierdź"),
+          ),
+        ),
       ],
     );
   }
