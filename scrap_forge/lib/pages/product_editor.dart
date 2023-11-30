@@ -72,6 +72,12 @@ class _ProductEditorState extends State<ProductEditor> {
         textScaleFactor: 1.2,
       );
 
+  void updateDimensions(List<double> received) {
+    lengthController.text = received[0].round().toString();
+    widthController.text = received[1].round().toString();
+    areaController.text = received[2].round().toString();
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -132,14 +138,17 @@ class _ProductEditorState extends State<ProductEditor> {
                 Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    const Text(
-                      "Zdjęcia:",
-                      textScaleFactor: 1.2,
-                      style: TextStyle(color: Colors.white),
-                    ),
                     Row(
-                      mainAxisAlignment: MainAxisAlignment.end,
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
+                        const Text(
+                          "Zdjęcia:",
+                          textScaleFactor: 1.2,
+                          style: TextStyle(color: Colors.white),
+                        ),
+                        Spacer(
+                          flex: 15,
+                        ),
                         Flexible(
                           flex: 10,
                           child: OutlinedButton(
@@ -149,9 +158,6 @@ class _ProductEditorState extends State<ProductEditor> {
                             child: Icon(
                                 IconData(0xe057, fontFamily: 'MaterialIcons')),
                           ),
-                        ),
-                        Spacer(
-                          flex: 1,
                         ),
                         Flexible(
                           flex: 10,
@@ -196,10 +202,29 @@ class _ProductEditorState extends State<ProductEditor> {
                 Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    const Text(
-                      "Wymiary (w mm):",
-                      textScaleFactor: 1.2,
-                      style: TextStyle(color: Colors.white),
+                    Row(
+                      crossAxisAlignment: CrossAxisAlignment.center,
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        const Text(
+                          "Wymiary (w mm):",
+                          textScaleFactor: 1.2,
+                          style: TextStyle(color: Colors.white),
+                        ),
+                        Flexible(
+                          flex: 10,
+                          child: OutlinedButton(
+                            onPressed: () {
+                              Navigator.pushNamed(context, "/measure",
+                                  arguments: {
+                                    'onExit': updateDimensions,
+                                  });
+                            },
+                            child: Icon(
+                                IconData(0xe048, fontFamily: 'MaterialIcons')),
+                          ),
+                        ),
+                      ],
                     ),
                     Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -252,7 +277,7 @@ class _ProductEditorState extends State<ProductEditor> {
                       ],
                     ),
                     CustomTextField(
-                      label: "Powierzchnia rzutu:",
+                      label: "Powierzchnia rzutu w cm2:",
                       // initialValue: edited.projectionArea,
                       controller: areaController,
                       // onSaved: (value) {

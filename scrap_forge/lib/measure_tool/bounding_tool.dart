@@ -8,6 +8,7 @@ class BoundingTool extends StatefulWidget {
   final Widget image;
   final double mmHeight;
   final Size size;
+  final int projectionAreaPixels;
   final ValueSetter<List<Offset>> setCorners;
 
   const BoundingTool(
@@ -15,6 +16,7 @@ class BoundingTool extends StatefulWidget {
       required this.image,
       required this.points,
       required this.size,
+      required this.projectionAreaPixels,
       required this.mmHeight,
       required this.setCorners});
 
@@ -31,16 +33,25 @@ class _FramingToolState extends State<BoundingTool> {
   final focusColor = Colors.amber;
 
   List<List<double>> linearCoefficients = List.empty();
+  double projectionAreaCM2 = 0;
 
   @override
   void initState() {
     super.initState();
-    if ((widget.points[1].dx - widget.points[0].dx == 0) ||
-        (widget.points[1].dy - widget.points[0].dy == 0)) {
-      setState(() {
-        trivialMode = true;
-      });
+
+    double ratio = widget.mmHeight / widget.size.height;
+    setState(() {
+      projectionAreaCM2 = widget.projectionAreaPixels * ratio * ratio * 0.01;
+      trivialMode = checkTrivialMode(widget.points);
+    });
+  }
+
+  bool checkTrivialMode(List<Offset> points) {
+    if ((points[1].dx - points[0].dx == 0) ||
+        (points[1].dy - points[0].dy == 0)) {
+      return true;
     }
+    return false;
   }
 
   void getActiveArea(DragStartDetails details) {
@@ -177,7 +188,7 @@ class _FramingToolState extends State<BoundingTool> {
   void rotate(DragUpdateDetails details) {
     List<Offset> points = widget.points;
     int i = activeArea % 4;
-    Offset linePrecursor = widget.points[i] + details.delta;
+    // Offset linePrecursor = widget.points[i] + details.delta;
     Offset rectangleCenter = Offset(
       (points[i].dx + points[(i + 2) % 4].dx) / 2,
       (points[i].dy + points[(i + 2) % 4].dy) / 2,
@@ -185,7 +196,7 @@ class _FramingToolState extends State<BoundingTool> {
 
     Offset centerToCornerVector = points[i] - rectangleCenter;
     Offset centerToNeighborVector = points[(i + 1) % 4] - rectangleCenter;
-    double rotationAngle = (linePrecursor - rectangleCenter).direction -
+    double rotationAngle = (details.localPosition - rectangleCenter).direction -
         (centerToCornerVector).direction;
 
     double sin = math.sin(rotationAngle);
@@ -198,11 +209,19 @@ class _FramingToolState extends State<BoundingTool> {
         centerToNeighborVector.dx * cos - centerToNeighborVector.dy * sin,
         centerToNeighborVector.dx * sin + centerToNeighborVector.dy * cos);
 
+    List<Offset> rotated = List.from([
+      rectangleCenter + cTCVRotated,
+      rectangleCenter + cTNVRotated,
+      rectangleCenter - cTCVRotated,
+      rectangleCenter - cTNVRotated
+    ]);
+
     setState(() {
-      widget.points[i] = rectangleCenter + cTCVRotated;
-      widget.points[(i + 1) % 4] = rectangleCenter + cTNVRotated;
-      widget.points[(i + 2) % 4] = rectangleCenter - cTCVRotated;
-      widget.points[(i + 3) % 4] = rectangleCenter - cTNVRotated;
+      trivialMode = checkTrivialMode(rotated);
+      widget.points[i] = rotated[0];
+      widget.points[(i + 1) % 4] = rotated[1];
+      widget.points[(i + 2) % 4] = rotated[2];
+      widget.points[(i + 3) % 4] = rotated[3];
     });
   }
 
@@ -244,6 +263,8 @@ class _FramingToolState extends State<BoundingTool> {
 
   @override
   Widget build(BuildContext context) {
+    final arguments = (ModalRoute.of(context)?.settings.arguments ??
+        <String, dynamic>{}) as Map;
     List<double> dimensions = calculateDimensions();
     return Column(
       mainAxisAlignment: MainAxisAlignment.center,
@@ -304,10 +325,21 @@ class _FramingToolState extends State<BoundingTool> {
                     "Szerokość: ${dimensions[1].round()}mm",
                     style: TextStyle(color: Colors.white),
                   ),
+                  Text(
+                    "Pole przedmiotu: ${projectionAreaCM2.round()}cm2",
+                    style: TextStyle(color: Colors.white),
+                  ),
                 ],
               ),
               ElevatedButton(
-                onPressed: () => widget.setCorners(widget.points),
+                onPressed: () => {
+                  arguments['onExit'](
+                    List<double>.from(
+                      [dimensions[0], dimensions[1], projectionAreaCM2],
+                    ),
+                  ),
+                  Navigator.pop(context),
+                },
                 child: Text("Zatwierdź"),
               ),
             ],

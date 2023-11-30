@@ -9,8 +9,8 @@ import 'package:scrap_forge/pages/product_editor.dart';
 Future<void> main() async {
   return runApp(
     MaterialApp(
-      // initialRoute: '/productEditor',
-      initialRoute: '/measure',
+      initialRoute: '/productEditor',
+      // initialRoute: '/measure',
       // initialRoute: '/home',
       routes: {
         '/': (context) => Loading(),
