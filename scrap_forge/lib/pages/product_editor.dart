@@ -1,4 +1,5 @@
 import 'dart:typed_data';
+import 'dart:ui';
 
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
@@ -28,6 +29,39 @@ class _ProductEditorState extends State<ProductEditor> {
   final widthController = TextEditingController();
   final heightController = TextEditingController();
   final areaController = TextEditingController();
+  bool addAsProject = true;
+  ProjectLifeCycle progress = ProjectLifeCycle.inProgress;
+
+  bool addAsMaterial = false;
+  final consumedController = TextEditingController();
+  final availableController = TextEditingController();
+  final neededController = TextEditingController();
+
+  String? numberValidator(String? value) {
+    if (value == null || value == "") {
+      return null;
+    }
+    RegExp digits = RegExp("^[0123456789]*[,.]?[0123456789]*");
+    Match? match = digits.matchAsPrefix(value);
+    if (match != null && match.group(0)!.length == value.length) {
+      return null;
+    }
+
+    return "To pole powinno zawierać liczbę, lub pozostać puste.";
+  }
+
+  String? switchValidator(final value) {
+    if (!addAsMaterial && !addAsProject) {
+      return "Zaznacz przynajmniej jedną z opcji";
+    }
+    if (addAsMaterial &&
+        consumedController.text == "" &&
+        availableController.text == "" &&
+        neededController.text == "") {
+      return "Uzupełnij jedno z powyższych pól";
+    }
+    return null;
+  }
 
   List<Uint8List> photos = List.empty();
 
@@ -101,100 +135,100 @@ class _ProductEditorState extends State<ProductEditor> {
                 CustomTextField(
                   label: "Nazwa:",
                   controller: nameController,
-                  // onSaved: (value) {
-                  //   ProductDTO copy = ProductDTO.copy(edited);
-                  //   copy.name = value;
-                  //   setState(() {
-                  //     this.edited = copy;
-                  //   });
-                  // },
+                  validator: (value) {
+                    if (value == "") {
+                      return "To pole jest wymagane";
+                    }
+                    return null;
+                  },
                 ),
                 CustomTextField(
                   label: "Kategoria:",
-                  // initialValue: edited.category,
                   controller: categoryController,
-                  // onSaved: (value) {
-                  //   ProductDTO copy = ProductDTO.copy(edited);
-                  //   copy.category = value;
-                  //   setState(() {
-                  //     this.edited = copy;
-                  //   });
-                  // },
+                  validator: (value) {
+                    return null;
+                  },
                 ),
                 CustomTextField(
                   label: "Opis:",
-                  // initialValue: edited.description,
                   controller: descriptionController,
-                  // onSaved: (value) {
-                  //   ProductDTO copy = ProductDTO.copy(edited);
-                  //   copy.description = value;
-                  //   setState(() {
-                  //     this.edited = copy;
-                  //   });
-                  // },
+                  validator: (value) {
+                    return null;
+                  },
                   type: TextInputType.multiline,
                   maxLines: null,
                 ),
                 Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        const Text(
-                          "Zdjęcia:",
-                          textScaleFactor: 1.2,
-                          style: TextStyle(color: Colors.white),
-                        ),
-                        Spacer(
-                          flex: 15,
-                        ),
-                        Flexible(
-                          flex: 10,
-                          child: OutlinedButton(
-                            onPressed: () {
-                              pickImagesFromGallery();
-                            },
-                            child: Icon(
-                                IconData(0xe057, fontFamily: 'MaterialIcons')),
-                          ),
-                        ),
-                        Flexible(
-                          flex: 10,
-                          child: OutlinedButton(
-                            onPressed: () {
-                              pickImageFromCamera();
-                            },
-                            child: Icon(
-                                IconData(0xe048, fontFamily: 'MaterialIcons')),
-                          ),
-                        ),
-                      ],
+                    Text(
+                      "Zdjęcia:",
+                      textScaleFactor: 1.2,
+                      style: TextStyle(
+                          color: Theme.of(context).colorScheme.onBackground),
                     ),
                     SizedBox(
-                      height: (photos.isNotEmpty) ? 200 : 0,
-                      child: ListView(
-                        shrinkWrap: true,
-                        scrollDirection: Axis.horizontal,
-                        children: [
-                          ...photos.map(
-                            (bytes) => Padding(
-                              padding: const EdgeInsets.all(4.0),
-                              child: Container(
-                                height: 200,
-                                width: 135,
-                                clipBehavior: Clip.hardEdge,
-                                decoration: BoxDecoration(
-                                  borderRadius:
-                                      BorderRadius.all(Radius.circular(8)),
-                                  image: DecorationImage(
-                                      image: MemoryImage(bytes),
-                                      fit: BoxFit.cover),
+                      height: 200,
+                      child: Center(
+                        child: ListView(
+                          primary: false,
+                          shrinkWrap: true,
+                          scrollDirection: Axis.horizontal,
+                          children: [
+                            ...photos.map(
+                              (bytes) => Padding(
+                                padding: const EdgeInsets.all(4.0),
+                                child: Container(
+                                  height: 200,
+                                  width: 135,
+                                  clipBehavior: Clip.hardEdge,
+                                  decoration: BoxDecoration(
+                                    borderRadius:
+                                        BorderRadius.all(Radius.circular(8)),
+                                    image: DecorationImage(
+                                        image: MemoryImage(bytes),
+                                        fit: BoxFit.cover),
+                                  ),
                                 ),
                               ),
                             ),
-                          ),
-                        ],
+                            SizedBox(
+                              height: 200,
+                              width: 135,
+                              child: Column(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                crossAxisAlignment: CrossAxisAlignment.stretch,
+                                children: [
+                                  Flexible(
+                                    fit: FlexFit.tight,
+                                    child: OutlinedButton(
+                                      onPressed: () {
+                                        pickImagesFromGallery();
+                                      },
+                                      child: Icon(
+                                        IconData(0xe057,
+                                            fontFamily: 'MaterialIcons'),
+                                      ),
+                                    ),
+                                  ),
+                                  Flexible(
+                                    fit: FlexFit.tight,
+                                    child: OutlinedButton(
+                                      onPressed: () {
+                                        pickImageFromCamera();
+                                      },
+                                      child: Icon(
+                                        IconData(0xe048,
+                                            fontFamily: 'MaterialIcons'),
+                                      ),
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ],
+                        ),
                       ),
                     ),
                   ],
@@ -221,7 +255,8 @@ class _ProductEditorState extends State<ProductEditor> {
                                   });
                             },
                             child: Icon(
-                                IconData(0xe048, fontFamily: 'MaterialIcons')),
+                              IconData(0xe048, fontFamily: 'MaterialIcons'),
+                            ),
                           ),
                         ),
                       ],
@@ -232,45 +267,24 @@ class _ProductEditorState extends State<ProductEditor> {
                         Flexible(
                           child: CustomTextField(
                             label: "Długość:",
-                            // initialValue: edited.length,
                             controller: lengthController,
-                            // onSaved: (value) {
-                            //   ProductDTO copy = ProductDTO.copy(edited);
-                            //   copy.length = value;
-                            //   setState(() {
-                            //     this.edited = copy;
-                            //   });
-                            // },
+                            validator: numberValidator,
                             type: TextInputType.number,
                           ),
                         ),
                         Flexible(
                           child: CustomTextField(
                             label: "Szerokość:",
-                            // initialValue: edited.width,
                             controller: widthController,
-                            // onSaved: (value) {
-                            //   ProductDTO copy = ProductDTO.copy(edited);
-                            //   copy.width = value;
-                            //   setState(() {
-                            //     this.edited = copy;
-                            //   });
-                            // },
+                            validator: numberValidator,
                             type: TextInputType.number,
                           ),
                         ),
                         Flexible(
                           child: CustomTextField(
                             label: "Wysokość:",
-                            // initialValue: edited.height,
                             controller: heightController,
-                            // onSaved: (value) {
-                            //   ProductDTO copy = ProductDTO.copy(edited);
-                            //   copy.height = value;
-                            //   setState(() {
-                            //     this.edited = copy;
-                            //   });
-                            // },
+                            validator: numberValidator,
                             type: TextInputType.number,
                           ),
                         )
@@ -278,15 +292,8 @@ class _ProductEditorState extends State<ProductEditor> {
                     ),
                     CustomTextField(
                       label: "Powierzchnia rzutu w cm2:",
-                      // initialValue: edited.projectionArea,
                       controller: areaController,
-                      // onSaved: (value) {
-                      //   ProductDTO copy = ProductDTO.copy(edited);
-                      //   copy.projectionArea = value;
-                      //   setState(() {
-                      //     this.edited = copy;
-                      //   });
-                      // },
+                      validator: numberValidator,
                       type: TextInputType.number,
                     ),
                   ],
@@ -294,13 +301,128 @@ class _ProductEditorState extends State<ProductEditor> {
                 CustomTextField(
                   label: "Wykonany z:",
                   controller: TextEditingController(),
-                  // onSaved: (value) {},
-                  // // onSaved: (value) {
-                  // //   setState(() {
-                  // //     madeFrom = value;
-                  // //   });
-                  // // },
+                  validator: (value) {
+                    return null;
+                  },
                   type: TextInputType.number,
+                ),
+                Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    FormField(
+                      initialValue: addAsProject,
+                      builder: (FormFieldState<bool> field) {
+                        return SwitchListTile(
+                          title: Text("Dodaj jako projekt"),
+                          value: addAsProject,
+                          onChanged: (val) {
+                            setState(() {
+                              addAsProject = val;
+                            });
+                          },
+                        );
+                      },
+                    ),
+                    AnimatedCrossFade(
+                      firstChild: DropdownMenu<ProjectLifeCycle>(
+                        dropdownMenuEntries: const [
+                          DropdownMenuEntry(
+                              value: ProjectLifeCycle.finished,
+                              label: "Ukończony"),
+                          DropdownMenuEntry(
+                              value: ProjectLifeCycle.inProgress,
+                              label: "W trakcie realizacji"),
+                          DropdownMenuEntry(
+                              value: ProjectLifeCycle.planned,
+                              label: "Planowany"),
+                        ],
+                        initialSelection: ProjectLifeCycle.inProgress,
+                        onSelected: (value) {
+                          if (value != null) {
+                            setState(() {
+                              progress = value;
+                            });
+                          }
+                        },
+                      ),
+                      secondChild: SizedBox.shrink(),
+                      crossFadeState: addAsProject
+                          ? CrossFadeState.showFirst
+                          : CrossFadeState.showSecond,
+                      duration: Duration(milliseconds: 200),
+                    )
+                  ],
+                ),
+                Column(
+                  children: [
+                    FormField(
+                      initialValue: addAsMaterial,
+                      validator: switchValidator,
+                      builder: (FormFieldState<bool> field) {
+                        return SwitchListTile(
+                          title: Text("Dodaj jako materiał"),
+                          value: addAsMaterial,
+                          onChanged: (val) {
+                            setState(() {
+                              addAsMaterial = val;
+                            });
+                          },
+                        );
+                      },
+                    ),
+                    AnimatedCrossFade(
+                      firstChild: Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Flexible(
+                            child: CustomTextField(
+                              label: "Użyte:",
+                              controller: consumedController,
+                              validator: addAsMaterial
+                                  ? numberValidator
+                                  : (value) => null,
+                              type: TextInputType.number,
+                            ),
+                          ),
+                          Flexible(
+                            child: CustomTextField(
+                              label: "Dostępne:",
+                              controller: availableController,
+                              validator: addAsMaterial
+                                  ? numberValidator
+                                  : (value) => null,
+                              type: TextInputType.number,
+                            ),
+                          ),
+                          Flexible(
+                            child: CustomTextField(
+                              label: "Potrzebne",
+                              controller: neededController,
+                              validator: addAsMaterial
+                                  ? numberValidator
+                                  : (value) => null,
+                              type: TextInputType.number,
+                            ),
+                          )
+                        ],
+                      ),
+                      secondChild: SizedBox.shrink(),
+                      crossFadeState: addAsMaterial
+                          ? CrossFadeState.showFirst
+                          : CrossFadeState.showSecond,
+                      duration: Duration(milliseconds: 200),
+                    )
+                  ],
+                ),
+                SizedBox(
+                  height: 25,
+                  child: TextFormField(
+                    maxLines: 1,
+                    validator: switchValidator,
+                    readOnly: true,
+
+                    // enabled: false,
+                  ),
                 ),
                 ElevatedButton(
                   onPressed: () {
@@ -315,11 +437,22 @@ class _ProductEditorState extends State<ProductEditor> {
                           width: widthController.text,
                           height: heightController.text,
                           projectionArea: areaController.text,
+                          progress: addAsProject ? progress : null,
+                          consumed:
+                              addAsMaterial ? consumedController.text : "",
+                          available:
+                              addAsMaterial ? availableController.text : "",
+                          needed: addAsMaterial ? neededController.text : "",
                           madeFromIds: List.empty(),
                           usedInIds: List.empty(),
+                          addedTimestamp: DateTime.now().millisecondsSinceEpoch,
+                          finishedTimestamp:
+                              DateTime.now().millisecondsSinceEpoch,
                         ).toProduct();
 
                         db.saveProduct(p);
+
+                        Navigator.pop(context);
                       }
                     }
                   },

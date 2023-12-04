@@ -2,6 +2,7 @@ import 'package:isar/isar.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:scrap_forge/db_entities/photo.dart';
 import 'package:scrap_forge/db_entities/product.dart';
+import 'package:scrap_forge/utils/fetch_products.dart';
 
 class IsarService {
   late Future<Isar> db;
@@ -58,6 +59,55 @@ class IsarService {
         .sortByAddedTimestamp()
         .limit(number)
         .findAll();
+  }
+
+  Future<List<Product>> getProducts(ProductFilter filter) async {
+    final isar = await db;
+
+    return isar.products
+        .filter()
+        .optional(
+          filter.projectsOnly,
+          (q) => q
+              .progressIsNotNull()
+              .optional(
+                filter.finishedOnly,
+                (q) => q.progressMatches(ProjectLifeCycle.finished.name),
+              )
+              .optional(
+                filter.inProgressOnly,
+                (q) => q.progressMatches(ProjectLifeCycle.inProgress.name),
+              )
+              .optional(
+                filter.plannedOnly,
+                (q) => q.progressMatches(ProjectLifeCycle.planned.name),
+              ),
+        )
+        .optional(
+          filter.materialsOnly,
+          (q) => q
+              .group(
+                (q) => q
+                    .neededIsNotNull()
+                    .or()
+                    .availableIsNotNull()
+                    .or()
+                    .consumedIsNotNull(),
+              )
+              .optional(
+                filter.consumedOnly > -1,
+                (q) => q.consumedGreaterThan(filter.consumedOnly),
+              )
+              .optional(
+                filter.availableOnly > -1,
+                (q) => q.availableGreaterThan(filter.availableOnly),
+              )
+              .optional(
+                filter.neededOnly > -1,
+                (q) => q.neededGreaterThan(filter.neededOnly),
+              ),
+        )
+        .findAllSync();
   }
 
   Stream<List<Product>> listenToProducts() async* {

@@ -22,53 +22,64 @@ const ProductSchema = CollectionSchema(
       name: r'addedTimestamp',
       type: IsarType.long,
     ),
-    r'category': PropertySchema(
+    r'available': PropertySchema(
       id: 1,
+      name: r'available',
+      type: IsarType.long,
+    ),
+    r'category': PropertySchema(
+      id: 2,
       name: r'category',
       type: IsarType.string,
     ),
+    r'consumed': PropertySchema(
+      id: 3,
+      name: r'consumed',
+      type: IsarType.long,
+    ),
     r'description': PropertySchema(
-      id: 2,
+      id: 4,
       name: r'description',
       type: IsarType.string,
     ),
     r'finishedTimestamp': PropertySchema(
-      id: 3,
+      id: 5,
       name: r'finishedTimestamp',
       type: IsarType.long,
     ),
     r'height': PropertySchema(
-      id: 4,
+      id: 6,
       name: r'height',
       type: IsarType.long,
     ),
-    r'isMaterial': PropertySchema(
-      id: 5,
-      name: r'isMaterial',
-      type: IsarType.bool,
-    ),
     r'length': PropertySchema(
-      id: 6,
+      id: 7,
       name: r'length',
       type: IsarType.long,
     ),
     r'name': PropertySchema(
-      id: 7,
+      id: 8,
       name: r'name',
       type: IsarType.string,
     ),
-    r'number': PropertySchema(
-      id: 8,
-      name: r'number',
+    r'needed': PropertySchema(
+      id: 9,
+      name: r'needed',
       type: IsarType.long,
     ),
+    r'progress': PropertySchema(
+      id: 10,
+      name: r'progress',
+      type: IsarType.string,
+      enumMap: _ProductprogressEnumValueMap,
+    ),
     r'projectionArea': PropertySchema(
-      id: 9,
+      id: 11,
       name: r'projectionArea',
       type: IsarType.long,
     ),
     r'width': PropertySchema(
-      id: 10,
+      id: 12,
       name: r'width',
       type: IsarType.long,
     )
@@ -131,6 +142,12 @@ int _productEstimateSize(
       bytesCount += 3 + value.length * 3;
     }
   }
+  {
+    final value = object.progress;
+    if (value != null) {
+      bytesCount += 3 + value.name.length * 3;
+    }
+  }
   return bytesCount;
 }
 
@@ -141,16 +158,18 @@ void _productSerialize(
   Map<Type, List<int>> allOffsets,
 ) {
   writer.writeLong(offsets[0], object.addedTimestamp);
-  writer.writeString(offsets[1], object.category);
-  writer.writeString(offsets[2], object.description);
-  writer.writeLong(offsets[3], object.finishedTimestamp);
-  writer.writeLong(offsets[4], object.height);
-  writer.writeBool(offsets[5], object.isMaterial);
-  writer.writeLong(offsets[6], object.length);
-  writer.writeString(offsets[7], object.name);
-  writer.writeLong(offsets[8], object.number);
-  writer.writeLong(offsets[9], object.projectionArea);
-  writer.writeLong(offsets[10], object.width);
+  writer.writeLong(offsets[1], object.available);
+  writer.writeString(offsets[2], object.category);
+  writer.writeLong(offsets[3], object.consumed);
+  writer.writeString(offsets[4], object.description);
+  writer.writeLong(offsets[5], object.finishedTimestamp);
+  writer.writeLong(offsets[6], object.height);
+  writer.writeLong(offsets[7], object.length);
+  writer.writeString(offsets[8], object.name);
+  writer.writeLong(offsets[9], object.needed);
+  writer.writeString(offsets[10], object.progress?.name);
+  writer.writeLong(offsets[11], object.projectionArea);
+  writer.writeLong(offsets[12], object.width);
 }
 
 Product _productDeserialize(
@@ -161,17 +180,20 @@ Product _productDeserialize(
 ) {
   final object = Product();
   object.addedTimestamp = reader.readLongOrNull(offsets[0]);
-  object.category = reader.readStringOrNull(offsets[1]);
-  object.description = reader.readStringOrNull(offsets[2]);
-  object.finishedTimestamp = reader.readLongOrNull(offsets[3]);
-  object.height = reader.readLongOrNull(offsets[4]);
+  object.available = reader.readLongOrNull(offsets[1]);
+  object.category = reader.readStringOrNull(offsets[2]);
+  object.consumed = reader.readLongOrNull(offsets[3]);
+  object.description = reader.readStringOrNull(offsets[4]);
+  object.finishedTimestamp = reader.readLongOrNull(offsets[5]);
+  object.height = reader.readLongOrNull(offsets[6]);
   object.id = id;
-  object.isMaterial = reader.readBoolOrNull(offsets[5]);
-  object.length = reader.readLongOrNull(offsets[6]);
-  object.name = reader.readStringOrNull(offsets[7]);
-  object.number = reader.readLongOrNull(offsets[8]);
-  object.projectionArea = reader.readLongOrNull(offsets[9]);
-  object.width = reader.readLongOrNull(offsets[10]);
+  object.length = reader.readLongOrNull(offsets[7]);
+  object.name = reader.readStringOrNull(offsets[8]);
+  object.needed = reader.readLongOrNull(offsets[9]);
+  object.progress =
+      _ProductprogressValueEnumMap[reader.readStringOrNull(offsets[10])];
+  object.projectionArea = reader.readLongOrNull(offsets[11]);
+  object.width = reader.readLongOrNull(offsets[12]);
   return object;
 }
 
@@ -185,29 +207,45 @@ P _productDeserializeProp<P>(
     case 0:
       return (reader.readLongOrNull(offset)) as P;
     case 1:
-      return (reader.readStringOrNull(offset)) as P;
+      return (reader.readLongOrNull(offset)) as P;
     case 2:
       return (reader.readStringOrNull(offset)) as P;
     case 3:
       return (reader.readLongOrNull(offset)) as P;
     case 4:
-      return (reader.readLongOrNull(offset)) as P;
+      return (reader.readStringOrNull(offset)) as P;
     case 5:
-      return (reader.readBoolOrNull(offset)) as P;
+      return (reader.readLongOrNull(offset)) as P;
     case 6:
       return (reader.readLongOrNull(offset)) as P;
     case 7:
-      return (reader.readStringOrNull(offset)) as P;
-    case 8:
       return (reader.readLongOrNull(offset)) as P;
+    case 8:
+      return (reader.readStringOrNull(offset)) as P;
     case 9:
       return (reader.readLongOrNull(offset)) as P;
     case 10:
+      return (_ProductprogressValueEnumMap[reader.readStringOrNull(offset)])
+          as P;
+    case 11:
+      return (reader.readLongOrNull(offset)) as P;
+    case 12:
       return (reader.readLongOrNull(offset)) as P;
     default:
       throw IsarError('Unknown property with id $propertyId');
   }
 }
+
+const _ProductprogressEnumValueMap = {
+  r'finished': r'finished',
+  r'inProgress': r'inProgress',
+  r'planned': r'planned',
+};
+const _ProductprogressValueEnumMap = {
+  r'finished': ProjectLifeCycle.finished,
+  r'inProgress': ProjectLifeCycle.inProgress,
+  r'planned': ProjectLifeCycle.planned,
+};
 
 Id _productGetId(Product object) {
   return object.id;
@@ -372,6 +410,75 @@ extension ProductQueryFilter
     });
   }
 
+  QueryBuilder<Product, Product, QAfterFilterCondition> availableIsNull() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(const FilterCondition.isNull(
+        property: r'available',
+      ));
+    });
+  }
+
+  QueryBuilder<Product, Product, QAfterFilterCondition> availableIsNotNull() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(const FilterCondition.isNotNull(
+        property: r'available',
+      ));
+    });
+  }
+
+  QueryBuilder<Product, Product, QAfterFilterCondition> availableEqualTo(
+      int? value) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.equalTo(
+        property: r'available',
+        value: value,
+      ));
+    });
+  }
+
+  QueryBuilder<Product, Product, QAfterFilterCondition> availableGreaterThan(
+    int? value, {
+    bool include = false,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.greaterThan(
+        include: include,
+        property: r'available',
+        value: value,
+      ));
+    });
+  }
+
+  QueryBuilder<Product, Product, QAfterFilterCondition> availableLessThan(
+    int? value, {
+    bool include = false,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.lessThan(
+        include: include,
+        property: r'available',
+        value: value,
+      ));
+    });
+  }
+
+  QueryBuilder<Product, Product, QAfterFilterCondition> availableBetween(
+    int? lower,
+    int? upper, {
+    bool includeLower = true,
+    bool includeUpper = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.between(
+        property: r'available',
+        lower: lower,
+        includeLower: includeLower,
+        upper: upper,
+        includeUpper: includeUpper,
+      ));
+    });
+  }
+
   QueryBuilder<Product, Product, QAfterFilterCondition> categoryIsNull() {
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(const FilterCondition.isNull(
@@ -514,6 +621,75 @@ extension ProductQueryFilter
       return query.addFilterCondition(FilterCondition.greaterThan(
         property: r'category',
         value: '',
+      ));
+    });
+  }
+
+  QueryBuilder<Product, Product, QAfterFilterCondition> consumedIsNull() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(const FilterCondition.isNull(
+        property: r'consumed',
+      ));
+    });
+  }
+
+  QueryBuilder<Product, Product, QAfterFilterCondition> consumedIsNotNull() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(const FilterCondition.isNotNull(
+        property: r'consumed',
+      ));
+    });
+  }
+
+  QueryBuilder<Product, Product, QAfterFilterCondition> consumedEqualTo(
+      int? value) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.equalTo(
+        property: r'consumed',
+        value: value,
+      ));
+    });
+  }
+
+  QueryBuilder<Product, Product, QAfterFilterCondition> consumedGreaterThan(
+    int? value, {
+    bool include = false,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.greaterThan(
+        include: include,
+        property: r'consumed',
+        value: value,
+      ));
+    });
+  }
+
+  QueryBuilder<Product, Product, QAfterFilterCondition> consumedLessThan(
+    int? value, {
+    bool include = false,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.lessThan(
+        include: include,
+        property: r'consumed',
+        value: value,
+      ));
+    });
+  }
+
+  QueryBuilder<Product, Product, QAfterFilterCondition> consumedBetween(
+    int? lower,
+    int? upper, {
+    bool includeLower = true,
+    bool includeUpper = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.between(
+        property: r'consumed',
+        lower: lower,
+        includeLower: includeLower,
+        upper: upper,
+        includeUpper: includeUpper,
       ));
     });
   }
@@ -860,32 +1036,6 @@ extension ProductQueryFilter
     });
   }
 
-  QueryBuilder<Product, Product, QAfterFilterCondition> isMaterialIsNull() {
-    return QueryBuilder.apply(this, (query) {
-      return query.addFilterCondition(const FilterCondition.isNull(
-        property: r'isMaterial',
-      ));
-    });
-  }
-
-  QueryBuilder<Product, Product, QAfterFilterCondition> isMaterialIsNotNull() {
-    return QueryBuilder.apply(this, (query) {
-      return query.addFilterCondition(const FilterCondition.isNotNull(
-        property: r'isMaterial',
-      ));
-    });
-  }
-
-  QueryBuilder<Product, Product, QAfterFilterCondition> isMaterialEqualTo(
-      bool? value) {
-    return QueryBuilder.apply(this, (query) {
-      return query.addFilterCondition(FilterCondition.equalTo(
-        property: r'isMaterial',
-        value: value,
-      ));
-    });
-  }
-
   QueryBuilder<Product, Product, QAfterFilterCondition> lengthIsNull() {
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(const FilterCondition.isNull(
@@ -1101,59 +1251,59 @@ extension ProductQueryFilter
     });
   }
 
-  QueryBuilder<Product, Product, QAfterFilterCondition> numberIsNull() {
+  QueryBuilder<Product, Product, QAfterFilterCondition> neededIsNull() {
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(const FilterCondition.isNull(
-        property: r'number',
+        property: r'needed',
       ));
     });
   }
 
-  QueryBuilder<Product, Product, QAfterFilterCondition> numberIsNotNull() {
+  QueryBuilder<Product, Product, QAfterFilterCondition> neededIsNotNull() {
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(const FilterCondition.isNotNull(
-        property: r'number',
+        property: r'needed',
       ));
     });
   }
 
-  QueryBuilder<Product, Product, QAfterFilterCondition> numberEqualTo(
+  QueryBuilder<Product, Product, QAfterFilterCondition> neededEqualTo(
       int? value) {
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(FilterCondition.equalTo(
-        property: r'number',
+        property: r'needed',
         value: value,
       ));
     });
   }
 
-  QueryBuilder<Product, Product, QAfterFilterCondition> numberGreaterThan(
+  QueryBuilder<Product, Product, QAfterFilterCondition> neededGreaterThan(
     int? value, {
     bool include = false,
   }) {
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(FilterCondition.greaterThan(
         include: include,
-        property: r'number',
+        property: r'needed',
         value: value,
       ));
     });
   }
 
-  QueryBuilder<Product, Product, QAfterFilterCondition> numberLessThan(
+  QueryBuilder<Product, Product, QAfterFilterCondition> neededLessThan(
     int? value, {
     bool include = false,
   }) {
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(FilterCondition.lessThan(
         include: include,
-        property: r'number',
+        property: r'needed',
         value: value,
       ));
     });
   }
 
-  QueryBuilder<Product, Product, QAfterFilterCondition> numberBetween(
+  QueryBuilder<Product, Product, QAfterFilterCondition> neededBetween(
     int? lower,
     int? upper, {
     bool includeLower = true,
@@ -1161,11 +1311,157 @@ extension ProductQueryFilter
   }) {
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(FilterCondition.between(
-        property: r'number',
+        property: r'needed',
         lower: lower,
         includeLower: includeLower,
         upper: upper,
         includeUpper: includeUpper,
+      ));
+    });
+  }
+
+  QueryBuilder<Product, Product, QAfterFilterCondition> progressIsNull() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(const FilterCondition.isNull(
+        property: r'progress',
+      ));
+    });
+  }
+
+  QueryBuilder<Product, Product, QAfterFilterCondition> progressIsNotNull() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(const FilterCondition.isNotNull(
+        property: r'progress',
+      ));
+    });
+  }
+
+  QueryBuilder<Product, Product, QAfterFilterCondition> progressEqualTo(
+    ProjectLifeCycle? value, {
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.equalTo(
+        property: r'progress',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<Product, Product, QAfterFilterCondition> progressGreaterThan(
+    ProjectLifeCycle? value, {
+    bool include = false,
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.greaterThan(
+        include: include,
+        property: r'progress',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<Product, Product, QAfterFilterCondition> progressLessThan(
+    ProjectLifeCycle? value, {
+    bool include = false,
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.lessThan(
+        include: include,
+        property: r'progress',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<Product, Product, QAfterFilterCondition> progressBetween(
+    ProjectLifeCycle? lower,
+    ProjectLifeCycle? upper, {
+    bool includeLower = true,
+    bool includeUpper = true,
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.between(
+        property: r'progress',
+        lower: lower,
+        includeLower: includeLower,
+        upper: upper,
+        includeUpper: includeUpper,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<Product, Product, QAfterFilterCondition> progressStartsWith(
+    String value, {
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.startsWith(
+        property: r'progress',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<Product, Product, QAfterFilterCondition> progressEndsWith(
+    String value, {
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.endsWith(
+        property: r'progress',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<Product, Product, QAfterFilterCondition> progressContains(
+      String value,
+      {bool caseSensitive = true}) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.contains(
+        property: r'progress',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<Product, Product, QAfterFilterCondition> progressMatches(
+      String pattern,
+      {bool caseSensitive = true}) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.matches(
+        property: r'progress',
+        wildcard: pattern,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<Product, Product, QAfterFilterCondition> progressIsEmpty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.equalTo(
+        property: r'progress',
+        value: '',
+      ));
+    });
+  }
+
+  QueryBuilder<Product, Product, QAfterFilterCondition> progressIsNotEmpty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.greaterThan(
+        property: r'progress',
+        value: '',
       ));
     });
   }
@@ -1499,6 +1795,18 @@ extension ProductQuerySortBy on QueryBuilder<Product, Product, QSortBy> {
     });
   }
 
+  QueryBuilder<Product, Product, QAfterSortBy> sortByAvailable() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'available', Sort.asc);
+    });
+  }
+
+  QueryBuilder<Product, Product, QAfterSortBy> sortByAvailableDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'available', Sort.desc);
+    });
+  }
+
   QueryBuilder<Product, Product, QAfterSortBy> sortByCategory() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'category', Sort.asc);
@@ -1508,6 +1816,18 @@ extension ProductQuerySortBy on QueryBuilder<Product, Product, QSortBy> {
   QueryBuilder<Product, Product, QAfterSortBy> sortByCategoryDesc() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'category', Sort.desc);
+    });
+  }
+
+  QueryBuilder<Product, Product, QAfterSortBy> sortByConsumed() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'consumed', Sort.asc);
+    });
+  }
+
+  QueryBuilder<Product, Product, QAfterSortBy> sortByConsumedDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'consumed', Sort.desc);
     });
   }
 
@@ -1547,18 +1867,6 @@ extension ProductQuerySortBy on QueryBuilder<Product, Product, QSortBy> {
     });
   }
 
-  QueryBuilder<Product, Product, QAfterSortBy> sortByIsMaterial() {
-    return QueryBuilder.apply(this, (query) {
-      return query.addSortBy(r'isMaterial', Sort.asc);
-    });
-  }
-
-  QueryBuilder<Product, Product, QAfterSortBy> sortByIsMaterialDesc() {
-    return QueryBuilder.apply(this, (query) {
-      return query.addSortBy(r'isMaterial', Sort.desc);
-    });
-  }
-
   QueryBuilder<Product, Product, QAfterSortBy> sortByLength() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'length', Sort.asc);
@@ -1583,15 +1891,27 @@ extension ProductQuerySortBy on QueryBuilder<Product, Product, QSortBy> {
     });
   }
 
-  QueryBuilder<Product, Product, QAfterSortBy> sortByNumber() {
+  QueryBuilder<Product, Product, QAfterSortBy> sortByNeeded() {
     return QueryBuilder.apply(this, (query) {
-      return query.addSortBy(r'number', Sort.asc);
+      return query.addSortBy(r'needed', Sort.asc);
     });
   }
 
-  QueryBuilder<Product, Product, QAfterSortBy> sortByNumberDesc() {
+  QueryBuilder<Product, Product, QAfterSortBy> sortByNeededDesc() {
     return QueryBuilder.apply(this, (query) {
-      return query.addSortBy(r'number', Sort.desc);
+      return query.addSortBy(r'needed', Sort.desc);
+    });
+  }
+
+  QueryBuilder<Product, Product, QAfterSortBy> sortByProgress() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'progress', Sort.asc);
+    });
+  }
+
+  QueryBuilder<Product, Product, QAfterSortBy> sortByProgressDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'progress', Sort.desc);
     });
   }
 
@@ -1634,6 +1954,18 @@ extension ProductQuerySortThenBy
     });
   }
 
+  QueryBuilder<Product, Product, QAfterSortBy> thenByAvailable() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'available', Sort.asc);
+    });
+  }
+
+  QueryBuilder<Product, Product, QAfterSortBy> thenByAvailableDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'available', Sort.desc);
+    });
+  }
+
   QueryBuilder<Product, Product, QAfterSortBy> thenByCategory() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'category', Sort.asc);
@@ -1643,6 +1975,18 @@ extension ProductQuerySortThenBy
   QueryBuilder<Product, Product, QAfterSortBy> thenByCategoryDesc() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'category', Sort.desc);
+    });
+  }
+
+  QueryBuilder<Product, Product, QAfterSortBy> thenByConsumed() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'consumed', Sort.asc);
+    });
+  }
+
+  QueryBuilder<Product, Product, QAfterSortBy> thenByConsumedDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'consumed', Sort.desc);
     });
   }
 
@@ -1694,18 +2038,6 @@ extension ProductQuerySortThenBy
     });
   }
 
-  QueryBuilder<Product, Product, QAfterSortBy> thenByIsMaterial() {
-    return QueryBuilder.apply(this, (query) {
-      return query.addSortBy(r'isMaterial', Sort.asc);
-    });
-  }
-
-  QueryBuilder<Product, Product, QAfterSortBy> thenByIsMaterialDesc() {
-    return QueryBuilder.apply(this, (query) {
-      return query.addSortBy(r'isMaterial', Sort.desc);
-    });
-  }
-
   QueryBuilder<Product, Product, QAfterSortBy> thenByLength() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'length', Sort.asc);
@@ -1730,15 +2062,27 @@ extension ProductQuerySortThenBy
     });
   }
 
-  QueryBuilder<Product, Product, QAfterSortBy> thenByNumber() {
+  QueryBuilder<Product, Product, QAfterSortBy> thenByNeeded() {
     return QueryBuilder.apply(this, (query) {
-      return query.addSortBy(r'number', Sort.asc);
+      return query.addSortBy(r'needed', Sort.asc);
     });
   }
 
-  QueryBuilder<Product, Product, QAfterSortBy> thenByNumberDesc() {
+  QueryBuilder<Product, Product, QAfterSortBy> thenByNeededDesc() {
     return QueryBuilder.apply(this, (query) {
-      return query.addSortBy(r'number', Sort.desc);
+      return query.addSortBy(r'needed', Sort.desc);
+    });
+  }
+
+  QueryBuilder<Product, Product, QAfterSortBy> thenByProgress() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'progress', Sort.asc);
+    });
+  }
+
+  QueryBuilder<Product, Product, QAfterSortBy> thenByProgressDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'progress', Sort.desc);
     });
   }
 
@@ -1775,10 +2119,22 @@ extension ProductQueryWhereDistinct
     });
   }
 
+  QueryBuilder<Product, Product, QDistinct> distinctByAvailable() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addDistinctBy(r'available');
+    });
+  }
+
   QueryBuilder<Product, Product, QDistinct> distinctByCategory(
       {bool caseSensitive = true}) {
     return QueryBuilder.apply(this, (query) {
       return query.addDistinctBy(r'category', caseSensitive: caseSensitive);
+    });
+  }
+
+  QueryBuilder<Product, Product, QDistinct> distinctByConsumed() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addDistinctBy(r'consumed');
     });
   }
 
@@ -1801,12 +2157,6 @@ extension ProductQueryWhereDistinct
     });
   }
 
-  QueryBuilder<Product, Product, QDistinct> distinctByIsMaterial() {
-    return QueryBuilder.apply(this, (query) {
-      return query.addDistinctBy(r'isMaterial');
-    });
-  }
-
   QueryBuilder<Product, Product, QDistinct> distinctByLength() {
     return QueryBuilder.apply(this, (query) {
       return query.addDistinctBy(r'length');
@@ -1820,9 +2170,16 @@ extension ProductQueryWhereDistinct
     });
   }
 
-  QueryBuilder<Product, Product, QDistinct> distinctByNumber() {
+  QueryBuilder<Product, Product, QDistinct> distinctByNeeded() {
     return QueryBuilder.apply(this, (query) {
-      return query.addDistinctBy(r'number');
+      return query.addDistinctBy(r'needed');
+    });
+  }
+
+  QueryBuilder<Product, Product, QDistinct> distinctByProgress(
+      {bool caseSensitive = true}) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addDistinctBy(r'progress', caseSensitive: caseSensitive);
     });
   }
 
@@ -1853,9 +2210,21 @@ extension ProductQueryProperty
     });
   }
 
+  QueryBuilder<Product, int?, QQueryOperations> availableProperty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addPropertyName(r'available');
+    });
+  }
+
   QueryBuilder<Product, String?, QQueryOperations> categoryProperty() {
     return QueryBuilder.apply(this, (query) {
       return query.addPropertyName(r'category');
+    });
+  }
+
+  QueryBuilder<Product, int?, QQueryOperations> consumedProperty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addPropertyName(r'consumed');
     });
   }
 
@@ -1877,12 +2246,6 @@ extension ProductQueryProperty
     });
   }
 
-  QueryBuilder<Product, bool?, QQueryOperations> isMaterialProperty() {
-    return QueryBuilder.apply(this, (query) {
-      return query.addPropertyName(r'isMaterial');
-    });
-  }
-
   QueryBuilder<Product, int?, QQueryOperations> lengthProperty() {
     return QueryBuilder.apply(this, (query) {
       return query.addPropertyName(r'length');
@@ -1895,9 +2258,16 @@ extension ProductQueryProperty
     });
   }
 
-  QueryBuilder<Product, int?, QQueryOperations> numberProperty() {
+  QueryBuilder<Product, int?, QQueryOperations> neededProperty() {
     return QueryBuilder.apply(this, (query) {
-      return query.addPropertyName(r'number');
+      return query.addPropertyName(r'needed');
+    });
+  }
+
+  QueryBuilder<Product, ProjectLifeCycle?, QQueryOperations>
+      progressProperty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addPropertyName(r'progress');
     });
   }
 

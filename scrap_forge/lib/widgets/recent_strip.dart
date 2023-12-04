@@ -1,22 +1,19 @@
 import 'dart:convert';
-import 'dart:io';
 import 'dart:typed_data';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
-import 'package:isar/isar.dart';
-import 'package:path_provider/path_provider.dart';
 import 'package:scrap_forge/db_entities/product.dart';
 
-class ProjectStrip extends StatefulWidget {
+class RecentStrip extends StatefulWidget {
   Product product;
-  ProjectStrip({super.key, required this.product});
+  RecentStrip({super.key, required this.product});
 
   @override
-  State<ProjectStrip> createState() => _ProjectStripState();
+  State<RecentStrip> createState() => _RecentStripState();
 }
 
-class _ProjectStripState extends State<ProjectStrip> {
+class _RecentStripState extends State<RecentStrip> {
   Widget thumbnail = SvgPicture.asset(
     'assets/image-placeholder.svg',
     fit: BoxFit.fill,

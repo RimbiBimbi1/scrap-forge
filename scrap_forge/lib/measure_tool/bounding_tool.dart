@@ -9,16 +9,15 @@ class BoundingTool extends StatefulWidget {
   final double mmHeight;
   final Size size;
   final int projectionAreaPixels;
-  final ValueSetter<List<Offset>> setCorners;
 
-  const BoundingTool(
-      {super.key,
-      required this.image,
-      required this.points,
-      required this.size,
-      required this.projectionAreaPixels,
-      required this.mmHeight,
-      required this.setCorners});
+  const BoundingTool({
+    super.key,
+    required this.image,
+    required this.points,
+    required this.size,
+    required this.projectionAreaPixels,
+    required this.mmHeight,
+  });
 
   @override
   State<BoundingTool> createState() => _FramingToolState();

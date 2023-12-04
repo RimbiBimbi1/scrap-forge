@@ -223,9 +223,6 @@ class _MeasurementHubState extends State<MeasurementHub> {
             mmHeight: sheetHmm.toDouble(),
             size: Size(displayW, displayH),
             projectionAreaPixels: this.projectionAreaPixels,
-            setCorners: (List<Offset> corners) {
-              // TO DO:
-            },
           );
         case 'sheetDetected':
           return FramingTool(
@@ -262,7 +259,7 @@ class _MeasurementHubState extends State<MeasurementHub> {
     return Scaffold(
       backgroundColor: Colors.grey[900],
       appBar: AppBar(
-        title: const Text("Moja kuźnia"),
+        title: const Text("Pomiar"),
         actions: [
           IconButton(onPressed: () {}, icon: const Icon(Icons.settings))
         ],

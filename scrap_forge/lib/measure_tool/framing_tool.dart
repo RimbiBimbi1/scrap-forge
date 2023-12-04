@@ -1,7 +1,4 @@
-import 'dart:typed_data';
-
 import 'package:flutter/material.dart';
-import 'package:image/image.dart' as imgLib;
 
 const double magnifierRadius = 50;
 
