@@ -33,6 +33,8 @@ class _MeasurementHubState extends State<MeasurementHub> {
   List<Offset> sheetCorners = List.empty();
   List<Offset> itemBoundingBox = List.empty();
 
+  int projectionAreaPixels = 0;
+
   @override
   void initState() {
     super.initState();
@@ -45,7 +47,7 @@ class _MeasurementHubState extends State<MeasurementHub> {
     }
     XFile? file = await ImagePicker().pickImage(source: source);
     if (file != null) {
-      ByteData data = await rootBundle.load("assets/mw_r_1.jpg");
+      ByteData data = await rootBundle.load("assets/mw_g_1.jpg");
       imgLib.Image? image = imgLib.decodeJpg(data.buffer.asUint8List());
 
       // Uint8List bytes = await file.readAsBytes();
@@ -169,7 +171,7 @@ class _MeasurementHubState extends State<MeasurementHub> {
 
     int projectionAreaPixels = binary
         .getBytes()
-        .reduce((value, element) => (element == 0) ? value++ : value);
+        .reduce((value, element) => (element == 0) ? value += 1 : value);
 
     binary = ImageProcessor.getBinaryInversed(binary);
 
@@ -189,9 +191,11 @@ class _MeasurementHubState extends State<MeasurementHub> {
         .toList();
 
     setState(() {
+      this.projectionAreaPixels = projectionAreaPixels;
       itemBoundingBox = corners;
       sheet = sheetCropped;
       displayed = sheetCropped;
+      // displayed = binary;
       phase = 'boundingBoxDetected';
     });
   }
@@ -218,9 +222,7 @@ class _MeasurementHubState extends State<MeasurementHub> {
             image: displayImage(displayed),
             mmHeight: sheetHmm.toDouble(),
             size: Size(displayW, displayH),
-            setCorners: (List<Offset> corners) {
-              // TO DO:
-            },
+            projectionAreaPixels: this.projectionAreaPixels,
           );
         case 'sheetDetected':
           return FramingTool(
@@ -257,7 +259,7 @@ class _MeasurementHubState extends State<MeasurementHub> {
     return Scaffold(
       backgroundColor: Colors.grey[900],
       appBar: AppBar(
-        title: const Text("Moja kuźnia"),
+        title: const Text("Pomiar"),
         actions: [
           IconButton(onPressed: () {}, icon: const Icon(Icons.settings))
         ],

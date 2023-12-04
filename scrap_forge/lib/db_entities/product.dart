@@ -9,9 +9,12 @@ class Product {
 
   String? name;
   String? description;
+
+  @Enumerated(EnumType.name)
+  ProjectLifeCycle? progress;
+
   final photos = IsarLinks<Photo>();
 
-  bool? isMaterial;
   String? category;
 
   final madeFrom = IsarLinks<Product>();
@@ -27,5 +30,13 @@ class Product {
   int? height;
   int? projectionArea;
 
-  int? number;
+  int? consumed;
+  int? available;
+  int? needed;
+}
+
+enum ProjectLifeCycle {
+  finished(),
+  inProgress(),
+  planned(),
 }

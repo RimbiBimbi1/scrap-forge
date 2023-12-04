@@ -5,50 +5,29 @@ import 'package:scrap_forge/pages/loading.dart';
 
 import 'package:scrap_forge/pages/measurement_hub.dart';
 import 'package:scrap_forge/pages/product_editor.dart';
+import 'package:scrap_forge/pages/product_gallery.dart';
+import 'package:scrap_forge/widgets/theme.dart';
+import 'package:scrap_forge/widgets/theme_manager.dart';
+
+ThemeManager _themeManager = ThemeManager();
 
 Future<void> main() async {
   return runApp(
     MaterialApp(
-      // initialRoute: '/productEditor',
-      initialRoute: '/measure',
+      // theme: lightTheme,
+      theme: darkTheme,
+      darkTheme: darkTheme,
+      themeMode: _themeManager.themeMode,
       // initialRoute: '/home',
+      // initialRoute: '/measure',
+      initialRoute: '/home',
       routes: {
         '/': (context) => Loading(),
-        '/home': (context) => Home(
-              themeData: ThemeData(
-                colorScheme: ColorScheme.fromSeed(
-                    seedColor: Colors.red,
-                    background: Colors.grey[900],
-                    onBackground: Colors.white,
-                    primary: Colors.red[600],
-                    onPrimary: Colors.white,
-                    primaryContainer: Colors.orange,
-                    secondary: Colors.grey[900],
-                    onSecondary: Colors.white,
-                    tertiary: Colors.amber,
-                    tertiaryContainer: Colors.amberAccent),
-                textTheme: const TextTheme(
-                  displayLarge: TextStyle(
-                    fontSize: 50,
-                    fontWeight: FontWeight.bold,
-                  ),
-                  displayMedium: TextStyle(
-                    fontSize: 40,
-                    fontWeight: FontWeight.normal,
-                  ),
-                  displaySmall: TextStyle(
-                    fontSize: 25,
-                    fontWeight: FontWeight.normal,
-                  ),
-                ),
-              ),
-            ),
-        '/productEditor': (context) => ProductEditor(),
+        '/home': (context) => Home(),
+        '/addProduct': (context) => ProductEditor(),
         '/measure': (context) => MeasurementHub(),
-        // '/framingTool': (context) => FramingTool(),
-        // '/measure': (context) => MeasureTool()
+        '/products': (context) => ProductGallery(context: context),
       },
-      // home: MeasureTool(),
     ),
   );
 }

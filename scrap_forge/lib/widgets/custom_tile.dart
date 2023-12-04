@@ -41,7 +41,6 @@ class CustomTile extends StatelessWidget {
                   alignment: Alignment.topLeft,
                   child: AspectRatio(
                     aspectRatio: 1,
-                    // alignment: Alignment.topLeft,
                     child: Container(
                       child: child,
                     ),
@@ -49,7 +48,6 @@ class CustomTile extends StatelessWidget {
                 ),
                 Container(
                   alignment: Alignment.bottomRight,
-                  // padding: EdgeInsets.all(5),
                   child: Text(title,
                       textScaleFactor: 1.1,
                       textAlign: TextAlign.end,
@@ -60,44 +58,9 @@ class CustomTile extends StatelessWidget {
                 ),
               ],
             ),
-            // child: GridView.count(
-            //   primary: false,
-            //   crossAxisCount: 2,
-            //   shrinkWrap: true,
-            //   children: [
-            //     Container(
-            //       child: child,
-            //     ),
-            //     Container(),
-            //     Container(),
-            //     Container(
-            //       alignment: Alignment.bottomRight,
-            //       padding: EdgeInsets.all(5),
-            //       child: Text(title),
-            //     ),
-            //   ],
           ),
         ),
       ),
     );
-    // );
-    //   child: SizedBox.expand(
-    //     child: Container(
-    //       decoration: BoxDecoration(
-    //           color: background,
-    //           borderRadius: BorderRadius.all(Radius.circular(10))),
-    //       child: TextButton(
-    //         onPressed: onPressed,
-    //         style: ButtonStyle(
-    //             padding: MaterialStateProperty.resolveWith(
-    //                 (states) => EdgeInsets.all(0))),
-    //         child: Container(
-    //           padding: EdgeInsets.all(30),
-    //           child: SizedBox.expand(child: child),
-    //         ),
-    //       ),
-    //     ),
-    //   ),
-    // );
   }
 }
