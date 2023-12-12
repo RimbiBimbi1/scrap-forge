@@ -279,7 +279,6 @@ class _FramingToolState extends State<BoundingTool> {
                 onPanStart: getActiveArea,
                 onPanUpdate: calcMagnifierPositions,
                 onPanEnd: (DragEndDetails details) => {
-                  // widget.setCorners(widget.points),
                   setState(() {
                     activeArea = -1;
                   })

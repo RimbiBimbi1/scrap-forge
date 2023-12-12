@@ -1,5 +1,4 @@
 import 'package:scrap_forge/db_entities/product.dart';
-import 'package:scrap_forge/db_entities/product_dto.dart';
 import 'package:scrap_forge/isar_service.dart';
 
 Future<List<Product>> fetchProducts(ProductFilter filter) async {
@@ -32,6 +31,10 @@ class ProductFilter {
     this.neededOnly = -1,
   });
 
+  static ProductFilter projects() {
+    return ProductFilter(projectsOnly: true);
+  }
+
   static ProductFilter finishedProducts() {
     return ProductFilter(
       projectsOnly: true,
@@ -51,6 +54,10 @@ class ProductFilter {
       projectsOnly: true,
       plannedOnly: true,
     );
+  }
+
+  static ProductFilter materials() {
+    return ProductFilter(materialsOnly: true);
   }
 
   static ProductFilter consumedMaterials() {

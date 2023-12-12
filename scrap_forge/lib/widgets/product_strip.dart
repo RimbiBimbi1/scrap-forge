@@ -1,24 +1,31 @@
 import 'dart:convert';
 import 'dart:typed_data';
+import 'dart:ui';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:scrap_forge/db_entities/product.dart';
+import 'package:scrap_forge/utils/string_multiliner.dart';
 
 class ProductStrip extends StatefulWidget {
   Product product;
   bool asMaterial;
-  ProductStrip({super.key, required this.product, this.asMaterial = false});
+  VoidCallback? onLongPress;
+  VoidCallback? onPressed;
+  ProductStrip({
+    super.key,
+    required this.product,
+    this.asMaterial = false,
+    this.onLongPress,
+    this.onPressed,
+  });
 
   @override
   State<ProductStrip> createState() => _ProductStripState();
 }
 
 class _ProductStripState extends State<ProductStrip> {
-  Widget thumbnail = SvgPicture.asset(
-    'assets/image-placeholder.svg',
-    fit: BoxFit.fill,
-  );
+  Widget? thumbnail;
 
   Future<void> getImage() async {
     String? data;
@@ -61,17 +68,12 @@ class _ProductStripState extends State<ProductStrip> {
     TextStyle textStyle =
         TextStyle(color: Theme.of(context).colorScheme.onBackground);
     if (!widget.asMaterial) {
-      StringBuffer sb = StringBuffer();
-      if (widget.product.description != null) {
-        for (String line in (widget.product.description!.split('\\n'))) {
-          sb.write(line + "\n");
-        }
-      }
-
       return Expanded(
         child: Padding(
           padding: const EdgeInsets.symmetric(vertical: 3),
-          child: Text(sb.toString(), style: textStyle),
+          child: Text(
+              StringMultiliner.multiline(widget.product.description).toString(),
+              style: textStyle),
         ),
       );
     } else {
@@ -81,9 +83,13 @@ class _ProductStripState extends State<ProductStrip> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
-                Text("Długość: ${widget.product.length}mm"),
-                Text("Szerokość: ${widget.product.width}mm"),
-                Text("Wysokość: ${widget.product.height}mm"),
+                // Text(getStringDimensions()),
+                if (widget.product.length != null)
+                  Text("Długość: ${widget.product.length}mm"),
+                if (widget.product.width != null)
+                  Text("Szerokość: ${widget.product.width}mm"),
+                if (widget.product.height != null)
+                  Text("Wysokość: ${widget.product.height}mm"),
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
@@ -134,37 +140,47 @@ class _ProductStripState extends State<ProductStrip> {
   @override
   Widget build(BuildContext context) {
     return Container(
-      decoration: BoxDecoration(
-          border: Border(bottom: BorderSide(width: 2, color: Colors.white10))),
+      decoration: const BoxDecoration(
+        border: Border(
+          bottom: BorderSide(
+            width: 2,
+            color: Colors.white10,
+          ),
+        ),
+      ),
       child: TextButton(
-        onPressed: () {},
+        onPressed: widget.onPressed ??
+            () {
+              Navigator.pushNamed(context, "/product",
+                  arguments: {'productData': widget.product});
+            },
+        onLongPress: widget.onLongPress,
         child: SizedBox(
           height: 125,
-          child: Expanded(
-            child: Row(
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              mainAxisAlignment: MainAxisAlignment.start,
-              children: [
+          child: Row(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            mainAxisAlignment: MainAxisAlignment.start,
+            children: [
+              if (thumbnail != null)
                 SizedBox(
                   height: 120,
                   child: thumbnail,
                 ),
-                Expanded(
-                  child: Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 8),
-                    child: Column(
-                      mainAxisAlignment: MainAxisAlignment.start,
-                      crossAxisAlignment: CrossAxisAlignment.stretch,
-                      children: [
-                        displayHeader(),
-                        displayBody(),
-                        displayFooter()
-                      ],
-                    ),
+              Flexible(
+                child: Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 8),
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.start,
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                    children: [
+                      displayHeader(),
+                      displayBody(),
+                      // displayFooter()
+                    ],
                   ),
-                )
-              ],
-            ),
+                ),
+              )
+            ],
           ),
         ),
       ),

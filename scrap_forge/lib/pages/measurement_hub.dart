@@ -47,18 +47,13 @@ class _MeasurementHubState extends State<MeasurementHub> {
     }
     XFile? file = await ImagePicker().pickImage(source: source);
     if (file != null) {
-      ByteData data = await rootBundle.load("assets/mw_g_1.jpg");
-      imgLib.Image? image = imgLib.decodeJpg(data.buffer.asUint8List());
+      // ByteData data = await rootBundle.load("assets/mw_g_1.jpg");
+      // imgLib.Image? image = imgLib.decodeJpg(data.buffer.asUint8List());
 
-      // Uint8List bytes = await file.readAsBytes();
-      // imgLib.Image? image = imgLib.decodeJpg(bytes);
+      Uint8List bytes = await file.readAsBytes();
+      imgLib.Image? image = imgLib.decodeJpg(bytes);
       if (image != null) {
         detectSheet(image);
-
-        // setState(() {
-        //   originalPhoto = image;
-        //   phase = "sheetDetection";
-        // });
       }
     }
   }
@@ -141,7 +136,6 @@ class _MeasurementHubState extends State<MeasurementHub> {
         .map((i) => imgLib.Point(sheetCorners[i].dx / displayW * imgW,
             sheetCorners[i].dy / displayH * imgH))
         .toList();
-    // List<imgLib.Point> ULTriangle = List.from([imgLib.Point(corners[0].dx, corners[0].dy), imgLib.Point(corners[1].dx, corners[1].dy), imgLib.Point(corners[3].dx, corners[3].dy)]);
     List<imgLib.Point> DLTriangleTexture = [2, 3, 0]
         .map((i) => imgLib.Point(sheetCorners[i].dx / displayW * imgW,
             sheetCorners[i].dy / displayH * imgH))
@@ -156,7 +150,6 @@ class _MeasurementHubState extends State<MeasurementHub> {
       imgLib.Point(0, sheetHpx),
       imgLib.Point(0, 0)
     ]);
-    // TriangleTexturer tt = TriangleTexturer(photo, a4, URTriangleTexture, URTriangleResult);
     TriangleTexturer tt = TriangleTexturer(
         originalPhoto, a4, URTriangleTexture, URTriangleResult);
 
@@ -181,10 +174,6 @@ class _MeasurementHubState extends State<MeasurementHub> {
     displayW = (imgW * displayH) / imgH;
 
     List<imgLib.Point> scanned = AutoBoundingBoxScanner.getBoundingBox(binary);
-
-    // displaySize = _imageKey.currentContext?.size ?? const Size(0, 0);
-    // displayW = displaySize.width;
-    // displayH = displaySize.height;
 
     List<Offset> corners = scanned
         .map((e) => Offset(e.x / imgW * displayW, e.y / imgH * displayH))

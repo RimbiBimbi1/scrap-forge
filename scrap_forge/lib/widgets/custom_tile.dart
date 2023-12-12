@@ -49,7 +49,7 @@ class CustomTile extends StatelessWidget {
                 Container(
                   alignment: Alignment.bottomRight,
                   child: Text(title,
-                      textScaleFactor: 1.1,
+                      textScaleFactor: 0.9,
                       textAlign: TextAlign.end,
                       style: TextStyle(
                         color: color,

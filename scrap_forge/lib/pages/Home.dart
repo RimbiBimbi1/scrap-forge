@@ -198,7 +198,7 @@ class _HomeState extends State<Home> {
               ),
               FloatingActionButton(
                 onPressed: () {
-                  Navigator.pushNamed(context, "/addProduct");
+                  Navigator.pushNamed(context, "/editProduct");
                 },
                 child: Text(
                   "+",

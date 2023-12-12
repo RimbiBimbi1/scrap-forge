@@ -6,6 +6,7 @@ import 'package:scrap_forge/pages/loading.dart';
 import 'package:scrap_forge/pages/measurement_hub.dart';
 import 'package:scrap_forge/pages/product_editor.dart';
 import 'package:scrap_forge/pages/product_gallery.dart';
+import 'package:scrap_forge/pages/product_page.dart';
 import 'package:scrap_forge/widgets/theme.dart';
 import 'package:scrap_forge/widgets/theme_manager.dart';
 
@@ -24,7 +25,8 @@ Future<void> main() async {
       routes: {
         '/': (context) => Loading(),
         '/home': (context) => Home(),
-        '/addProduct': (context) => ProductEditor(),
+        '/editProduct': (context) => ProductEditor(context: context),
+        '/product': (context) => ProductPage(context: context),
         '/measure': (context) => MeasurementHub(),
         '/products': (context) => ProductGallery(context: context),
       },

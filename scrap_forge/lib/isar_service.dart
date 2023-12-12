@@ -37,7 +37,10 @@ class IsarService {
     //       await product.photos.save()
     //     });
 
-    isar.writeTxnSync(() => isar.products.putSync(product));
+    isar.writeTxnSync(() {
+      isar.products.deleteSync(product.id);
+      isar.products.putSync(product);
+    });
 
     //To do
   }
@@ -138,6 +141,16 @@ class IsarService {
         .usedIn((q) => q.idEqualTo(product.id))
         .findAll();
   }
+
+  // Future<void> clearProductLinked(Product product) async {
+  //   final isar = await db;
+  //   isar.writeTxnSync(() {
+  //     isar.photos
+  //         .deleteAllSync(product.photos.map((photo) => photo.id).toList());
+  //     isar.products.get(product.id)
+  //     product.usedIn.clear();
+  //   });
+  // }
 
   Future<void> savePhoto(Photo newPhoto) async {
     final isar = await db;
