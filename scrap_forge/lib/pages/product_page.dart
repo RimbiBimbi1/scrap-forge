@@ -38,7 +38,7 @@ class _ProductPageState extends State<ProductPage> {
       return Scaffold(
         backgroundColor: Colors.grey[900],
         appBar: AppBar(
-          title: Text("Strona produktu"),
+          title: const Text("Strona produktu"),
           actions: [
             IconButton(
                 onPressed: () {
@@ -104,10 +104,9 @@ class _ProductPageState extends State<ProductPage> {
                               clipBehavior: Clip.hardEdge,
                               decoration: BoxDecoration(
                                 borderRadius:
-                                    BorderRadius.all(Radius.circular(8)),
+                                    const BorderRadius.all(Radius.circular(8)),
                                 image: DecorationImage(
-                                    image: MemoryImage(
-                                        base64Decode(photo.imgData ??= "")),
+                                    image: MemoryImage(base64Decode(photo)),
                                     fit: BoxFit.cover),
                               ),
                             ),
@@ -134,6 +133,6 @@ class _ProductPageState extends State<ProductPage> {
         ),
       );
     }
-    return Loading();
+    return const Loading();
   }
 }

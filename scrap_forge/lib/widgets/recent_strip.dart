@@ -26,13 +26,11 @@ class _RecentStripState extends State<RecentStrip> {
       return;
     }
 
-    data = widget.product.photos.first.imgData;
-    if (data != null) {
-      Uint8List bytes = base64Decode(data);
-      setState(() {
-        thumbnail = Image(image: MemoryImage(bytes));
-      });
-    }
+    data = widget.product.photos.first;
+    Uint8List bytes = base64Decode(data);
+    setState(() {
+      thumbnail = Image(image: MemoryImage(bytes));
+    });
     return;
 
     // String dir = (await getApplicationDocumentsDirectory()).path;
@@ -68,7 +66,7 @@ class _RecentStripState extends State<RecentStrip> {
             child: thumbnail,
           ),
           Padding(
-            padding: EdgeInsets.all(10),
+            padding: const EdgeInsets.all(10),
             child: displayName(),
           ),
         ],

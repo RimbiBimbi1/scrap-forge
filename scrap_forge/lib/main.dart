@@ -23,7 +23,7 @@ Future<void> main() async {
       // initialRoute: '/measure',
       initialRoute: '/home',
       routes: {
-        '/': (context) => Loading(),
+        '/': (context) => const Loading(),
         '/home': (context) => Home(),
         '/editProduct': (context) => ProductEditor(context: context),
         '/product': (context) => ProductPage(context: context),
@@ -33,6 +33,7 @@ Future<void> main() async {
     ),
   );
 }
+
 
 
 // void main() {

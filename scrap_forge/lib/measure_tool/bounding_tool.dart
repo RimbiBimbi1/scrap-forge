@@ -317,15 +317,15 @@ class _FramingToolState extends State<BoundingTool> {
                 children: [
                   Text(
                     "Długość: ${dimensions[0].round()}mm",
-                    style: TextStyle(color: Colors.white),
+                    style: const TextStyle(color: Colors.white),
                   ),
                   Text(
                     "Szerokość: ${dimensions[1].round()}mm",
-                    style: TextStyle(color: Colors.white),
+                    style: const TextStyle(color: Colors.white),
                   ),
                   Text(
                     "Pole przedmiotu: ${projectionAreaCM2.round()}cm2",
-                    style: TextStyle(color: Colors.white),
+                    style: const TextStyle(color: Colors.white),
                   ),
                 ],
               ),
@@ -338,7 +338,7 @@ class _FramingToolState extends State<BoundingTool> {
                   ),
                   Navigator.pop(context),
                 },
-                child: Text("Zatwierdź"),
+                child: const Text("Zatwierdź"),
               ),
             ],
           ),

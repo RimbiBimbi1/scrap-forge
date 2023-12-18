@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/widgets.dart';
 
 class ThemeManager with ChangeNotifier {
   ThemeMode _themeMode = ThemeMode.light;

@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_svg/svg.dart';
 
 class CustomTile extends StatelessWidget {
   Color? background;
@@ -37,11 +36,12 @@ class CustomTile extends StatelessWidget {
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 Container(
-                  padding: EdgeInsets.fromLTRB(0, 0, 20, 20),
+                  padding: const EdgeInsets.fromLTRB(0, 0, 0, 0),
                   alignment: Alignment.topLeft,
                   child: AspectRatio(
                     aspectRatio: 1,
                     child: Container(
+                      alignment: AlignmentDirectional.topStart,
                       child: child,
                     ),
                   ),

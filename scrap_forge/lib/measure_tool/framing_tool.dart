@@ -118,7 +118,7 @@ class _FramingToolState extends State<FramingTool> {
         Flexible(
           child: ElevatedButton(
             onPressed: () => widget.setCorners(widget.points),
-            child: Text("Zatwierdź"),
+            child: const Text("Zatwierdź"),
           ),
         ),
       ],

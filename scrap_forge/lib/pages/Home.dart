@@ -113,9 +113,9 @@ class _HomeState extends State<Home> {
                     background: theme.colorScheme.secondary,
                     color: theme.colorScheme.onSecondary,
                     title: "W trakcie realizacji",
-                    child: SvgPicture.asset(
-                      'assets/image-placeholder.svg',
-                      fit: BoxFit.fill,
+                    child: const Image(
+                      image: AssetImage('assets/images/anvil.png'),
+                      fit: BoxFit.fitWidth,
                     ),
                   ),
                   const Spacer(
@@ -130,9 +130,9 @@ class _HomeState extends State<Home> {
                     background: theme.colorScheme.secondary,
                     color: theme.colorScheme.onSecondary,
                     title: "Planowane",
-                    child: SvgPicture.asset(
-                      'assets/image-placeholder.svg',
-                      fit: BoxFit.fill,
+                    child: const Image(
+                      image: AssetImage('assets/images/planned_projects.png'),
+                      fit: BoxFit.fitHeight,
                     ),
                   ),
                 ],
@@ -172,9 +172,9 @@ class _HomeState extends State<Home> {
                     background: theme.colorScheme.secondary,
                     color: theme.colorScheme.onSecondary,
                     title: "Gotowe do użycia",
-                    child: SvgPicture.asset(
-                      'assets/image-placeholder.svg',
-                      fit: BoxFit.fill,
+                    child: const Image(
+                      image: AssetImage('assets/images/rack.png'),
+                      fit: BoxFit.fitHeight,
                     ),
                   ),
                   const Spacer(
@@ -189,9 +189,9 @@ class _HomeState extends State<Home> {
                     background: theme.colorScheme.secondary,
                     color: theme.colorScheme.onSecondary,
                     title: "Brakujące",
-                    child: SvgPicture.asset(
-                      'assets/image-placeholder.svg',
-                      fit: BoxFit.fill,
+                    child: const Image(
+                      image: AssetImage('assets/images/needed_materials.png'),
+                      fit: BoxFit.fitHeight,
                     ),
                   ),
                 ],
@@ -200,7 +200,7 @@ class _HomeState extends State<Home> {
                 onPressed: () {
                   Navigator.pushNamed(context, "/editProduct");
                 },
-                child: Text(
+                child: const Text(
                   "+",
                   textScaleFactor: 3,
                 ),

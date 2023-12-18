@@ -1,8 +1,12 @@
+import 'dart:math' as math;
+
 import 'package:flutter/material.dart';
-import 'package:isar/isar.dart';
 import 'package:scrap_forge/db_entities/product.dart';
+import 'package:scrap_forge/isar_service.dart';
 import 'package:scrap_forge/utils/fetch_products.dart';
 import 'package:scrap_forge/widgets/product_strip.dart';
+
+enum SelectionOptions { delete() }
 
 class ProductGallery extends StatefulWidget {
   final BuildContext context;
@@ -13,6 +17,7 @@ class ProductGallery extends StatefulWidget {
 }
 
 class _ProductGalleryState extends State<ProductGallery> {
+  IsarService db = IsarService();
   List<Product> products = List.empty();
   bool asMaterials = false;
   bool selectionMode = false;
@@ -81,7 +86,7 @@ class _ProductGalleryState extends State<ProductGallery> {
                         onChanged: ((value) => updateSelected(index, value)),
                         checkColor: Colors.red,
                         activeColor: Colors.red,
-                        shape: RoundedRectangleBorder(
+                        shape: const RoundedRectangleBorder(
                             borderRadius: BorderRadius.all(Radius.circular(3))),
                       ),
                     ],
@@ -94,7 +99,7 @@ class _ProductGalleryState extends State<ProductGallery> {
                   crossFadeState: selectionMode
                       ? CrossFadeState.showFirst
                       : CrossFadeState.showSecond,
-                  duration: Duration(milliseconds: 200))),
+                  duration: const Duration(milliseconds: 200))),
         )
         .values
         .toList();
@@ -116,35 +121,115 @@ class _ProductGalleryState extends State<ProductGallery> {
     return result;
   }
 
+  Future<void> _displayDeleteDialog() async {
+    return showDialog<void>(
+      context: context,
+      builder: (context) {
+        return AlertDialog(
+          title: const Text("Usunąć wybrane produkty?"),
+          titlePadding: const EdgeInsets.fromLTRB(24, 24, 24, 8),
+          content: const Text("Usuniętych produktów nie da się przywrócić"),
+          contentPadding:
+              const EdgeInsets.symmetric(horizontal: 24, vertical: 8),
+          actionsPadding:
+              const EdgeInsets.symmetric(horizontal: 24, vertical: 8),
+          actions: [
+            Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              crossAxisAlignment: CrossAxisAlignment.center,
+              children: [
+                Expanded(
+                  flex: 4,
+                  child: ElevatedButton(
+                    onPressed: () {
+                      Navigator.of(context).pop();
+                    },
+                    child: const Text("Anuluj"),
+                  ),
+                ),
+                const Spacer(),
+                Expanded(
+                  flex: 4,
+                  child: ElevatedButton(
+                    onPressed: () {
+                      db.deleteProducts(getSelected());
+                    },
+                    child: const Text("Usuń"),
+                  ),
+                ),
+              ],
+            )
+          ],
+        );
+      },
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      persistentFooterAlignment: AlignmentDirectional.center,
       backgroundColor: Colors.grey[900],
-      persistentFooterButtons: selectionMode
-          ? [
-              FloatingActionButton(
-                heroTag: null,
-                onPressed: () {
-                  setState(() {
-                    selectionMode = false;
-                    selected = List.filled(selected.length, false);
-                  });
-                },
-                child: Icon(Icons.cancel_outlined),
+      persistentFooterButtons: [
+        AnimatedCrossFade(
+          crossFadeState: selectionMode
+              ? CrossFadeState.showFirst
+              : CrossFadeState.showSecond,
+          duration: const Duration(milliseconds: 200),
+          firstChild: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: [
+              TextButton(
+                onPressed: () => setState(() {
+                  selectionMode = false;
+                  selected = List.filled(selected.length, false);
+                }),
+                child: const Column(
+                  children: [Icon(Icons.close), Text("Anuluj")],
+                ),
               ),
-              FloatingActionButton(
-                heroTag: null,
-                onPressed: (confirmSelection != null)
-                    ? () {
-                        confirmSelection!(getSelected());
-                      }
-                    : () {},
-                child: Icon(Icons.check),
-              )
-            ]
-          : [],
+              ...(confirmSelection != null)
+                  ? [
+                      TextButton(
+                        onPressed: () => confirmSelection!(getSelected()),
+                        child: const Column(
+                          children: [Icon(Icons.check), Text("Zatwierdź")],
+                        ),
+                      ),
+                    ]
+                  : [
+                      TextButton(
+                        onPressed: () {},
+                        child: Column(
+                          children: [
+                            Transform.rotate(
+                              angle: math.pi / 2,
+                              child: const Icon(
+                                Icons.move_down,
+                              ),
+                            ),
+                            const Text("Przenieś")
+                          ],
+                        ),
+                      ),
+                      TextButton(
+                        onPressed: _displayDeleteDialog,
+                        child: const Column(
+                          children: [
+                            Icon(Icons.delete),
+                            Text("Usuń"),
+                          ],
+                        ),
+                      ),
+                    ]
+            ],
+          ),
+          secondChild: const SizedBox.shrink(),
+        )
+      ],
       appBar: AppBar(
-        title: Text("Produkty"),
+        title: const Text("Produkty"),
         actions: [
           IconButton(
             onPressed: () {},
@@ -155,7 +240,7 @@ class _ProductGalleryState extends State<ProductGallery> {
       ),
       body: SafeArea(
         child: Padding(
-          padding: EdgeInsets.all(10),
+          padding: const EdgeInsets.all(10),
           child: ListView(
             shrinkWrap: true,
             children: [...displayProducts()],

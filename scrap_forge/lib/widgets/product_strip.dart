@@ -1,9 +1,7 @@
 import 'dart:convert';
 import 'dart:typed_data';
-import 'dart:ui';
 
 import 'package:flutter/material.dart';
-import 'package:flutter_svg/svg.dart';
 import 'package:scrap_forge/db_entities/product.dart';
 import 'package:scrap_forge/utils/string_multiliner.dart';
 
@@ -34,16 +32,14 @@ class _ProductStripState extends State<ProductStrip> {
       return;
     }
 
-    data = widget.product.photos.first.imgData;
-    if (data != null) {
-      Uint8List bytes = base64Decode(data);
-      setState(() {
-        thumbnail = Image(
-          fit: BoxFit.fill,
-          image: MemoryImage(bytes),
-        );
-      });
-    }
+    data = widget.product.photos.first;
+    Uint8List bytes = base64Decode(data);
+    setState(() {
+      thumbnail = Image(
+        fit: BoxFit.fill,
+        image: MemoryImage(bytes),
+      );
+    });
     return;
 
     // String dir = (await getApplicationDocumentsDirectory()).path;
@@ -84,12 +80,12 @@ class _ProductStripState extends State<ProductStrip> {
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
                 // Text(getStringDimensions()),
-                if (widget.product.length != null)
-                  Text("Długość: ${widget.product.length}mm"),
-                if (widget.product.width != null)
-                  Text("Szerokość: ${widget.product.width}mm"),
-                if (widget.product.height != null)
-                  Text("Wysokość: ${widget.product.height}mm"),
+                if (widget.product.dimensions?.length != null)
+                  Text("Długość: ${widget.product.dimensions?.length}mm"),
+                if (widget.product.dimensions?.width != null)
+                  Text("Szerokość: ${widget.product.dimensions?.width}mm"),
+                if (widget.product.dimensions?.height != null)
+                  Text("Wysokość: ${widget.product.dimensions?.height}mm"),
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [

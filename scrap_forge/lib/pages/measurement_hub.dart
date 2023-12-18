@@ -1,5 +1,3 @@
-import 'dart:typed_data';
-
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:image/image.dart' as imgLib;
@@ -100,6 +98,10 @@ class _MeasurementHubState extends State<MeasurementHub> {
   }
 
   void detectSheet(imgLib.Image photo) {
+    if (photo.width > photo.height) {
+      photo = imgLib.copyRotate(photo, angle: 90);
+    }
+
     imgLib.Image processed = getBinaryShadowless(photo);
 
     CornerScanner cs = CornerScanner(processed);
@@ -230,19 +232,19 @@ class _MeasurementHubState extends State<MeasurementHub> {
               Flexible(
                 child: ElevatedButton(
                   onPressed: () => pickImage(fromCamera: false),
-                  child: Text("Z galerii"),
+                  child: const Text("Z galerii"),
                 ),
               ),
               Flexible(
                 child: ElevatedButton(
                   onPressed: () => pickImage(fromCamera: true),
-                  child: Text("Z aparatu"),
+                  child: const Text("Z aparatu"),
                 ),
               ),
             ],
           );
       }
-      return Placeholder();
+      return const Placeholder();
     }
 
     return Scaffold(

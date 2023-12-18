@@ -1,6 +1,4 @@
-import 'package:flutter/material.dart';
 import 'package:isar/isar.dart';
-import 'package:scrap_forge/db_entities/photo.dart';
 
 part 'product.g.dart';
 
@@ -14,7 +12,7 @@ class Product {
   @Enumerated(EnumType.name)
   ProjectLifeCycle? progress;
 
-  final photos = IsarLinks<Photo>();
+  List<String> photos = [];
 
   String? category;
 
@@ -23,9 +21,19 @@ class Product {
   @Backlink(to: "madeFrom")
   final usedIn = IsarLinks<Product>();
 
+  Dimensions? dimensions;
+
   int? addedTimestamp;
+  int? lastModifiedTimestamp;
   int? finishedTimestamp;
 
+  int? consumed;
+  int? available;
+  int? needed;
+}
+
+@embedded
+class Dimensions {
   double? length;
   @Enumerated(EnumType.value, 'multiplier')
   SizeUnit? lengthDisplayUnit;
@@ -42,32 +50,16 @@ class Product {
   @Enumerated(EnumType.value, 'multiplier')
   SizeUnit? areaDisplayUnit;
 
-  int? consumed;
-  int? available;
-  int? needed;
-}
-
-enum ProjectLifeCycle {
-  finished(name: 'finished'),
-  inProgress(name: 'inProgress'),
-  planned(name: 'planned');
-
-  const ProjectLifeCycle({required this.name});
-
-  final String name;
-
-  static ProjectLifeCycle fromString(String name) {
-    switch (name) {
-      case 'finished':
-        return ProjectLifeCycle.finished;
-      case 'inProgress':
-        return ProjectLifeCycle.inProgress;
-      case 'planned':
-        return ProjectLifeCycle.planned;
-      default:
-        return ProjectLifeCycle.inProgress;
-    }
-  }
+  Dimensions({
+    this.length,
+    this.lengthDisplayUnit,
+    this.width,
+    this.widthDisplayUnit,
+    this.height,
+    this.heightDisplayUnit,
+    this.projectionArea,
+    this.areaDisplayUnit,
+  });
 }
 
 enum SizeUnit {
@@ -102,6 +94,29 @@ enum SizeUnit {
         return SizeUnit.meter;
       default:
         return SizeUnit.millimeter;
+    }
+  }
+}
+
+enum ProjectLifeCycle {
+  finished(name: 'finished'),
+  inProgress(name: 'inProgress'),
+  planned(name: 'planned');
+
+  const ProjectLifeCycle({required this.name});
+
+  final String name;
+
+  static ProjectLifeCycle fromString(String name) {
+    switch (name) {
+      case 'finished':
+        return ProjectLifeCycle.finished;
+      case 'inProgress':
+        return ProjectLifeCycle.inProgress;
+      case 'planned':
+        return ProjectLifeCycle.planned;
+      default:
+        return ProjectLifeCycle.inProgress;
     }
   }
 }

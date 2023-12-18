@@ -1,6 +1,5 @@
 import 'dart:convert';
 import 'dart:typed_data';
-import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:scrap_forge/db_entities/product.dart';
@@ -8,8 +7,6 @@ import 'package:scrap_forge/isar_service.dart';
 import 'package:scrap_forge/utils/fetch_products.dart';
 import 'package:scrap_forge/utils/string_multiliner.dart';
 import 'package:scrap_forge/widgets/custom_text_field.dart';
-
-import '../db_entities/photo.dart';
 
 class ProductEditor extends StatefulWidget {
   BuildContext context;
@@ -76,20 +73,29 @@ class _ProductEditorState extends State<ProductEditor> {
                 .trimLeft()
                 .trimRight();
         categoryController.text = product.category ??= "";
-        lengthController.text =
-            (product.length != null) ? product.length.toString() : "";
-        lengthUnitController.text = "${product.lengthDisplayUnit?.abbr}";
-        widthController.text =
-            (product.width != null) ? product.width.toString() : "";
-        widthUnitController.text = "${product.widthDisplayUnit?.abbr}";
-        heightController.text =
-            (product.height != null) ? product.height.toString() : "";
-        heightUnitController.text = "${product.heightDisplayUnit?.abbr}";
-        areaController.text = (product.projectionArea != null)
-            ? product.projectionArea.toString()
-            : "";
+        if (product.dimensions != null) {
+          lengthController.text = (product.dimensions!.length != null)
+              ? product.dimensions!.length.toString()
+              : "";
+          lengthUnitController.text =
+              "${product.dimensions!.lengthDisplayUnit?.abbr}";
+          widthController.text = (product.dimensions!.width != null)
+              ? product.dimensions!.width.toString()
+              : "";
+          widthUnitController.text =
+              "${product.dimensions!.widthDisplayUnit?.abbr}";
+          heightController.text = (product.dimensions!.height != null)
+              ? product.dimensions!.height.toString()
+              : "";
+          heightUnitController.text =
+              "${product.dimensions!.heightDisplayUnit?.abbr}";
+          areaController.text = (product.dimensions!.projectionArea != null)
+              ? product.dimensions!.projectionArea.toString()
+              : "";
+          areaUnitController.text =
+              "${product.dimensions!.areaDisplayUnit?.abbr}";
+        }
         progress = product.progress;
-        areaUnitController.text = "${product.areaDisplayUnit?.abbr}";
         consumedController.text =
             (product.consumed != null) ? product.consumed.toString() : "";
         availableController.text =
@@ -103,9 +109,7 @@ class _ProductEditorState extends State<ProductEditor> {
               product.available != null ||
               product.needed != null);
 
-          photos = product.photos
-              .map((photo) => base64Decode(photo.imgData ??= ""))
-              .toList();
+          photos = product.photos.map((photo) => base64Decode(photo)).toList();
 
           madeFrom = product.madeFrom.toList();
           madeFromCounts = List.generate(
@@ -114,11 +118,16 @@ class _ProductEditorState extends State<ProductEditor> {
           usedInCounts = List.generate(
               product.usedIn.length, (index) => TextEditingController());
 
-          lengthUnit = product.lengthDisplayUnit ?? SizeUnit.millimeter;
-          widthUnit = product.widthDisplayUnit ?? SizeUnit.millimeter;
-          heightUnit = product.heightDisplayUnit ?? SizeUnit.millimeter;
-          areaUnit = product.areaDisplayUnit ?? SizeUnit.millimeter;
-
+          if (product.dimensions != null) {
+            lengthUnit =
+                product.dimensions!.lengthDisplayUnit ?? SizeUnit.millimeter;
+            widthUnit =
+                product.dimensions!.widthDisplayUnit ?? SizeUnit.millimeter;
+            heightUnit =
+                product.dimensions!.heightDisplayUnit ?? SizeUnit.millimeter;
+            areaUnit =
+                product.dimensions!.areaDisplayUnit ?? SizeUnit.millimeter;
+          }
           edit = product;
         });
       }
@@ -181,12 +190,12 @@ class _ProductEditorState extends State<ProductEditor> {
     setState(() {
       madeFrom = materials;
       madeFromCounts =
-          List.generate(madeFrom.length, (index) => TextEditingController());
+          List.generate(materials.length, (index) => TextEditingController());
     });
     Navigator.pop(context);
   }
 
-  void onProductsmadeFromPicked(products) {
+  void onProductsMadeWithPicked(products) {
     setState(() {
       usedIn = products;
       usedInCounts =
@@ -197,7 +206,7 @@ class _ProductEditorState extends State<ProductEditor> {
 
   Text label(String text) => Text(
         text,
-        style: TextStyle(color: Colors.white),
+        style: const TextStyle(color: Colors.white),
         textScaleFactor: 1.2,
       );
 
@@ -270,23 +279,51 @@ class _ProductEditorState extends State<ProductEditor> {
                           shrinkWrap: true,
                           scrollDirection: Axis.horizontal,
                           children: [
-                            ...photos.map(
-                              (bytes) => Padding(
-                                padding: const EdgeInsets.all(4.0),
-                                child: Container(
-                                  height: 200,
-                                  width: 135,
-                                  clipBehavior: Clip.hardEdge,
-                                  decoration: BoxDecoration(
-                                    borderRadius:
-                                        BorderRadius.all(Radius.circular(8)),
-                                    image: DecorationImage(
-                                        image: MemoryImage(bytes),
-                                        fit: BoxFit.cover),
+                            ...photos
+                                .asMap()
+                                .map(
+                                  (index, bytes) => MapEntry(
+                                    index,
+                                    Padding(
+                                      padding: const EdgeInsets.all(4.0),
+                                      child: Container(
+                                        alignment: AlignmentDirectional.topEnd,
+                                        height: 200,
+                                        width: 135,
+                                        clipBehavior: Clip.hardEdge,
+                                        decoration: BoxDecoration(
+                                          borderRadius: const BorderRadius.all(
+                                              Radius.circular(8)),
+                                          image: DecorationImage(
+                                              image: MemoryImage(bytes),
+                                              fit: BoxFit.cover),
+                                        ),
+                                        child: IconButton(
+                                          onPressed: () {
+                                            List<Uint8List> temp =
+                                                List.from(photos);
+                                            temp.removeAt(index);
+                                            setState(() {
+                                              photos = temp;
+                                            });
+                                          },
+                                          icon: const Icon(
+                                            Icons.close_outlined,
+                                            color: Colors.white,
+                                            shadows: [
+                                              Shadow(
+                                                color: Colors.black,
+                                                blurRadius: 5,
+                                                offset: Offset(1, 2),
+                                              )
+                                            ],
+                                          ),
+                                        ),
+                                      ),
+                                    ),
                                   ),
-                                ),
-                              ),
-                            ),
+                                )
+                                .values,
                             SizedBox(
                               height: 200,
                               width: 135,
@@ -298,7 +335,7 @@ class _ProductEditorState extends State<ProductEditor> {
                                     fit: FlexFit.tight,
                                     child: OutlinedButton(
                                       onPressed: pickImagesFromGallery,
-                                      child: Icon(
+                                      child: const Icon(
                                         IconData(0xe057,
                                             fontFamily: 'MaterialIcons'),
                                       ),
@@ -308,7 +345,7 @@ class _ProductEditorState extends State<ProductEditor> {
                                     fit: FlexFit.tight,
                                     child: OutlinedButton(
                                       onPressed: pickImageFromCamera,
-                                      child: Icon(
+                                      child: const Icon(
                                         IconData(0xe048,
                                             fontFamily: 'MaterialIcons'),
                                       ),
@@ -344,7 +381,7 @@ class _ProductEditorState extends State<ProductEditor> {
                                     'onExit': updateDimensions,
                                   });
                             },
-                            child: Icon(
+                            child: const Icon(
                               IconData(0xe048, fontFamily: 'MaterialIcons'),
                             ),
                           ),
@@ -457,8 +494,8 @@ class _ProductEditorState extends State<ProductEditor> {
                       initialValue: addAsProject,
                       builder: (FormFieldState<bool> field) {
                         return SwitchListTile(
-                          contentPadding: EdgeInsets.all(0),
-                          title: Text("Dodaj jako projekt"),
+                          contentPadding: const EdgeInsets.all(0),
+                          title: const Text("Dodaj jako projekt"),
                           value: addAsProject,
                           onChanged: (val) {
                             setState(() {
@@ -519,7 +556,7 @@ class _ProductEditorState extends State<ProductEditor> {
                                                   onMaterialsUsedPicked,
                                             })
                                       },
-                                  icon: Icon(Icons.list))
+                                  icon: const Icon(Icons.list))
                             ],
                           ),
                           ...madeFrom
@@ -550,7 +587,7 @@ class _ProductEditorState extends State<ProductEditor> {
                                         ),
                                         Flexible(
                                           child: IconButton(
-                                            icon: Icon(
+                                            icon: const Icon(
                                                 Icons.remove_circle_outline),
                                             onPressed: () {
                                               List<Product> madeFromCopy =
@@ -561,11 +598,13 @@ class _ProductEditorState extends State<ProductEditor> {
                                               madeFromCopy.removeAt(index);
                                               madeFromCountsCopy
                                                   .removeAt(index);
-                                              setState(() {
-                                                madeFrom = madeFromCopy;
-                                                madeFromCounts =
-                                                    madeFromCountsCopy;
-                                              });
+                                              setState(
+                                                () {
+                                                  madeFrom = madeFromCopy;
+                                                  madeFromCounts =
+                                                      madeFromCountsCopy;
+                                                },
+                                              );
                                             },
                                           ),
                                         ),
@@ -578,11 +617,11 @@ class _ProductEditorState extends State<ProductEditor> {
                               .toList()
                         ],
                       ),
-                      secondChild: SizedBox.shrink(),
+                      secondChild: const SizedBox.shrink(),
                       crossFadeState: addAsProject
                           ? CrossFadeState.showFirst
                           : CrossFadeState.showSecond,
-                      duration: Duration(milliseconds: 200),
+                      duration: const Duration(milliseconds: 200),
                     )
                   ],
                 ),
@@ -593,8 +632,8 @@ class _ProductEditorState extends State<ProductEditor> {
                       validator: switchValidator,
                       builder: (FormFieldState<bool> field) {
                         return SwitchListTile(
-                          contentPadding: EdgeInsets.all(0),
-                          title: Text("Dodaj jako materiał"),
+                          contentPadding: const EdgeInsets.all(0),
+                          title: const Text("Dodaj jako materiał"),
                           value: addAsMaterial,
                           onChanged: (val) {
                             setState(() {
@@ -642,25 +681,104 @@ class _ProductEditorState extends State<ProductEditor> {
                               )
                             ],
                           ),
+                          SizedBox(
+                            height: 25,
+                            child: TextFormField(
+                              maxLines: 1,
+                              validator: switchValidator,
+                              readOnly: true,
+
+                              // enabled: false,
+                            ),
+                          ),
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              const Flexible(
+                                child: Padding(
+                                  padding: EdgeInsets.symmetric(vertical: 5),
+                                  child: Text(
+                                    "Wykorzystany przy:",
+                                    textScaleFactor: 1.1,
+                                  ),
+                                ),
+                              ),
+                              IconButton(
+                                  onPressed: () => {
+                                        Navigator.pushNamed(
+                                            context, "/products",
+                                            arguments: {
+                                              'productFilter':
+                                                  ProductFilter.projects(),
+                                              'select': true,
+                                              'confirmSelection':
+                                                  onProductsMadeWithPicked,
+                                            })
+                                      },
+                                  icon: const Icon(Icons.list))
+                            ],
+                          ),
+                          ...usedIn
+                              .asMap()
+                              .map(
+                                (index, value) => MapEntry(
+                                  index,
+                                  SizedBox(
+                                    child: Row(
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.center,
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.spaceBetween,
+                                      children: [
+                                        Flexible(
+                                          child: Text(value.name ??
+                                              "Projekt bez nazwy"),
+                                        ),
+                                        Flexible(
+                                          child: CustomTextField(
+                                            label: "Ilość:",
+                                            controller: usedInCounts[index],
+                                            validator: addAsProject
+                                                ? numberValidator
+                                                : (value) => null,
+                                            type: TextInputType.number,
+                                          ),
+                                        ),
+                                        Flexible(
+                                          child: IconButton(
+                                            icon: const Icon(
+                                                Icons.remove_circle_outline),
+                                            onPressed: () {
+                                              List<Product> usedInCopy =
+                                                  List.of(usedIn);
+                                              List<TextEditingController>
+                                                  usedInCountsCopy =
+                                                  List.of(usedInCounts);
+                                              usedInCopy.removeAt(index);
+                                              usedInCountsCopy.removeAt(index);
+                                              setState(() {
+                                                usedIn = usedInCopy;
+                                                usedInCounts = usedInCountsCopy;
+                                              });
+                                            },
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                                ),
+                              )
+                              .values
+                              .toList()
                         ],
                       ),
-                      secondChild: SizedBox.shrink(),
+                      secondChild: const SizedBox.shrink(),
                       crossFadeState: addAsMaterial
                           ? CrossFadeState.showFirst
                           : CrossFadeState.showSecond,
-                      duration: Duration(milliseconds: 200),
+                      duration: const Duration(milliseconds: 200),
                     )
                   ],
-                ),
-                SizedBox(
-                  height: 25,
-                  child: TextFormField(
-                    maxLines: 1,
-                    validator: switchValidator,
-                    readOnly: true,
-
-                    // enabled: false,
-                  ),
                 ),
                 ElevatedButton(
                   onPressed: () {
@@ -672,33 +790,41 @@ class _ProductEditorState extends State<ProductEditor> {
                         Product p = Product()
                           ..name = nameController.text
                           ..description = descriptionController.text
-                          ..photos.addAll(photos.map((bytes) =>
-                              Photo()..imgData = base64Encode(bytes)))
+                          ..photos = photos
+                              .map((bytes) => base64Encode(bytes))
+                              .toList()
                           ..category = categoryController.text
                           ..progress = addAsProject ? progress : null
                           ..addedTimestamp =
                               DateTime.now().millisecondsSinceEpoch
-                          ..length = (lengthController.text != "")
-                              ? double.parse(
-                                  lengthController.text.replaceAll(',', '.'))
-                              : null
-                          ..lengthDisplayUnit =
-                              SizeUnit.fromString(lengthUnitController.text)
-                          ..width = (widthController.text != "")
-                              ? double.parse(widthController.text)
-                              : null
-                          ..widthDisplayUnit =
-                              SizeUnit.fromString(widthUnitController.text)
-                          ..height = (heightController.text != "")
-                              ? double.parse(heightController.text)
-                              : null
-                          ..heightDisplayUnit =
-                              SizeUnit.fromString(heightUnitController.text)
-                          ..projectionArea = (areaController.text != "")
-                              ? double.parse(areaController.text)
-                              : null
-                          ..areaDisplayUnit =
-                              SizeUnit.fromString(areaUnitController.text)
+                          ..lastModifiedTimestamp =
+                              DateTime.now().millisecondsSinceEpoch
+                          //TO DO
+                          // ..finishedTimestamp = 1
+                          ..dimensions = Dimensions(
+                            length: (lengthController.text != "")
+                                ? double.parse(
+                                    lengthController.text.replaceAll(',', '.'))
+                                : null,
+                            lengthDisplayUnit:
+                                SizeUnit.fromString(lengthUnitController.text),
+                            width: (widthController.text != "")
+                                ? double.parse(widthController.text)
+                                : null,
+                            widthDisplayUnit:
+                                SizeUnit.fromString(widthUnitController.text),
+                            height: (heightController.text != "")
+                                ? double.parse(heightController.text)
+                                : null,
+                            heightDisplayUnit:
+                                SizeUnit.fromString(heightUnitController.text),
+                            projectionArea: (areaController.text != "")
+                                ? double.parse(areaController.text)
+                                : null,
+                            areaDisplayUnit: SizeUnit.fromString(
+                                areaUnitController.text.substring(
+                                    0, areaUnitController.text.length - 1)),
+                          )
                           ..consumed =
                               (addAsMaterial && consumedController.text != "")
                                   ? int.parse(consumedController.text)
@@ -707,20 +833,22 @@ class _ProductEditorState extends State<ProductEditor> {
                               (addAsMaterial && availableController.text != "")
                                   ? int.parse(availableController.text)
                                   : null
-                          //TO DO
-                          // ..finishedTimestamp = 1
                           ..madeFrom.addAll(madeFrom)
                           ..usedIn.addAll(usedIn)
                           ..needed =
                               (addAsMaterial && neededController.text != "")
                                   ? int.parse(neededController.text)
                                   : null;
+                        if (edit != null) {
+                          p.id = edit!.id;
+                          p.addedTimestamp = edit!.addedTimestamp;
+                        }
                         db.saveProduct(p);
                         Navigator.pop(context);
                       }
                     }
                   },
-                  child: Text("Zapisz"),
+                  child: const Text("Zapisz"),
                 ),
               ],
             ),
