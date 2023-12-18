@@ -7,12 +7,10 @@ import 'package:scrap_forge/db_entities/product.dart';
 
 class RecentStrip extends StatefulWidget {
   Product product;
-  VoidCallback? stackRefresh;
 
   RecentStrip({
     super.key,
     required this.product,
-    this.stackRefresh,
   });
 
   @override
@@ -38,9 +36,6 @@ class _RecentStripState extends State<RecentStrip> {
       thumbnail = Image(image: MemoryImage(bytes));
     });
     return;
-
-    // String dir = (await getApplicationDocumentsDirectory()).path;
-    // File file = File('$dir/$imagePath');
   }
 
   Text displayName() {
@@ -66,7 +61,6 @@ class _RecentStripState extends State<RecentStrip> {
       onPressed: () async {
         await Navigator.pushNamed(context, "/product",
             arguments: {'productData': widget.product});
-        if (widget.stackRefresh != null) widget.stackRefresh!();
       },
       child: Row(
         children: [

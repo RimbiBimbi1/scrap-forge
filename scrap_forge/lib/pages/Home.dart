@@ -3,6 +3,7 @@ import 'package:flutter_svg/flutter_svg.dart';
 import 'package:scrap_forge/db_entities/product.dart';
 import 'package:scrap_forge/isar_service.dart';
 import 'package:scrap_forge/utils/fetch_products.dart';
+import 'package:scrap_forge/utils/product_list_comparator.dart';
 import 'package:scrap_forge/widgets/custom_tile.dart';
 import 'package:scrap_forge/widgets/home_section.dart';
 import 'package:scrap_forge/widgets/recent_strip.dart';
@@ -22,9 +23,12 @@ class _HomeState extends State<Home> {
   Future<void> getRecentProjects() async {
     List<Product> projects = await db.getNewestProducts(3);
 
-    setState(() {
-      recentlyViewed = projects;
-    });
+    if (!ProductListComparator.compareByLastModifiedTimestamps(
+        recentlyViewed, projects)) {
+      setState(() {
+        recentlyViewed = projects;
+      });
+    }
   }
 
   @override
@@ -35,6 +39,9 @@ class _HomeState extends State<Home> {
 
   @override
   Widget build(BuildContext context) {
+    db.listenToProducts().listen((event) {
+      if (mounted) getRecentProjects();
+    });
     ThemeData theme = Theme.of(context);
 
     return Scaffold(
@@ -58,7 +65,6 @@ class _HomeState extends State<Home> {
                   ...recentlyViewed
                       .map((e) => RecentStrip(
                             product: e,
-                            stackRefresh: getRecentProjects,
                           ))
                       .toList()
                 ],
@@ -73,12 +79,10 @@ class _HomeState extends State<Home> {
                 ),
                 children: [
                   CustomTile(
-                    onPressed: () async {
-                      await Navigator.pushNamed(context, "/products",
-                          arguments: {
-                            "productFilter": ProductFilter.finishedProducts()
-                          });
-                      getRecentProjects();
+                    onPressed: () {
+                      Navigator.pushNamed(context, "/products", arguments: {
+                        "productFilter": ProductFilter.finishedProducts()
+                      });
                     },
                     background: theme.colorScheme.secondary,
                     color: theme.colorScheme.onSecondary,
@@ -92,12 +96,10 @@ class _HomeState extends State<Home> {
                     flex: 1,
                   ),
                   CustomTile(
-                    onPressed: () async {
-                      await Navigator.pushNamed(context, "/products",
-                          arguments: {
-                            "productFilter": ProductFilter.inProgressProducts()
-                          });
-                      getRecentProjects();
+                    onPressed: () {
+                      Navigator.pushNamed(context, "/products", arguments: {
+                        "productFilter": ProductFilter.inProgressProducts()
+                      });
                     },
                     background: theme.colorScheme.secondary,
                     color: theme.colorScheme.onSecondary,
@@ -111,12 +113,10 @@ class _HomeState extends State<Home> {
                     flex: 1,
                   ),
                   CustomTile(
-                    onPressed: () async {
-                      await Navigator.pushNamed(context, "/products",
-                          arguments: {
-                            "productFilter": ProductFilter.plannedProducts()
-                          });
-                      getRecentProjects();
+                    onPressed: () {
+                      Navigator.pushNamed(context, "/products", arguments: {
+                        "productFilter": ProductFilter.plannedProducts()
+                      });
                     },
                     background: theme.colorScheme.secondary,
                     color: theme.colorScheme.onSecondary,
@@ -138,12 +138,10 @@ class _HomeState extends State<Home> {
                 ),
                 children: [
                   CustomTile(
-                    onPressed: () async {
-                      await Navigator.pushNamed(context, "/products",
-                          arguments: {
-                            "productFilter": ProductFilter.consumedMaterials()
-                          });
-                      getRecentProjects();
+                    onPressed: () {
+                      Navigator.pushNamed(context, "/products", arguments: {
+                        "productFilter": ProductFilter.consumedMaterials()
+                      });
                     },
                     background: theme.colorScheme.secondary,
                     color: theme.colorScheme.onSecondary,
@@ -157,12 +155,10 @@ class _HomeState extends State<Home> {
                     flex: 1,
                   ),
                   CustomTile(
-                    onPressed: () async {
-                      await Navigator.pushNamed(context, "/products",
-                          arguments: {
-                            "productFilter": ProductFilter.availableMaterials()
-                          });
-                      getRecentProjects();
+                    onPressed: () {
+                      Navigator.pushNamed(context, "/products", arguments: {
+                        "productFilter": ProductFilter.availableMaterials()
+                      });
                     },
                     background: theme.colorScheme.secondary,
                     color: theme.colorScheme.onSecondary,
@@ -176,12 +172,10 @@ class _HomeState extends State<Home> {
                     flex: 1,
                   ),
                   CustomTile(
-                    onPressed: () async {
-                      await Navigator.pushNamed(context, "/products",
-                          arguments: {
-                            "productFilter": ProductFilter.neededMaterials()
-                          });
-                      getRecentProjects();
+                    onPressed: () {
+                      Navigator.pushNamed(context, "/products", arguments: {
+                        "productFilter": ProductFilter.neededMaterials()
+                      });
                     },
                     background: theme.colorScheme.secondary,
                     color: theme.colorScheme.onSecondary,
@@ -195,9 +189,8 @@ class _HomeState extends State<Home> {
               ),
               FloatingActionButton(
                 heroTag: false,
-                onPressed: () async {
-                  await Navigator.pushNamed(context, "/editProduct");
-                  getRecentProjects();
+                onPressed: () {
+                  Navigator.pushNamed(context, "/editProduct");
                 },
                 child: const Text(
                   "+",

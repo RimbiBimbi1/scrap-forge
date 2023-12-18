@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:scrap_forge/db_entities/product.dart';
 import 'package:scrap_forge/isar_service.dart';
 import 'package:scrap_forge/utils/fetch_products.dart';
+import 'package:scrap_forge/utils/product_list_comparator.dart';
 import 'package:scrap_forge/widgets/product_strip.dart';
 
 enum SelectionOptions { delete() }
@@ -23,6 +24,7 @@ class _ProductGalleryState extends State<ProductGallery> {
   bool selectionMode = false;
   List<bool> selected = List.empty();
   ValueSetter? confirmSelection;
+  ProductFilter filter = ProductFilter();
 
   @override
   void initState() {
@@ -31,8 +33,6 @@ class _ProductGalleryState extends State<ProductGallery> {
   }
 
   Future<void> getArguments() async {
-    const getDbProducts = fetchProducts;
-
     final arguments = (ModalRoute.of(widget.context)?.settings.arguments ??
         <String, dynamic>{}) as Map;
 
@@ -41,16 +41,22 @@ class _ProductGalleryState extends State<ProductGallery> {
     ValueSetter? confirmSelection = arguments["confirmSelection"];
 
     // if (filter != null) {
-    List<Product> result = await getDbProducts(filter);
+    List<Product> result = await getProducts(filter);
 
     setState(() {
       this.products = result;
+      this.selected = List.filled(result.length, false);
+      this.filter = filter;
       this.asMaterials = filter.materialsOnly;
       this.selectionMode = selectionMode ?? false;
-      this.selected = List.filled(result.length, false);
       this.confirmSelection = confirmSelection;
     });
     // }
+  }
+
+  Future<List<Product>> getProducts(filter) async {
+    const getDbProducts = fetchProducts;
+    return await getDbProducts(filter);
   }
 
   void onTileLongPress(int index) {
@@ -78,7 +84,6 @@ class _ProductGalleryState extends State<ProductGallery> {
                             product: p,
                             asMaterial: asMaterials,
                             // onLongPress: () => onTileLongPress(index),
-                            stackRefresh: getArguments,
                             onPressed: () =>
                                 {updateSelected(index, !selected[index])}),
                       ),
@@ -96,7 +101,6 @@ class _ProductGalleryState extends State<ProductGallery> {
                     product: p,
                     asMaterial: asMaterials,
                     onLongPress: () => onTileLongPress(index),
-                    stackRefresh: getArguments,
                   ),
                   crossFadeState: selectionMode
                       ? CrossFadeState.showFirst
@@ -169,6 +173,18 @@ class _ProductGalleryState extends State<ProductGallery> {
 
   @override
   Widget build(BuildContext context) {
+    db.listenToProducts().listen((event) async {
+      List<Product> result = await getProducts(filter);
+
+      if (mounted &&
+          !ProductListComparator.compareByLastModifiedTimestamps(
+              products, result)) {
+        setState(() {
+          this.products = result;
+          this.selected = List.filled(result.length, false);
+        });
+      }
+    });
     return Scaffold(
       persistentFooterAlignment: AlignmentDirectional.center,
       backgroundColor: Colors.grey[900],

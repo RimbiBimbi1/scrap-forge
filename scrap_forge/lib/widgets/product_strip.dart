@@ -10,14 +10,13 @@ class ProductStrip extends StatefulWidget {
   bool asMaterial;
   VoidCallback? onLongPress;
   VoidCallback? onPressed;
-  VoidCallback? stackRefresh;
-  ProductStrip(
-      {super.key,
-      required this.product,
-      this.asMaterial = false,
-      this.onLongPress,
-      this.onPressed,
-      this.stackRefresh});
+  ProductStrip({
+    super.key,
+    required this.product,
+    this.asMaterial = false,
+    this.onLongPress,
+    this.onPressed,
+  });
 
   @override
   State<ProductStrip> createState() => _ProductStripState();
@@ -150,7 +149,6 @@ class _ProductStripState extends State<ProductStrip> {
             () async {
               await Navigator.pushNamed(context, "/product",
                   arguments: {'productData': widget.product});
-              if (widget.stackRefresh != null) widget.stackRefresh!();
             },
         onLongPress: widget.onLongPress,
         child: SizedBox(
