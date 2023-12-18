@@ -78,6 +78,7 @@ class _ProductGalleryState extends State<ProductGallery> {
                             product: p,
                             asMaterial: asMaterials,
                             // onLongPress: () => onTileLongPress(index),
+                            stackRefresh: getArguments,
                             onPressed: () =>
                                 {updateSelected(index, !selected[index])}),
                       ),
@@ -95,6 +96,7 @@ class _ProductGalleryState extends State<ProductGallery> {
                     product: p,
                     asMaterial: asMaterials,
                     onLongPress: () => onTileLongPress(index),
+                    stackRefresh: getArguments,
                   ),
                   crossFadeState: selectionMode
                       ? CrossFadeState.showFirst

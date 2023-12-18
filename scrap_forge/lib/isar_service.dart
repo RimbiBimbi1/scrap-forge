@@ -38,7 +38,7 @@ class IsarService {
     final isar = await db;
     return await isar.products
         .where()
-        .sortByAddedTimestamp()
+        .sortByLastModifiedTimestampDesc()
         .limit(number)
         .findAll();
   }

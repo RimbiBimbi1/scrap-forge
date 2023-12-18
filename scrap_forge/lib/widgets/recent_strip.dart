@@ -7,7 +7,13 @@ import 'package:scrap_forge/db_entities/product.dart';
 
 class RecentStrip extends StatefulWidget {
   Product product;
-  RecentStrip({super.key, required this.product});
+  VoidCallback? stackRefresh;
+
+  RecentStrip({
+    super.key,
+    required this.product,
+    this.stackRefresh,
+  });
 
   @override
   State<RecentStrip> createState() => _RecentStripState();
@@ -57,7 +63,11 @@ class _RecentStripState extends State<RecentStrip> {
   @override
   Widget build(BuildContext context) {
     return TextButton(
-      onPressed: () {},
+      onPressed: () async {
+        await Navigator.pushNamed(context, "/product",
+            arguments: {'productData': widget.product});
+        if (widget.stackRefresh != null) widget.stackRefresh!();
+      },
       child: Row(
         children: [
           SizedBox(

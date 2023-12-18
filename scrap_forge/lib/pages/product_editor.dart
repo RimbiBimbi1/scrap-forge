@@ -844,7 +844,15 @@ class _ProductEditorState extends State<ProductEditor> {
                           p.addedTimestamp = edit!.addedTimestamp;
                         }
                         db.saveProduct(p);
-                        Navigator.pop(context);
+
+                        if (edit != null) {
+                          Navigator.pop(context);
+                        }
+                        Navigator.pushReplacementNamed(
+                          context,
+                          "/product",
+                          arguments: {'productData': p},
+                        );
                       }
                     }
                   },
