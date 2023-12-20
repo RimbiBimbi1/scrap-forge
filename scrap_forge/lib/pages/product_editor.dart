@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'dart:math';
 import 'dart:typed_data';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
@@ -211,9 +212,58 @@ class _ProductEditorState extends State<ProductEditor> {
       );
 
   void updateDimensions(List<double> received) {
-    lengthController.text = received[0].round().toString();
-    widthController.text = received[1].round().toString();
-    areaController.text = received[2].round().toString();
+    List<TextEditingController> dimCtrls =
+        List.from([lengthController, widthController, heightController]);
+    List<SizeUnit> dimUnits = List.from([lengthUnit, widthUnit, heightUnit]);
+
+    int empty_count = List.from(dimCtrls.map((e) => e.text.isEmpty ? 1 : 0))
+        .reduce((value, element) => value + element);
+
+    switch (empty_count) {
+      case 3:
+        lengthController.text =
+            (received[0] / lengthUnit.multiplier).round().toString();
+        widthController.text =
+            (received[1] / widthUnit.multiplier).round().toString();
+        break;
+      case 2:
+        int updatedCount = 0;
+        for (final (index, ctrl) in dimCtrls.indexed) {
+          if (ctrl.text.isEmpty) {
+            ctrl.text = (received[updatedCount] / dimUnits[index].multiplier)
+                .round()
+                .toString();
+            updatedCount++;
+          }
+        }
+        break;
+      case 1:
+        int toUpdate = 2;
+        int updatedCount = 0;
+        List<double> diffs = List.empty(growable: true);
+        for (final (index, ctrl) in dimCtrls.indexed) {
+          if (ctrl.text.isNotEmpty) {
+            diffs.add((double.parse(ctrl.text) * dimUnits[index].multiplier -
+                    received[updatedCount])
+                .abs());
+            updatedCount++;
+          } else {
+            toUpdate = index;
+          }
+        }
+        dimCtrls[toUpdate].text =
+            (((diffs[0] > diffs[1]) ? received[0] : received[1]) /
+                    dimUnits[toUpdate].multiplier)
+                .round()
+                .toString();
+        break;
+      default:
+        break;
+    }
+
+    if (areaController.text.isEmpty) {
+      areaController.text = received[2].round().toString();
+    }
   }
 
   @override

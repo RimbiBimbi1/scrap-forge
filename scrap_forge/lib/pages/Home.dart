@@ -47,6 +47,7 @@ class _HomeState extends State<Home> {
     return Scaffold(
       backgroundColor: Colors.grey[900],
       appBar: AppBar(
+        leading: SizedBox.shrink(),
         title: const Text("Moja kuźnia"),
         actions: [
           IconButton(onPressed: () {}, icon: const Icon(Icons.settings))

@@ -127,6 +127,43 @@ class _ProductGalleryState extends State<ProductGallery> {
     return result;
   }
 
+  Future<void> _displayMoveDialog() async {
+    return showDialog<void>(
+      context: context,
+      builder: (context) {
+        return Dialog(
+          child: Padding(
+            padding: EdgeInsets.all(24),
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.start,
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                Text(
+                  "Przenieś wybrane produkty do:",
+                  textScaleFactor: 1.4,
+                ),
+                ...(asMaterials
+                        ? [
+                            ProductFilter.finishedProducts(),
+                            ProductFilter.inProgressProducts(),
+                            ProductFilter.plannedProducts(),
+                          ]
+                        : [
+                            ProductFilter.consumedMaterials(),
+                            ProductFilter.availableMaterials(),
+                            ProductFilter.neededMaterials(),
+                          ])
+                    .map((filter) =>
+                        //TODO
+                        Placeholder())
+              ],
+            ),
+          ),
+        );
+      },
+    );
+  }
+
   Future<void> _displayDeleteDialog() async {
     return showDialog<void>(
       context: context,
@@ -218,7 +255,7 @@ class _ProductGalleryState extends State<ProductGallery> {
                     ]
                   : [
                       TextButton(
-                        onPressed: () {},
+                        onPressed: _displayMoveDialog,
                         child: Column(
                           children: [
                             Transform.rotate(
