@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-const double magnifierRadius = 50;
+const double magnifierRadius = 25;
 
 class FramingTool extends StatefulWidget {
   final Size size;
@@ -79,6 +79,9 @@ class _FramingToolState extends State<FramingTool> {
       crossAxisAlignment: CrossAxisAlignment.center,
       children: [
         SizedBox(
+          height: 10,
+        ),
+        SizedBox(
           width: widget.size.width,
           height: widget.size.height,
           child: Stack(
@@ -93,18 +96,31 @@ class _FramingToolState extends State<FramingTool> {
                   })
                 },
               ),
-              ...widget.points.map((e) => Positioned(
-                  left: e.dx - magnifierRadius,
-                  top: e.dy - magnifierRadius,
-                  child: const RawMagnifier(
-                    decoration: MagnifierDecoration(
-                      shape: CircleBorder(
-                        side: BorderSide(color: Colors.white, width: 2),
+              ...widget.points
+                  .asMap()
+                  .map(
+                    (index, mag) => MapEntry(
+                      index,
+                      Positioned(
+                        left: mag.dx - magnifierRadius,
+                        top: mag.dy - magnifierRadius,
+                        child: RawMagnifier(
+                          decoration: MagnifierDecoration(
+                            shape: CircleBorder(
+                              side: BorderSide(
+                                  color: activeCorner == index
+                                      ? focusColor
+                                      : defaultColor,
+                                  width: 2),
+                            ),
+                          ),
+                          size: Size(magnifierRadius * 2, magnifierRadius * 2),
+                          magnificationScale: 2,
+                        ),
                       ),
                     ),
-                    size: Size(magnifierRadius * 2, magnifierRadius * 2),
-                    magnificationScale: 2,
-                  ))),
+                  )
+                  .values,
               CustomPaint(
                 painter: FramePainter(
                     points: widget.points,

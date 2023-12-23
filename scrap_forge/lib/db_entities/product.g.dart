@@ -37,44 +37,49 @@ const ProductSchema = CollectionSchema(
       name: r'consumed',
       type: IsarType.long,
     ),
-    r'description': PropertySchema(
+    r'count': PropertySchema(
       id: 4,
+      name: r'count',
+      type: IsarType.long,
+    ),
+    r'description': PropertySchema(
+      id: 5,
       name: r'description',
       type: IsarType.string,
     ),
     r'dimensions': PropertySchema(
-      id: 5,
+      id: 6,
       name: r'dimensions',
       type: IsarType.object,
       target: r'Dimensions',
     ),
     r'finishedTimestamp': PropertySchema(
-      id: 6,
+      id: 7,
       name: r'finishedTimestamp',
       type: IsarType.long,
     ),
     r'lastModifiedTimestamp': PropertySchema(
-      id: 7,
+      id: 8,
       name: r'lastModifiedTimestamp',
       type: IsarType.long,
     ),
     r'name': PropertySchema(
-      id: 8,
+      id: 9,
       name: r'name',
       type: IsarType.string,
     ),
     r'needed': PropertySchema(
-      id: 9,
+      id: 10,
       name: r'needed',
       type: IsarType.long,
     ),
     r'photos': PropertySchema(
-      id: 10,
+      id: 11,
       name: r'photos',
       type: IsarType.stringList,
     ),
     r'progress': PropertySchema(
-      id: 11,
+      id: 12,
       name: r'progress',
       type: IsarType.string,
       enumMap: _ProductprogressEnumValueMap,
@@ -166,19 +171,20 @@ void _productSerialize(
   writer.writeLong(offsets[1], object.available);
   writer.writeString(offsets[2], object.category);
   writer.writeLong(offsets[3], object.consumed);
-  writer.writeString(offsets[4], object.description);
+  writer.writeLong(offsets[4], object.count);
+  writer.writeString(offsets[5], object.description);
   writer.writeObject<Dimensions>(
-    offsets[5],
+    offsets[6],
     allOffsets,
     DimensionsSchema.serialize,
     object.dimensions,
   );
-  writer.writeLong(offsets[6], object.finishedTimestamp);
-  writer.writeLong(offsets[7], object.lastModifiedTimestamp);
-  writer.writeString(offsets[8], object.name);
-  writer.writeLong(offsets[9], object.needed);
-  writer.writeStringList(offsets[10], object.photos);
-  writer.writeString(offsets[11], object.progress?.name);
+  writer.writeLong(offsets[7], object.finishedTimestamp);
+  writer.writeLong(offsets[8], object.lastModifiedTimestamp);
+  writer.writeString(offsets[9], object.name);
+  writer.writeLong(offsets[10], object.needed);
+  writer.writeStringList(offsets[11], object.photos);
+  writer.writeString(offsets[12], object.progress?.name);
 }
 
 Product _productDeserialize(
@@ -192,20 +198,21 @@ Product _productDeserialize(
   object.available = reader.readLongOrNull(offsets[1]);
   object.category = reader.readStringOrNull(offsets[2]);
   object.consumed = reader.readLongOrNull(offsets[3]);
-  object.description = reader.readStringOrNull(offsets[4]);
+  object.count = reader.readLongOrNull(offsets[4]);
+  object.description = reader.readStringOrNull(offsets[5]);
   object.dimensions = reader.readObjectOrNull<Dimensions>(
-    offsets[5],
+    offsets[6],
     DimensionsSchema.deserialize,
     allOffsets,
   );
-  object.finishedTimestamp = reader.readLongOrNull(offsets[6]);
+  object.finishedTimestamp = reader.readLongOrNull(offsets[7]);
   object.id = id;
-  object.lastModifiedTimestamp = reader.readLongOrNull(offsets[7]);
-  object.name = reader.readStringOrNull(offsets[8]);
-  object.needed = reader.readLongOrNull(offsets[9]);
-  object.photos = reader.readStringList(offsets[10]) ?? [];
+  object.lastModifiedTimestamp = reader.readLongOrNull(offsets[8]);
+  object.name = reader.readStringOrNull(offsets[9]);
+  object.needed = reader.readLongOrNull(offsets[10]);
+  object.photos = reader.readStringList(offsets[11]) ?? [];
   object.progress =
-      _ProductprogressValueEnumMap[reader.readStringOrNull(offsets[11])];
+      _ProductprogressValueEnumMap[reader.readStringOrNull(offsets[12])];
   return object;
 }
 
@@ -225,24 +232,26 @@ P _productDeserializeProp<P>(
     case 3:
       return (reader.readLongOrNull(offset)) as P;
     case 4:
-      return (reader.readStringOrNull(offset)) as P;
+      return (reader.readLongOrNull(offset)) as P;
     case 5:
+      return (reader.readStringOrNull(offset)) as P;
+    case 6:
       return (reader.readObjectOrNull<Dimensions>(
         offset,
         DimensionsSchema.deserialize,
         allOffsets,
       )) as P;
-    case 6:
-      return (reader.readLongOrNull(offset)) as P;
     case 7:
       return (reader.readLongOrNull(offset)) as P;
     case 8:
-      return (reader.readStringOrNull(offset)) as P;
-    case 9:
       return (reader.readLongOrNull(offset)) as P;
+    case 9:
+      return (reader.readStringOrNull(offset)) as P;
     case 10:
-      return (reader.readStringList(offset) ?? []) as P;
+      return (reader.readLongOrNull(offset)) as P;
     case 11:
+      return (reader.readStringList(offset) ?? []) as P;
+    case 12:
       return (_ProductprogressValueEnumMap[reader.readStringOrNull(offset)])
           as P;
     default:
@@ -699,6 +708,75 @@ extension ProductQueryFilter
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(FilterCondition.between(
         property: r'consumed',
+        lower: lower,
+        includeLower: includeLower,
+        upper: upper,
+        includeUpper: includeUpper,
+      ));
+    });
+  }
+
+  QueryBuilder<Product, Product, QAfterFilterCondition> countIsNull() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(const FilterCondition.isNull(
+        property: r'count',
+      ));
+    });
+  }
+
+  QueryBuilder<Product, Product, QAfterFilterCondition> countIsNotNull() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(const FilterCondition.isNotNull(
+        property: r'count',
+      ));
+    });
+  }
+
+  QueryBuilder<Product, Product, QAfterFilterCondition> countEqualTo(
+      int? value) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.equalTo(
+        property: r'count',
+        value: value,
+      ));
+    });
+  }
+
+  QueryBuilder<Product, Product, QAfterFilterCondition> countGreaterThan(
+    int? value, {
+    bool include = false,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.greaterThan(
+        include: include,
+        property: r'count',
+        value: value,
+      ));
+    });
+  }
+
+  QueryBuilder<Product, Product, QAfterFilterCondition> countLessThan(
+    int? value, {
+    bool include = false,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.lessThan(
+        include: include,
+        property: r'count',
+        value: value,
+      ));
+    });
+  }
+
+  QueryBuilder<Product, Product, QAfterFilterCondition> countBetween(
+    int? lower,
+    int? upper, {
+    bool includeLower = true,
+    bool includeUpper = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.between(
+        property: r'count',
         lower: lower,
         includeLower: includeLower,
         upper: upper,
@@ -1823,6 +1901,18 @@ extension ProductQuerySortBy on QueryBuilder<Product, Product, QSortBy> {
     });
   }
 
+  QueryBuilder<Product, Product, QAfterSortBy> sortByCount() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'count', Sort.asc);
+    });
+  }
+
+  QueryBuilder<Product, Product, QAfterSortBy> sortByCountDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'count', Sort.desc);
+    });
+  }
+
   QueryBuilder<Product, Product, QAfterSortBy> sortByDescription() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'description', Sort.asc);
@@ -1947,6 +2037,18 @@ extension ProductQuerySortThenBy
     });
   }
 
+  QueryBuilder<Product, Product, QAfterSortBy> thenByCount() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'count', Sort.asc);
+    });
+  }
+
+  QueryBuilder<Product, Product, QAfterSortBy> thenByCountDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'count', Sort.desc);
+    });
+  }
+
   QueryBuilder<Product, Product, QAfterSortBy> thenByDescription() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'description', Sort.asc);
@@ -2060,6 +2162,12 @@ extension ProductQueryWhereDistinct
     });
   }
 
+  QueryBuilder<Product, Product, QDistinct> distinctByCount() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addDistinctBy(r'count');
+    });
+  }
+
   QueryBuilder<Product, Product, QDistinct> distinctByDescription(
       {bool caseSensitive = true}) {
     return QueryBuilder.apply(this, (query) {
@@ -2135,6 +2243,12 @@ extension ProductQueryProperty
   QueryBuilder<Product, int?, QQueryOperations> consumedProperty() {
     return QueryBuilder.apply(this, (query) {
       return query.addPropertyName(r'consumed');
+    });
+  }
+
+  QueryBuilder<Product, int?, QQueryOperations> countProperty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addPropertyName(r'count');
     });
   }
 

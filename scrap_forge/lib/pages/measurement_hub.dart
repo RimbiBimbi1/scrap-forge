@@ -9,6 +9,22 @@ import 'package:scrap_forge/measure_tool/framing_tool.dart';
 import 'package:scrap_forge/measure_tool/image_processor.dart';
 import 'package:scrap_forge/measure_tool/triangle_texturer.dart';
 
+enum ASheetFormat {
+  a5(name: 'A5', width: 148, height: 210),
+  a4(name: 'A4', width: 210, height: 297),
+  a3(name: 'A3', width: 297, height: 420);
+
+  const ASheetFormat({
+    required this.name,
+    required this.width,
+    required this.height,
+  });
+
+  final String name;
+  final double width;
+  final double height;
+}
+
 class MeasurementHub extends StatefulWidget {
   const MeasurementHub({super.key});
 
@@ -17,10 +33,10 @@ class MeasurementHub extends StatefulWidget {
 }
 
 class _MeasurementHubState extends State<MeasurementHub> {
-  final sheetWmm = 210;
-  final sheetHmm = 297;
+  ASheetFormat sheetFormat = ASheetFormat.a4;
   final sheetWpx = 840;
   final sheetHpx = 1188;
+  bool chooseFormat = false;
 
   String phase = "init";
 
@@ -196,13 +212,23 @@ class _MeasurementHubState extends State<MeasurementHub> {
     double imgW = displayed.width.toDouble();
     double imgH = displayed.height.toDouble();
 
-    double displayH = MediaQuery.of(context).size.height * 0.75;
-    double displayW = (imgW * displayH) / imgH;
+    double displayH = MediaQuery.of(context).size.height * 0.70;
+    double displayW = imgW * (displayH / imgH);
 
     Widget displayImage(imgLib.Image image) {
       List<int>? withHeader = imgLib.encodeJpg(image);
       return Center(
-          child: Image(image: MemoryImage(Uint8List.fromList(withHeader))));
+        child: SizedBox(
+          width: displayW,
+          height: displayH,
+          child: Image(
+            fit: BoxFit.fitHeight,
+            image: MemoryImage(
+              Uint8List.fromList(withHeader),
+            ),
+          ),
+        ),
+      );
     }
 
     Widget renderContent() {
@@ -211,7 +237,7 @@ class _MeasurementHubState extends State<MeasurementHub> {
           return BoundingTool(
             points: itemBoundingBox,
             image: displayImage(displayed),
-            mmHeight: sheetHmm.toDouble(),
+            sheetFormat: sheetFormat,
             size: Size(displayW, displayH),
             projectionAreaPixels: this.projectionAreaPixels,
           );
@@ -250,9 +276,40 @@ class _MeasurementHubState extends State<MeasurementHub> {
     return Scaffold(
       backgroundColor: Colors.grey[900],
       appBar: AppBar(
-        title: const Text("Pomiar"),
+        title: AnimatedCrossFade(
+          firstChild: const Text("Pomiar"),
+          secondChild: Row(
+            children: [ASheetFormat.a5, ASheetFormat.a4, ASheetFormat.a3]
+                .map((f) => TextButton(
+                      onPressed: () {
+                        setState(() {
+                          chooseFormat = false;
+                          sheetFormat = f;
+                        });
+                      },
+                      child: Text(
+                        f.name,
+                        style: TextStyle(color: Colors.white),
+                      ),
+                    ))
+                .toList(),
+          ),
+          crossFadeState: chooseFormat
+              ? CrossFadeState.showSecond
+              : CrossFadeState.showFirst,
+          duration: Duration(milliseconds: 200),
+        ),
         actions: [
-          IconButton(onPressed: () {}, icon: const Icon(Icons.settings))
+          TextButton(
+              onPressed: () {
+                setState(() {
+                  chooseFormat = !chooseFormat;
+                });
+              },
+              child: Text(
+                sheetFormat.name,
+                style: TextStyle(color: Colors.white),
+              ))
         ],
         centerTitle: true,
       ),

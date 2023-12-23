@@ -1,12 +1,14 @@
 import 'package:flutter/material.dart';
 import 'dart:math' as math;
 
-const double magnifierRadius = 25;
+import 'package:scrap_forge/pages/measurement_hub.dart';
+
+double initialMagnifierRadius = 30;
 
 class BoundingTool extends StatefulWidget {
   final List<Offset> points;
   final Widget image;
-  final double mmHeight;
+  final ASheetFormat sheetFormat;
   final Size size;
   final int projectionAreaPixels;
 
@@ -16,7 +18,7 @@ class BoundingTool extends StatefulWidget {
     required this.points,
     required this.size,
     required this.projectionAreaPixels,
-    required this.mmHeight,
+    required this.sheetFormat,
   });
 
   @override
@@ -26,7 +28,14 @@ class BoundingTool extends StatefulWidget {
 class _FramingToolState extends State<BoundingTool> {
   Offset magnifierPosition = Offset.zero;
   int activeArea = -1;
+  /*
+    -1: nothing,
+    0-3: walls, stretching
+    4-7: corners, rotating
+    8: whole frame, moving
+  */
   bool trivialMode = false;
+  double magnifierRadius = initialMagnifierRadius;
 
   final Color defaultColor = Colors.white;
   final focusColor = Colors.amber;
@@ -38,9 +47,7 @@ class _FramingToolState extends State<BoundingTool> {
   void initState() {
     super.initState();
 
-    double ratio = widget.mmHeight / widget.size.height;
     setState(() {
-      projectionAreaCM2 = widget.projectionAreaPixels * ratio * ratio * 0.01;
       trivialMode = checkTrivialMode(widget.points);
     });
   }
@@ -157,8 +164,23 @@ class _FramingToolState extends State<BoundingTool> {
 
         newPositions.add(Offset(x, y));
       }
+
+      double newRadius = math.max(
+        math.min(
+            math.min(
+                  (newPositions[0] - widget.points[(activeArea + 3) % 4])
+                      .distance,
+                  (newPositions[0] - newPositions[1]).distance,
+                ) /
+                2,
+            initialMagnifierRadius),
+        10,
+      );
+
       setState(
         () {
+          magnifierRadius = newRadius;
+
           linearCoefficients[activeArea][1] = bUpdated;
 
           widget.points[activeArea] = newPositions[0];
@@ -177,7 +199,22 @@ class _FramingToolState extends State<BoundingTool> {
         newPositions.add(Offset(corner1.dx, corner1.dy + finger.dy));
         newPositions.add(Offset(corner2.dx, corner2.dy + finger.dy));
       }
+
+      double newRadius = math.max(
+        math.min(
+            math.min(
+                  (newPositions[0] - widget.points[(activeArea + 3) % 4])
+                      .distance,
+                  (newPositions[0] - newPositions[1]).distance,
+                ) /
+                2,
+            initialMagnifierRadius),
+        10,
+      );
+
       setState(() {
+        magnifierRadius = newRadius;
+
         widget.points[activeArea] = newPositions[0];
         widget.points[(activeArea + 1) % 4] = newPositions[1];
       });
@@ -253,11 +290,14 @@ class _FramingToolState extends State<BoundingTool> {
   }
 
   List<double> calculateDimensions() {
-    double ratio = widget.mmHeight / widget.size.height;
+    double ratio = widget.sheetFormat.height / widget.size.height;
     double dim1 = (widget.points[0] - widget.points[1]).distance * ratio;
     double dim2 = (widget.points[1] - widget.points[2]).distance * ratio;
+    double area =
+        math.min(widget.projectionAreaPixels * ratio * ratio, dim1 * dim2) *
+            0.01;
 
-    return List.from([dim1, dim2]);
+    return List.from([dim1, dim2, area]);
   }
 
   @override
@@ -269,6 +309,9 @@ class _FramingToolState extends State<BoundingTool> {
       mainAxisAlignment: MainAxisAlignment.center,
       crossAxisAlignment: CrossAxisAlignment.center,
       children: [
+        SizedBox(
+          height: 10,
+        ),
         SizedBox(
           width: widget.size.width,
           height: widget.size.height,
@@ -284,18 +327,31 @@ class _FramingToolState extends State<BoundingTool> {
                   })
                 },
               ),
-              ...widget.points.map((e) => Positioned(
-                  left: e.dx - magnifierRadius,
-                  top: e.dy - magnifierRadius,
-                  child: const RawMagnifier(
-                    decoration: MagnifierDecoration(
-                      shape: CircleBorder(
-                        side: BorderSide(color: Colors.white, width: 2),
+              ...widget.points
+                  .asMap()
+                  .map(
+                    (index, mag) => MapEntry(
+                      index,
+                      Positioned(
+                        left: mag.dx - magnifierRadius,
+                        top: mag.dy - magnifierRadius,
+                        child: RawMagnifier(
+                          decoration: MagnifierDecoration(
+                            shape: CircleBorder(
+                              side: BorderSide(
+                                  color: activeArea == index + 4
+                                      ? focusColor
+                                      : defaultColor,
+                                  width: 2),
+                            ),
+                          ),
+                          size: Size(magnifierRadius * 2, magnifierRadius * 2),
+                          magnificationScale: 1,
+                        ),
                       ),
                     ),
-                    size: Size(magnifierRadius * 2, magnifierRadius * 2),
-                    magnificationScale: 1,
-                  ))),
+                  )
+                  .values,
               CustomPaint(
                 painter: FramePainter(
                     points: widget.points,
@@ -324,7 +380,7 @@ class _FramingToolState extends State<BoundingTool> {
                     style: const TextStyle(color: Colors.white),
                   ),
                   Text(
-                    "Pole przedmiotu: ${projectionAreaCM2.round()}cm2",
+                    "Pole przedmiotu: ${dimensions[2].toStringAsFixed(2)}cm2",
                     style: const TextStyle(color: Colors.white),
                   ),
                 ],

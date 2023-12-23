@@ -26,6 +26,7 @@ class _ProductEditorState extends State<ProductEditor> {
 
   final nameController = TextEditingController();
   final descriptionController = TextEditingController();
+  final countController = TextEditingController();
   final categoryController = TextEditingController();
 
   final lengthController = TextEditingController();
@@ -73,6 +74,8 @@ class _ProductEditorState extends State<ProductEditor> {
                 .toString()
                 .trimLeft()
                 .trimRight();
+        countController.text =
+            (product.count != null) ? product.count.toString() : "";
         categoryController.text = product.category ??= "";
         if (product.dimensions != null) {
           lengthController.text = (product.dimensions!.length != null)
@@ -310,6 +313,11 @@ class _ProductEditorState extends State<ProductEditor> {
                   },
                   type: TextInputType.multiline,
                   maxLines: null,
+                ),
+                CustomTextField(
+                  label: "Ilość:",
+                  controller: countController,
+                  validator: numberValidator,
                 ),
                 Column(
                   mainAxisAlignment: MainAxisAlignment.center,
@@ -840,6 +848,7 @@ class _ProductEditorState extends State<ProductEditor> {
                         Product p = Product()
                           ..name = nameController.text
                           ..description = descriptionController.text
+                          ..count = int.parse(countController.text)
                           ..photos = photos
                               .map((bytes) => base64Encode(bytes))
                               .toList()

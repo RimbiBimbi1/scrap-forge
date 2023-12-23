@@ -8,6 +8,7 @@ class Product {
 
   String? name;
   String? description;
+  int? count;
 
   @Enumerated(EnumType.name)
   ProjectLifeCycle? progress;
