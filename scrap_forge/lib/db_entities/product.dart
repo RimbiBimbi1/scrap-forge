@@ -11,26 +11,26 @@ class Product {
   int? count;
 
   @Enumerated(EnumType.name)
-  ProjectLifeCycle? progress;
+  ProjectLifeCycle? progress; //
 
   List<String> photos = [];
 
   String? category;
 
-  final madeFrom = IsarLinks<Product>();
+  final madeFrom = IsarLinks<Product>(); //
 
   @Backlink(to: "madeFrom")
-  final usedIn = IsarLinks<Product>();
+  final usedIn = IsarLinks<Product>(); //
 
-  Dimensions? dimensions;
+  Dimensions? dimensions; //
 
   int? addedTimestamp;
   int? lastModifiedTimestamp;
   int? finishedTimestamp;
 
-  int? consumed;
-  int? available;
-  int? needed;
+  int? consumed; //
+  int? available; //
+  int? needed; //
 }
 
 @embedded

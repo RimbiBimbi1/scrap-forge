@@ -4,14 +4,15 @@ const double magnifierRadius = 25;
 
 class FramingTool extends StatefulWidget {
   final Size size;
-  final Widget image;
   final List<Offset> points;
+  final Widget Function(double w, double h) displayImage;
+
   final ValueSetter<List<Offset>> setCorners;
 
   const FramingTool({
     super.key,
     required this.size,
-    required this.image,
+    required this.displayImage,
     required this.points,
     required this.setCorners,
   });
@@ -26,6 +27,17 @@ class _FramingToolState extends State<FramingTool> {
 
   final Color defaultColor = Colors.white;
   final focusColor = Colors.amber;
+
+  Widget image = Container();
+
+  @override
+  void initState() {
+    // TODO: implement initState
+    super.initState();
+    setState(() {
+      image = widget.displayImage(widget.size.width, widget.size.height);
+    });
+  }
 
   void getClosestCorner(DragStartDetails details) {
     int i = 0;
@@ -86,7 +98,7 @@ class _FramingToolState extends State<FramingTool> {
           height: widget.size.height,
           child: Stack(
             children: [
-              widget.image,
+              image,
               GestureDetector(
                 onPanStart: getClosestCorner,
                 onPanUpdate: calcMagnifierPosition,

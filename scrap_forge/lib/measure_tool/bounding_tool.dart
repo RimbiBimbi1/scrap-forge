@@ -6,15 +6,16 @@ import 'package:scrap_forge/pages/measurement_hub.dart';
 double initialMagnifierRadius = 30;
 
 class BoundingTool extends StatefulWidget {
-  final List<Offset> points;
-  final Widget image;
-  final ASheetFormat sheetFormat;
   final Size size;
+
+  final List<Offset> points;
+  final Widget Function(double w, double h) displayImage;
+  final ASheetFormat sheetFormat;
   final int projectionAreaPixels;
 
   const BoundingTool({
     super.key,
-    required this.image,
+    required this.displayImage,
     required this.points,
     required this.size,
     required this.projectionAreaPixels,
@@ -43,13 +44,34 @@ class _FramingToolState extends State<BoundingTool> {
   List<List<double>> linearCoefficients = List.empty();
   double projectionAreaCM2 = 0;
 
+  Widget image = Container();
+
   @override
   void initState() {
     super.initState();
 
+    double newRadius = calcMagnifierRadius(widget.points);
+
     setState(() {
+      if (magnifierRadius != newRadius) {
+        magnifierRadius = newRadius;
+      }
       trivialMode = checkTrivialMode(widget.points);
+      image = widget.displayImage(widget.size.width, widget.size.height);
     });
+  }
+
+  double calcMagnifierRadius(List<Offset> magnifiers) {
+    return math.max(
+      math.min(
+          math.min(
+                (magnifiers[0] - magnifiers[3]).distance,
+                (magnifiers[0] - magnifiers[1]).distance,
+              ) /
+              2,
+          initialMagnifierRadius),
+      10,
+    );
   }
 
   bool checkTrivialMode(List<Offset> points) {
@@ -165,21 +187,18 @@ class _FramingToolState extends State<BoundingTool> {
         newPositions.add(Offset(x, y));
       }
 
-      double newRadius = math.max(
-        math.min(
-            math.min(
-                  (newPositions[0] - widget.points[(activeArea + 3) % 4])
-                      .distance,
-                  (newPositions[0] - newPositions[1]).distance,
-                ) /
-                2,
-            initialMagnifierRadius),
-        10,
-      );
+      double newRadius = calcMagnifierRadius([
+        newPositions[0],
+        newPositions[1],
+        widget.points[(activeArea + 2) % 4],
+        widget.points[(activeArea + 3) % 4]
+      ]);
 
       setState(
         () {
-          magnifierRadius = newRadius;
+          if (magnifierRadius != newRadius) {
+            magnifierRadius = newRadius;
+          }
 
           linearCoefficients[activeArea][1] = bUpdated;
 
@@ -199,21 +218,17 @@ class _FramingToolState extends State<BoundingTool> {
         newPositions.add(Offset(corner1.dx, corner1.dy + finger.dy));
         newPositions.add(Offset(corner2.dx, corner2.dy + finger.dy));
       }
-
-      double newRadius = math.max(
-        math.min(
-            math.min(
-                  (newPositions[0] - widget.points[(activeArea + 3) % 4])
-                      .distance,
-                  (newPositions[0] - newPositions[1]).distance,
-                ) /
-                2,
-            initialMagnifierRadius),
-        10,
-      );
+      double newRadius = calcMagnifierRadius([
+        newPositions[0],
+        newPositions[1],
+        widget.points[(activeArea + 2) % 4],
+        widget.points[(activeArea + 3) % 4]
+      ]);
 
       setState(() {
-        magnifierRadius = newRadius;
+        if (magnifierRadius != newRadius) {
+          magnifierRadius = newRadius;
+        }
 
         widget.points[activeArea] = newPositions[0];
         widget.points[(activeArea + 1) % 4] = newPositions[1];
@@ -317,7 +332,7 @@ class _FramingToolState extends State<BoundingTool> {
           height: widget.size.height,
           child: Stack(
             children: [
-              widget.image,
+              image,
               GestureDetector(
                 onPanStart: getActiveArea,
                 onPanUpdate: calcMagnifierPositions,

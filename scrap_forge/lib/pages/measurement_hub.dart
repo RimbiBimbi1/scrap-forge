@@ -125,8 +125,8 @@ class _MeasurementHubState extends State<MeasurementHub> {
     double imgW = processed.width.toDouble();
     double imgH = processed.height.toDouble();
 
-    double displayH = MediaQuery.of(context).size.height * 0.75;
-    double displayW = (imgW * displayH) / imgH;
+    double displayW = MediaQuery.of(context).size.width * 0.95;
+    double displayH = imgH * (displayW / imgW);
 
     List<Offset> corners = scanned
         .map((e) => Offset(e.x / imgW * displayW, e.y / imgH * displayH))
@@ -145,8 +145,8 @@ class _MeasurementHubState extends State<MeasurementHub> {
     double imgW = originalPhoto.width.toDouble();
     double imgH = originalPhoto.height.toDouble();
 
-    double displayH = MediaQuery.of(context).size.height * 0.75;
-    double displayW = (imgW * displayH) / imgH;
+    double displayW = MediaQuery.of(context).size.width * 0.95;
+    double displayH = imgH * (displayW / imgW);
 
     imgLib.Image a4 = imgLib.Image(width: sheetWpx, height: sheetHpx);
 
@@ -188,8 +188,7 @@ class _MeasurementHubState extends State<MeasurementHub> {
 
     imgW = binary.width.toDouble();
     imgH = binary.height.toDouble();
-    displayH = MediaQuery.of(context).size.height * 0.75;
-    displayW = (imgW * displayH) / imgH;
+    displayH = imgH * (displayW / imgW);
 
     List<imgLib.Point> scanned = AutoBoundingBoxScanner.getBoundingBox(binary);
 
@@ -207,36 +206,36 @@ class _MeasurementHubState extends State<MeasurementHub> {
     });
   }
 
+  Widget displayImage(double w, double h) {
+    List<int>? withHeader = imgLib.encodeJpg(displayed);
+    return Center(
+      child: SizedBox(
+        width: w,
+        height: h,
+        child: Image(
+          fit: BoxFit.scaleDown,
+          image: MemoryImage(
+            Uint8List.fromList(withHeader),
+          ),
+        ),
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     double imgW = displayed.width.toDouble();
     double imgH = displayed.height.toDouble();
 
-    double displayH = MediaQuery.of(context).size.height * 0.70;
-    double displayW = imgW * (displayH / imgH);
-
-    Widget displayImage(imgLib.Image image) {
-      List<int>? withHeader = imgLib.encodeJpg(image);
-      return Center(
-        child: SizedBox(
-          width: displayW,
-          height: displayH,
-          child: Image(
-            fit: BoxFit.fitHeight,
-            image: MemoryImage(
-              Uint8List.fromList(withHeader),
-            ),
-          ),
-        ),
-      );
-    }
+    double displayW = MediaQuery.of(context).size.width * 0.95;
+    double displayH = imgH * (displayW / imgW);
 
     Widget renderContent() {
       switch (phase) {
         case 'boundingBoxDetected':
           return BoundingTool(
             points: itemBoundingBox,
-            image: displayImage(displayed),
+            displayImage: displayImage,
             sheetFormat: sheetFormat,
             size: Size(displayW, displayH),
             projectionAreaPixels: this.projectionAreaPixels,
@@ -244,7 +243,7 @@ class _MeasurementHubState extends State<MeasurementHub> {
         case 'sheetDetected':
           return FramingTool(
             points: sheetCorners,
-            image: displayImage(displayed),
+            displayImage: displayImage,
             size: Size(displayW, displayH),
             setCorners: (List<Offset> corners) {
               texture(corners);

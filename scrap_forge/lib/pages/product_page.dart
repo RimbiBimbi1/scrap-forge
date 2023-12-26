@@ -77,56 +77,69 @@ class _ProductPageState extends State<ProductPage> {
                       ),
                   ],
                 ),
-                Row(
-                  children: [
-                    Padding(
-                      padding: const EdgeInsets.symmetric(vertical: 8),
-                      child: Text(
-                        product!.name ??= "",
-                        textScaleFactor: 1.5,
-                      ),
-                    ),
-                  ],
+                Padding(
+                  padding: const EdgeInsets.symmetric(vertical: 8),
+                  child: Text(
+                    product!.name ??= "Nienazwany produkt",
+                    textScaleFactor: 1.4,
+                  ),
                 ),
-                if (product != null && product!.photos.isNotEmpty)
-                  SizedBox(
-                    height: 220,
-                    child: ListView(
-                      primary: false,
-                      shrinkWrap: true,
-                      scrollDirection: Axis.horizontal,
-                      children: [
-                        ...product!.photos.map(
-                          (photo) => Padding(
-                            padding: const EdgeInsets.all(4.0),
-                            child: Container(
-                              width: 160,
-                              clipBehavior: Clip.hardEdge,
-                              decoration: BoxDecoration(
-                                borderRadius:
-                                    const BorderRadius.all(Radius.circular(8)),
-                                image: DecorationImage(
-                                    image: MemoryImage(base64Decode(photo)),
-                                    fit: BoxFit.cover),
+                Text(
+                  "Zdjęcia:",
+                  textScaleFactor: 1.1,
+                ),
+                (product!.photos.isNotEmpty)
+                    ? SizedBox(
+                        height: 220,
+                        child: ListView(
+                          primary: false,
+                          shrinkWrap: true,
+                          scrollDirection: Axis.horizontal,
+                          children: [
+                            ...product!.photos.map(
+                              (photo) => Padding(
+                                padding: const EdgeInsets.all(4.0),
+                                child: Container(
+                                  width: 160,
+                                  clipBehavior: Clip.hardEdge,
+                                  decoration: BoxDecoration(
+                                    borderRadius: const BorderRadius.all(
+                                        Radius.circular(8)),
+                                    image: DecorationImage(
+                                        image: MemoryImage(base64Decode(photo)),
+                                        fit: BoxFit.cover),
+                                  ),
+                                ),
                               ),
                             ),
+                          ],
+                        ),
+                      )
+                    : Center(
+                        child: Container(
+                          padding: const EdgeInsets.symmetric(
+                              vertical: 20, horizontal: 60),
+                          child: const Text(
+                            "Do tego produktu nie dodano jeszcze żadnych zdjęć",
+                            textAlign: TextAlign.center,
                           ),
                         ),
-                      ],
-                    ),
-                  ),
+                      ),
                 if (product?.description != null && product?.description != "")
                   Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       const Text(
                         "Opis:",
-                        textScaleFactor: 1.25,
+                        textScaleFactor: 1.1,
                       ),
                       Text(StringMultiliner.multiline(product?.description)
                           .toString()),
                     ],
                   ),
+                if (product!.count != null)
+                  Text('Wykonane sztuki: ${product!.count}')
+                // if (product!.madeFrom)
               ],
             ),
           ),
