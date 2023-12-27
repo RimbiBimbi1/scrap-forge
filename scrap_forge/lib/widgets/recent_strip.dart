@@ -5,19 +5,19 @@ import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:scrap_forge/db_entities/product.dart';
 
-class RecentStrip extends StatefulWidget {
+class ProductStripSmall extends StatefulWidget {
   Product product;
 
-  RecentStrip({
+  ProductStripSmall({
     super.key,
     required this.product,
   });
 
   @override
-  State<RecentStrip> createState() => _RecentStripState();
+  State<ProductStripSmall> createState() => _ProductStripSmallState();
 }
 
-class _RecentStripState extends State<RecentStrip> {
+class _ProductStripSmallState extends State<ProductStripSmall> {
   Widget thumbnail = SvgPicture.asset(
     'assets/image-placeholder.svg',
     fit: BoxFit.fill,

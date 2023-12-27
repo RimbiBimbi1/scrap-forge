@@ -4,7 +4,9 @@ import 'package:flutter/material.dart';
 import 'package:scrap_forge/db_entities/product.dart';
 import 'package:scrap_forge/pages/loading.dart';
 import 'package:scrap_forge/utils/date_formatter.dart';
+import 'package:scrap_forge/utils/dimension_formatter.dart';
 import 'package:scrap_forge/utils/string_multiliner.dart';
+import 'package:scrap_forge/widgets/recent_strip.dart';
 
 class ProductPage extends StatefulWidget {
   BuildContext context;
@@ -84,9 +86,12 @@ class _ProductPageState extends State<ProductPage> {
                     textScaleFactor: 1.4,
                   ),
                 ),
-                Text(
-                  "Zdjęcia:",
-                  textScaleFactor: 1.1,
+                const Padding(
+                  padding: EdgeInsets.symmetric(vertical: 8),
+                  child: Text(
+                    "Zdjęcia:",
+                    textScaleFactor: 1.1,
+                  ),
                 ),
                 (product!.photos.isNotEmpty)
                     ? SizedBox(
@@ -126,20 +131,72 @@ class _ProductPageState extends State<ProductPage> {
                         ),
                       ),
                 if (product?.description != null && product?.description != "")
-                  Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      const Text(
-                        "Opis:",
-                        textScaleFactor: 1.1,
-                      ),
-                      Text(StringMultiliner.multiline(product?.description)
-                          .toString()),
-                    ],
+                  Padding(
+                    padding: const EdgeInsets.symmetric(vertical: 8),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        const Text(
+                          "Opis:",
+                          textScaleFactor: 1.1,
+                        ),
+                        Padding(
+                          padding: EdgeInsets.all(8),
+                          child: Text(
+                            StringMultiliner.multiline(product?.description)
+                                .toString(),
+                            textAlign: TextAlign.justify,
+                          ),
+                        ),
+                      ],
+                    ),
                   ),
                 if (product!.count != null)
-                  Text('Wykonane sztuki: ${product!.count}')
-                // if (product!.madeFrom)
+                  Padding(
+                      padding: const EdgeInsets.symmetric(vertical: 8),
+                      child: Text('Wykonana ilość: ${product!.count}')),
+                if (product!.madeFrom.isNotEmpty)
+                  Padding(
+                    padding: const EdgeInsets.symmetric(vertical: 8),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.stretch,
+                      children: [
+                        const Text("Materiały wykorzystane do produkcji: "),
+                        ...product!.madeFrom.map(
+                            (material) => ProductStripSmall(product: material))
+                      ],
+                    ),
+                  ),
+                if (product!.isMaterial())
+                  Padding(
+                    padding: const EdgeInsets.symmetric(vertical: 8),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.stretch,
+                      children: [
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            Text("Użyte: ${product!.consumed ??= 0}"),
+                            Text("Na stanie: ${product!.available ??= 0}"),
+                            Text("Potrzebne: ${product!.needed ??= 0}"),
+                          ],
+                        ),
+                      ],
+                    ),
+                  ),
+                if (product!.usedIn.isNotEmpty)
+                  Padding(
+                    padding: const EdgeInsets.symmetric(vertical: 8),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.stretch,
+                      children: [
+                        const Text(
+                            "Wykorzystany jako materiał przy produkcji: "),
+                        ...product!.usedIn
+                            .map((p) => ProductStripSmall(product: p))
+                      ],
+                    ),
+                  ),
               ],
             ),
           ),

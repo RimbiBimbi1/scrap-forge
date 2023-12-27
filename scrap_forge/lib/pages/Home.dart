@@ -64,7 +64,7 @@ class _HomeState extends State<Home> {
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
                   ...recentlyViewed
-                      .map((e) => RecentStrip(
+                      .map((e) => ProductStripSmall(
                             product: e,
                           ))
                       .toList()

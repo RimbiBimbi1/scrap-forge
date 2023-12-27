@@ -31,6 +31,14 @@ class Product {
   int? consumed; //
   int? available; //
   int? needed; //
+
+  bool isMaterial() {
+    return (consumed != null || available != null || needed != null);
+  }
+
+  bool isProduct() {
+    return (progress != null);
+  }
 }
 
 @embedded
