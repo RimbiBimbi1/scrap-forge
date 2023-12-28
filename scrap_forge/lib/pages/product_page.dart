@@ -32,6 +32,18 @@ class _ProductPageState extends State<ProductPage> {
     }
   }
 
+  String getPlProgress(ProjectLifeCycle progress) {
+    switch (progress.name) {
+      case 'finished':
+        return "Ukończony";
+      case 'planned':
+        return "Planowany";
+      case 'inProgress':
+      default:
+        return "W trakcie realizacji";
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     ThemeData theme = Theme.of(context);
@@ -47,7 +59,7 @@ class _ProductPageState extends State<ProductPage> {
                   Navigator.pushNamed(context, "/editProduct",
                       arguments: {"productData": product});
                 },
-                icon: const Icon(Icons.settings))
+                icon: const Icon(Icons.mode_edit_outline_outlined))
           ],
           centerTitle: true,
         ),
@@ -62,7 +74,7 @@ class _ProductPageState extends State<ProductPage> {
                     if (product!.addedTimestamp != null)
                       Flexible(
                         child: Text(
-                          "Data dodania: ${DateFormatter.fromTimestamp(product!.addedTimestamp ??= 0)}",
+                          "Data dodania: ${DateFormatter.fromTimestamp(product!.addedTimestamp ?? 0)}",
                           textScaleFactor: 0.75,
                           style:
                               TextStyle(color: theme.colorScheme.onBackground),
@@ -71,7 +83,7 @@ class _ProductPageState extends State<ProductPage> {
                     if (product!.finishedTimestamp != null)
                       Flexible(
                         child: Text(
-                          "Data ukończenia: ${DateFormatter.fromTimestamp(product!.finishedTimestamp ??= 0)}",
+                          "Data ukończenia: ${DateFormatter.fromTimestamp(product!.finishedTimestamp ?? 0)}",
                           textScaleFactor: 0.75,
                           style:
                               TextStyle(color: theme.colorScheme.onBackground),
@@ -82,12 +94,20 @@ class _ProductPageState extends State<ProductPage> {
                 Padding(
                   padding: const EdgeInsets.symmetric(vertical: 8),
                   child: Text(
-                    product!.name ??= "Nienazwany produkt",
+                    product!.name ?? "Nienazwany produkt",
                     textScaleFactor: 1.4,
                   ),
                 ),
+                if (product!.progress != null)
+                  Padding(
+                    padding: const EdgeInsets.symmetric(vertical: 4),
+                    child: Text(
+                      getPlProgress(product!.progress!),
+                      textScaleFactor: 1.1,
+                    ),
+                  ),
                 const Padding(
-                  padding: EdgeInsets.symmetric(vertical: 8),
+                  padding: EdgeInsets.symmetric(vertical: 4),
                   child: Text(
                     "Zdjęcia:",
                     textScaleFactor: 1.1,
@@ -151,36 +171,76 @@ class _ProductPageState extends State<ProductPage> {
                       ],
                     ),
                   ),
-                if (product!.count != null)
-                  Padding(
-                      padding: const EdgeInsets.symmetric(vertical: 8),
-                      child: Text('Wykonana ilość: ${product!.count}')),
+                Padding(
+                  padding: const EdgeInsets.symmetric(vertical: 8),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        "Dane:",
+                        textScaleFactor: 1.1,
+                      ),
+                      Padding(
+                        padding: const EdgeInsets.all(8),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            if (product!.dimensions != null)
+                              Padding(
+                                  padding:
+                                      const EdgeInsets.symmetric(vertical: 2),
+                                  child: Row(
+                                    mainAxisAlignment: MainAxisAlignment.start,
+                                    children: [
+                                      const Text("Wymiary: "),
+                                      Text(DimensionFormatter.toLxWxH(
+                                          product!.dimensions)),
+                                    ],
+                                  )),
+                            if (product!.count != null)
+                              Padding(
+                                  padding:
+                                      const EdgeInsets.symmetric(vertical: 2),
+                                  child: Text(
+                                      'Wykonana ilość: ${product!.count}')),
+                            if (product!.isMaterial()) ...[
+                              Padding(
+                                padding:
+                                    const EdgeInsets.symmetric(vertical: 2),
+                                child: Text(
+                                    "Wykorzystane: ${product!.consumed ?? 0}"),
+                              ),
+                              Padding(
+                                padding:
+                                    const EdgeInsets.symmetric(vertical: 2),
+                                child: Text(
+                                    "Na stanie: ${product!.available ?? 0}"),
+                              ),
+                              Padding(
+                                padding:
+                                    const EdgeInsets.symmetric(vertical: 2),
+                                child:
+                                    Text("Potrzebne: ${product!.needed ?? 0}"),
+                              ),
+                            ]
+                          ],
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
                 if (product!.madeFrom.isNotEmpty)
                   Padding(
                     padding: const EdgeInsets.symmetric(vertical: 8),
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.stretch,
                       children: [
-                        const Text("Materiały wykorzystane do produkcji: "),
+                        const Text(
+                          "Materiały wykorzystane do produkcji: ",
+                          textScaleFactor: 1.1,
+                        ),
                         ...product!.madeFrom.map(
                             (material) => ProductStripSmall(product: material))
-                      ],
-                    ),
-                  ),
-                if (product!.isMaterial())
-                  Padding(
-                    padding: const EdgeInsets.symmetric(vertical: 8),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.stretch,
-                      children: [
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: [
-                            Text("Użyte: ${product!.consumed ??= 0}"),
-                            Text("Na stanie: ${product!.available ??= 0}"),
-                            Text("Potrzebne: ${product!.needed ??= 0}"),
-                          ],
-                        ),
                       ],
                     ),
                   ),
@@ -191,7 +251,9 @@ class _ProductPageState extends State<ProductPage> {
                       crossAxisAlignment: CrossAxisAlignment.stretch,
                       children: [
                         const Text(
-                            "Wykorzystany jako materiał przy produkcji: "),
+                          "Wykorzystany jako materiał przy produkcji: ",
+                          textScaleFactor: 1.1,
+                        ),
                         ...product!.usedIn
                             .map((p) => ProductStripSmall(product: p))
                       ],

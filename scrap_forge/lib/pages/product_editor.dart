@@ -1,5 +1,5 @@
 import 'dart:convert';
-import 'dart:math';
+import 'dart:math' as math;
 import 'dart:typed_data';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
@@ -393,20 +393,15 @@ class _ProductEditorState extends State<ProductEditor> {
                                     fit: FlexFit.tight,
                                     child: OutlinedButton(
                                       onPressed: pickImagesFromGallery,
-                                      child: const Icon(
-                                        IconData(0xe057,
-                                            fontFamily: 'MaterialIcons'),
-                                      ),
+                                      child:
+                                          const Icon(Icons.add_photo_alternate),
                                     ),
                                   ),
                                   Flexible(
                                     fit: FlexFit.tight,
                                     child: OutlinedButton(
                                       onPressed: pickImageFromCamera,
-                                      child: const Icon(
-                                        IconData(0xe048,
-                                            fontFamily: 'MaterialIcons'),
-                                      ),
+                                      child: const Icon(Icons.add_a_photo),
                                     ),
                                   ),
                                 ],
@@ -440,7 +435,7 @@ class _ProductEditorState extends State<ProductEditor> {
                                   });
                             },
                             child: const Icon(
-                              IconData(0xe048, fontFamily: 'MaterialIcons'),
+                              Icons.straighten,
                             ),
                           ),
                         ),

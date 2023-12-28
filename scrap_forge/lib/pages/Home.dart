@@ -1,3 +1,4 @@
+import 'dart:math' as math;
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:scrap_forge/db_entities/product.dart';
@@ -53,6 +54,41 @@ class _HomeState extends State<Home> {
           IconButton(onPressed: () {}, icon: const Icon(Icons.settings))
         ],
         centerTitle: true,
+      ),
+      floatingActionButton: Container(
+        color: Colors.transparent,
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.end,
+          children: [
+            Padding(
+              padding: const EdgeInsets.all(8.0),
+              child: FloatingActionButton(
+                heroTag: null,
+                backgroundColor: Colors.red,
+                onPressed: () {
+                  Navigator.pushNamed(context, "/measure",
+                      arguments: {'onExit': (values) {}});
+                },
+                child: const Icon(
+                  Icons.straighten,
+                ),
+              ),
+            ),
+            Padding(
+              padding: const EdgeInsets.all(8.0),
+              child: FloatingActionButton(
+                heroTag: null,
+                backgroundColor: Colors.red,
+                onPressed: () {
+                  Navigator.pushNamed(context, "/editProduct");
+                },
+                child: const Icon(
+                  Icons.add_rounded,
+                ),
+              ),
+            ),
+          ],
+        ),
       ),
       body: SafeArea(
         child: Padding(
@@ -188,16 +224,9 @@ class _HomeState extends State<Home> {
                   ),
                 ],
               ),
-              FloatingActionButton(
-                heroTag: false,
-                onPressed: () {
-                  Navigator.pushNamed(context, "/editProduct");
-                },
-                child: const Text(
-                  "+",
-                  textScaleFactor: 3,
-                ),
-              ),
+              SizedBox(
+                height: 100,
+              )
             ],
           ),
         ),

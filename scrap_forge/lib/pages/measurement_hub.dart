@@ -84,8 +84,17 @@ class _MeasurementHubState extends State<MeasurementHub> {
       [-1, -2, -1]
     ];
 
+    int scaledHeight = photo.height;
+    int scaleDownLevel = 0;
+
+    while (scaledHeight >= (2 * sheetHpx)) {
+      scaledHeight >>= 1;
+      scaleDownLevel++;
+    }
+
     imgLib.Image processed = imgLib.copyResize(photo,
-        width: (photo.width / 4).round(), height: (photo.height / 4).round());
+        width: (photo.width >> scaleDownLevel).round(),
+        height: (scaledHeight).round());
 
     processed = ImageProcessor.getInvariant(processed);
     processed = ImageProcessor.getGaussianBlurred(processed);
@@ -276,6 +285,15 @@ class _MeasurementHubState extends State<MeasurementHub> {
       backgroundColor: Colors.grey[900],
       appBar: AppBar(
         title: AnimatedCrossFade(
+          layoutBuilder: ((topChild, topChildKey, bottomChild, bottomChildKey) {
+            return Stack(
+              alignment: Alignment.center,
+              children: <Widget>[
+                Positioned(key: bottomChildKey, top: 0, child: bottomChild),
+                Positioned(key: topChildKey, child: topChild),
+              ],
+            );
+          }),
           firstChild: const Text("Pomiar"),
           secondChild: Row(
             children: [ASheetFormat.a5, ASheetFormat.a4, ASheetFormat.a3]

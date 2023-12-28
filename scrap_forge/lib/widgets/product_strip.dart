@@ -3,6 +3,7 @@ import 'dart:typed_data';
 
 import 'package:flutter/material.dart';
 import 'package:scrap_forge/db_entities/product.dart';
+import 'package:scrap_forge/utils/dimension_formatter.dart';
 import 'package:scrap_forge/utils/string_multiliner.dart';
 
 class ProductStrip extends StatefulWidget {
@@ -68,8 +69,10 @@ class _ProductStripState extends State<ProductStrip> {
         child: Padding(
           padding: const EdgeInsets.symmetric(vertical: 3),
           child: Text(
-              StringMultiliner.multiline(widget.product.description).toString(),
-              style: textStyle),
+            StringMultiliner.multiline(widget.product.description).toString(),
+            style: textStyle,
+            textAlign: TextAlign.justify,
+          ),
         ),
       );
     } else {
@@ -79,21 +82,17 @@ class _ProductStripState extends State<ProductStrip> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
-                // Text(getStringDimensions()),
-                if (widget.product.dimensions?.length != null)
-                  Text("Długość: ${widget.product.dimensions?.length}mm"),
-                if (widget.product.dimensions?.width != null)
-                  Text("Szerokość: ${widget.product.dimensions?.width}mm"),
-                if (widget.product.dimensions?.height != null)
-                  Text("Wysokość: ${widget.product.dimensions?.height}mm"),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Text("Użyte: ${widget.product.consumed ??= 0}"),
-                    Text("Na stanie: ${widget.product.available ??= 0}"),
-                    Text("Potrzebne: ${widget.product.needed ??= 0}"),
-                  ],
-                )
+                Text(DimensionFormatter.toLxWxH(widget.product.dimensions)),
+                // if (widget.product.dimensions?.length != null)
+                //   Text("Długość: ${widget.product.dimensions?.length}mm"),
+                // if (widget.product.dimensions?.width != null)
+                //   Text("Szerokość: ${widget.product.dimensions?.width}mm"),
+                // if (widget.product.dimensions?.height != null)
+                //   Text("Wysokość: ${widget.product.dimensions?.height}mm"),
+                Divider(),
+                Text("Wykorzystane: ${widget.product.consumed ?? 0}"),
+                Text("Na stanie: ${widget.product.available ?? 0}"),
+                Text("Potrzebne: ${widget.product.needed ?? 0}")
               ],
             )),
       );
