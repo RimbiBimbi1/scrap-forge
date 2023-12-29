@@ -59,7 +59,7 @@ class ImageProcessor {
         double gray = 0.0;
 
         kernel.asMap().forEach((i, offset) => gray +=
-            image.getPixel((x + offset.x).toInt(), (y + offset.y).toInt()).r *
+            image.getPixel((x + offset.xi), (y + offset.yi)).r *
                 gaussianMultipliers[i]);
 
         gray = math.min(gray, 255);
@@ -258,15 +258,14 @@ class ImageProcessor {
     while (tracked.isNotEmpty) {
       imgLib.Point p = tracked.removeLast();
 
-      result.setPixelRgb(p.x.toInt(), p.y.toInt(), 255, 255, 255);
+      result.setPixelRgb(p.xi, p.yi, 255, 255, 255);
 
       for (int ky = -kernelRadius; ky <= kernelRadius; ky++) {
         for (int kx = -kernelRadius; kx <= kernelRadius; kx++) {
           if (kx == 0 && ky == 0) {
             continue;
           }
-          int pRed =
-              result.getPixel((p.x + kx).toInt(), (p.y + ky).toInt()).r.toInt();
+          int pRed = result.getPixel((p.xi + kx), (p.yi + ky)).r.toInt();
 
           if (pRed == 127) {
             tracked.add(imgLib.Point(p.x + kx, p.y + ky));
@@ -308,23 +307,22 @@ class ImageProcessor {
     return kernel;
   }
 
-  static imgLib.Image getDilated(
-    imgLib.Image image,
-  ) {
-    return getEroded(image, erodeTo: 0);
+  static imgLib.Image getDilated(imgLib.Image image, {int radius = 1}) {
+    return getEroded(image, erodeTo: 0, radius: 1);
   }
 
-  static imgLib.Image getEroded(imgLib.Image image, {erodeTo = 255}) {
+  static imgLib.Image getEroded(imgLib.Image image,
+      {int erodeTo = 255, int radius = 1}) {
     int w = image.width;
     int h = image.height;
-    int erodeFrom = (255 - erodeTo).toInt();
+    int erodeFrom = (255 - erodeTo);
     imgLib.Color bg = imgLib.ColorRgb8(erodeFrom, erodeFrom, erodeFrom);
 
     imgLib.Image eroded = imgLib.Image(width: w, height: h);
 
     eroded.clear(bg);
 
-    List<imgLib.Point> kernel = getKernel(1, excludeCenter: true);
+    List<imgLib.Point> kernel = getKernel(radius, excludeCenter: true);
 
     for (int y = 0; y < h; y++) {
       for (int x = 0; x < w; x++) {
@@ -332,7 +330,7 @@ class ImageProcessor {
           int nRed = erodeTo;
           try {
             nRed = image
-                .getPixel((x + neighbour.x).toInt(), (y + neighbour.y).toInt())
+                .getPixel((x + neighbour.xi), (y + neighbour.yi))
                 .r
                 .toInt();
           } catch (ignored) {
@@ -369,8 +367,8 @@ class ImageProcessor {
     while (flooded.isNotEmpty) {
       imgLib.Point p = flooded.removeLast();
       try {
-        if (floodfilled.getPixel(p.x.toInt(), p.y.toInt()).r == 0) {
-          floodfilled.setPixelRgb(p.x.toInt(), p.y.toInt(), 255, 255, 255);
+        if (floodfilled.getPixel(p.xi, p.yi).r == 0) {
+          floodfilled.setPixelRgb(p.xi, p.yi, 255, 255, 255);
           if (p.x > 0) flooded.add(imgLib.Point(p.x - 1, p.y));
           if (p.y > 0) flooded.add(imgLib.Point(p.x, p.y - 1));
           if (p.x < w - 1) flooded.add(imgLib.Point(p.x + 1, p.y));

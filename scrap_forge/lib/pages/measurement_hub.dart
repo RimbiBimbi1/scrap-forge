@@ -33,10 +33,11 @@ class MeasurementHub extends StatefulWidget {
 }
 
 class _MeasurementHubState extends State<MeasurementHub> {
-  ASheetFormat sheetFormat = ASheetFormat.a4;
-  final sheetWpx = 840;
-  final sheetHpx = 1188;
+  final sheetWpx = 420;
+  final sheetHpx = 594;
+
   bool chooseFormat = false;
+  ASheetFormat sheetFormat = ASheetFormat.a4;
 
   String phase = "init";
 
@@ -61,9 +62,6 @@ class _MeasurementHubState extends State<MeasurementHub> {
     }
     XFile? file = await ImagePicker().pickImage(source: source);
     if (file != null) {
-      // ByteData data = await rootBundle.load("assets/mw_g_1.jpg");
-      // imgLib.Image? image = imgLib.decodeJpg(data.buffer.asUint8List());
-
       Uint8List bytes = await file.readAsBytes();
       imgLib.Image? image = imgLib.decodeJpg(bytes);
       if (image != null) {
@@ -73,34 +71,30 @@ class _MeasurementHubState extends State<MeasurementHub> {
   }
 
   imgLib.Image getBinaryShadowless(imgLib.Image photo) {
-    List<List<int>> Kx = [
+    const List<List<int>> Kx = [
       [-1, 0, 1],
       [-2, 0, 2],
       [-1, 0, 1]
     ];
-    List<List<int>> Ky = [
+    const List<List<int>> Ky = [
       [1, 2, 1],
       [0, 0, 0],
       [-1, -2, -1]
     ];
 
-    int scaledHeight = photo.height;
-    int scaleDownLevel = 0;
-
-    while (scaledHeight >= (2 * sheetHpx)) {
-      scaledHeight >>= 1;
-      scaleDownLevel++;
-    }
-
-    imgLib.Image processed = imgLib.copyResize(photo,
-        width: (photo.width >> scaleDownLevel).round(),
-        height: (scaledHeight).round());
+    imgLib.Image processed = imgLib.copyResize(
+      photo, height: 600,
+      // height: (photo.height / 4).round(),
+      // width: (photo.width / 4).round(),
+    );
 
     processed = ImageProcessor.getInvariant(processed);
+
     processed = ImageProcessor.getGaussianBlurred(processed);
 
     List<List<double>> xSobel =
         ImageProcessor.getDirectionalSobel(processed, Kx);
+
     List<List<double>> ySobel =
         ImageProcessor.getDirectionalSobel(processed, Ky);
 
@@ -108,13 +102,19 @@ class _MeasurementHubState extends State<MeasurementHub> {
 
     List<List<double>> direction =
         ImageProcessor.getSobelDirection(processed, xSobel, ySobel);
+
     processed = ImageProcessor.getNonMaxSuppressed(processed, direction);
+
     processed = ImageProcessor.getDoubleThresholded(processed);
+
     processed = ImageProcessor.getHysteresised(processed);
+
     processed = ImageProcessor.getEroded(processed);
     processed = ImageProcessor.getEroded(processed);
     processed = ImageProcessor.getEroded(processed);
+
     processed = ImageProcessor.getFloodfilled(processed);
+
     processed = ImageProcessor.getDilated(processed);
     processed = ImageProcessor.getDilated(processed);
     processed = ImageProcessor.getDilated(processed);
