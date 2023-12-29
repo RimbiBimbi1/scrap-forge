@@ -83,7 +83,7 @@ class _MeasurementHubState extends State<MeasurementHub> {
     ];
 
     imgLib.Image processed = imgLib.copyResize(
-      photo, height: 600,
+      photo, height: 400,
       // height: (photo.height / 4).round(),
       // width: (photo.width / 4).round(),
     );

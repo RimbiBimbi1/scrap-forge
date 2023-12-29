@@ -196,6 +196,7 @@ class _ProductGalleryState extends State<ProductGallery> {
                   child: ElevatedButton(
                     onPressed: () {
                       db.deleteProducts(getSelected());
+                      Navigator.of(context).pop();
                     },
                     child: const Text("Usuń"),
                   ),

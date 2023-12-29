@@ -13,6 +13,7 @@ class DimensionFormatter {
         ? '${dims.height}${dims.heightDisplayUnit!.abbr} x '
         : '';
     String joined = '$lStr$wStr$hStr';
+    if (joined.length < 2) return "";
     return joined.substring(0, joined.length - 2);
   }
 }

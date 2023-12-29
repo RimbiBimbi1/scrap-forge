@@ -56,9 +56,9 @@ class _ProductEditorState extends State<ProductEditor> {
 
   List<Uint8List> photos = List.empty();
   List<Product> madeFrom = List.empty();
-  List<TextEditingController> madeFromCounts = List.empty();
+  // List<TextEditingController> madeFromCounts = List.empty();
   List<Product> usedIn = List.empty();
-  List<TextEditingController> usedInCounts = List.empty();
+  // List<TextEditingController> usedInCounts = List.empty();
 
   @override
   void initState() {
@@ -116,11 +116,11 @@ class _ProductEditorState extends State<ProductEditor> {
           photos = product.photos.map((photo) => base64Decode(photo)).toList();
 
           madeFrom = product.madeFrom.toList();
-          madeFromCounts = List.generate(
-              product.madeFrom.length, (index) => TextEditingController());
+          // madeFromCounts = List.generate(
+          //     product.madeFrom.length, (index) => TextEditingController());
           usedIn = product.usedIn.toList();
-          usedInCounts = List.generate(
-              product.usedIn.length, (index) => TextEditingController());
+          // usedInCounts = List.generate(
+          //     product.usedIn.length, (index) => TextEditingController());
 
           if (product.dimensions != null) {
             lengthUnit =
@@ -193,8 +193,8 @@ class _ProductEditorState extends State<ProductEditor> {
   void onMaterialsUsedPicked(materials) {
     setState(() {
       madeFrom = materials;
-      madeFromCounts =
-          List.generate(materials.length, (index) => TextEditingController());
+      // madeFromCounts =
+      //     List.generate(materials.length, (index) => TextEditingController());
     });
     Navigator.pop(context);
   }
@@ -202,8 +202,8 @@ class _ProductEditorState extends State<ProductEditor> {
   void onProductsMadeWithPicked(products) {
     setState(() {
       usedIn = products;
-      usedInCounts =
-          List.generate(usedIn.length, (index) => TextEditingController());
+      // usedInCounts =
+      //     List.generate(usedIn.length, (index) => TextEditingController());
     });
     Navigator.pop(context);
   }
@@ -313,11 +313,6 @@ class _ProductEditorState extends State<ProductEditor> {
                   },
                   type: TextInputType.multiline,
                   maxLines: null,
-                ),
-                CustomTextField(
-                  label: "Ilość:",
-                  controller: countController,
-                  validator: numberValidator,
                 ),
                 Column(
                   mainAxisAlignment: MainAxisAlignment.center,
@@ -559,123 +554,146 @@ class _ProductEditorState extends State<ProductEditor> {
                       },
                     ),
                     AnimatedCrossFade(
-                      firstChild: Column(
-                        crossAxisAlignment: CrossAxisAlignment.stretch,
-                        children: [
-                          DropdownMenu<ProjectLifeCycle>(
-                            dropdownMenuEntries: const [
-                              DropdownMenuEntry(
-                                  value: ProjectLifeCycle.finished,
-                                  label: "Ukończony"),
-                              DropdownMenuEntry(
-                                  value: ProjectLifeCycle.inProgress,
-                                  label: "W trakcie realizacji"),
-                              DropdownMenuEntry(
-                                  value: ProjectLifeCycle.planned,
-                                  label: "Planowany"),
+                        layoutBuilder: ((
+                          topChild,
+                          topChildKey,
+                          bottomChild,
+                          bottomChildKey,
+                        ) {
+                          return Stack(
+                            alignment: Alignment.topCenter,
+                            children: <Widget>[
+                              Positioned(
+                                  key: bottomChildKey,
+                                  top: 0,
+                                  left: 0,
+                                  right: 0,
+                                  child: bottomChild),
+                              Positioned(key: topChildKey, child: topChild),
                             ],
-                            initialSelection:
-                                progress ?? ProjectLifeCycle.inProgress,
-                            controller: progressController,
-                            onSelected: (value) {
-                              if (value != null) {
-                                setState(() {
-                                  progress = value;
-                                });
-                              }
-                            },
-                          ),
-                          Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                            children: [
-                              const Flexible(
-                                child: Padding(
-                                  padding: EdgeInsets.symmetric(vertical: 5),
-                                  child: Text(
-                                    "Wykonany z:",
-                                    textScaleFactor: 1.1,
-                                  ),
-                                ),
-                              ),
-                              IconButton(
-                                  onPressed: () => {
-                                        Navigator.pushNamed(
-                                            context, "/products",
-                                            arguments: {
-                                              'productFilter':
-                                                  ProductFilter.materials(),
-                                              'select': true,
-                                              'confirmSelection':
-                                                  onMaterialsUsedPicked,
-                                            })
-                                      },
-                                  icon: const Icon(Icons.list))
-                            ],
-                          ),
-                          ...madeFrom
-                              .asMap()
-                              .map(
-                                (index, value) => MapEntry(
-                                  index,
-                                  SizedBox(
-                                    child: Row(
-                                      crossAxisAlignment:
-                                          CrossAxisAlignment.center,
-                                      mainAxisAlignment:
-                                          MainAxisAlignment.spaceBetween,
-                                      children: [
-                                        Flexible(
-                                          child: Text(value.name ??
-                                              "Materiał bez nazwy"),
-                                        ),
-                                        Flexible(
-                                          child: CustomTextField(
-                                            label: "Ilość:",
-                                            controller: madeFromCounts[index],
-                                            validator: addAsProject
-                                                ? numberValidator
-                                                : (value) => null,
-                                            type: TextInputType.number,
-                                          ),
-                                        ),
-                                        Flexible(
-                                          child: IconButton(
-                                            icon: const Icon(
-                                                Icons.remove_circle_outline),
-                                            onPressed: () {
-                                              List<Product> madeFromCopy =
-                                                  List.of(madeFrom);
-                                              List<TextEditingController>
-                                                  madeFromCountsCopy =
-                                                  List.of(madeFromCounts);
-                                              madeFromCopy.removeAt(index);
-                                              madeFromCountsCopy
-                                                  .removeAt(index);
-                                              setState(
-                                                () {
-                                                  madeFrom = madeFromCopy;
-                                                  madeFromCounts =
-                                                      madeFromCountsCopy;
-                                                },
-                                              );
-                                            },
-                                          ),
-                                        ),
-                                      ],
+                          );
+                        }),
+                        crossFadeState: addAsProject
+                            ? CrossFadeState.showFirst
+                            : CrossFadeState.showSecond,
+                        duration: const Duration(milliseconds: 250),
+                        firstChild: Column(
+                          children: [
+                            CustomTextField(
+                              label: "Ilość:",
+                              controller: countController,
+                              validator: numberValidator,
+                            ),
+                            DropdownMenu<ProjectLifeCycle>(
+                              width: MediaQuery.of(context).size.width - 20,
+                              dropdownMenuEntries: const [
+                                DropdownMenuEntry(
+                                    value: ProjectLifeCycle.finished,
+                                    label: "Ukończony"),
+                                DropdownMenuEntry(
+                                    value: ProjectLifeCycle.inProgress,
+                                    label: "W trakcie realizacji"),
+                                DropdownMenuEntry(
+                                    value: ProjectLifeCycle.planned,
+                                    label: "Planowany"),
+                              ],
+                              initialSelection:
+                                  progress ?? ProjectLifeCycle.inProgress,
+                              controller: progressController,
+                              onSelected: (value) {
+                                if (value != null) {
+                                  setState(() {
+                                    progress = value;
+                                  });
+                                }
+                              },
+                            ),
+                            Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              children: [
+                                const Flexible(
+                                  child: Padding(
+                                    padding: EdgeInsets.symmetric(vertical: 5),
+                                    child: Text(
+                                      "Wykonany z:",
+                                      textScaleFactor: 1.1,
                                     ),
                                   ),
                                 ),
-                              )
-                              .values
-                              .toList()
-                        ],
-                      ),
-                      secondChild: const SizedBox.shrink(),
-                      crossFadeState: addAsProject
-                          ? CrossFadeState.showFirst
-                          : CrossFadeState.showSecond,
-                      duration: const Duration(milliseconds: 200),
-                    )
+                                IconButton(
+                                    onPressed: () => {
+                                          Navigator.pushNamed(
+                                              context, "/products",
+                                              arguments: {
+                                                'productFilter':
+                                                    ProductFilter.materials(),
+                                                'select': true,
+                                                'confirmSelection':
+                                                    onMaterialsUsedPicked,
+                                              })
+                                        },
+                                    icon: const Icon(Icons.list))
+                              ],
+                            ),
+                            ...madeFrom
+                                .asMap()
+                                .map(
+                                  (index, value) => MapEntry(
+                                    index,
+                                    SizedBox(
+                                      child: Row(
+                                        crossAxisAlignment:
+                                            CrossAxisAlignment.center,
+                                        mainAxisAlignment:
+                                            MainAxisAlignment.spaceBetween,
+                                        children: [
+                                          Flexible(
+                                            child: Text(value.name ??
+                                                "Materiał bez nazwy"),
+                                          ),
+                                          // Flexible(
+                                          //   child: CustomTextField(
+                                          //     label: "Ilość:",
+                                          //     controller: madeFromCounts[index],
+                                          //     validator: addAsProject
+                                          //         ? numberValidator
+                                          //         : (value) => null,
+                                          //     type: TextInputType.number,
+                                          //   ),
+                                          // ),
+                                          Flexible(
+                                            child: IconButton(
+                                              icon: const Icon(
+                                                  Icons.remove_circle_outline),
+                                              onPressed: () {
+                                                List<Product> madeFromCopy =
+                                                    List.of(madeFrom);
+                                                // List<TextEditingController>
+                                                //     madeFromCountsCopy =
+                                                //     List.of(madeFromCounts);
+                                                madeFromCopy.removeAt(index);
+                                                // madeFromCountsCopy
+                                                // .removeAt(index);
+                                                setState(
+                                                  () {
+                                                    madeFrom = madeFromCopy;
+                                                    // madeFromCounts =
+                                                    //     madeFromCountsCopy;
+                                                  },
+                                                );
+                                              },
+                                            ),
+                                          ),
+                                        ],
+                                      ),
+                                    ),
+                                  ),
+                                )
+                                .values
+                                .toList()
+                          ],
+                        ),
+                        secondChild: const SizedBox.shrink())
                   ],
                 ),
                 Column(
@@ -697,6 +715,29 @@ class _ProductEditorState extends State<ProductEditor> {
                       },
                     ),
                     AnimatedCrossFade(
+                      layoutBuilder: ((
+                        topChild,
+                        topChildKey,
+                        bottomChild,
+                        bottomChildKey,
+                      ) {
+                        return Stack(
+                          alignment: Alignment.topCenter,
+                          children: <Widget>[
+                            Positioned(
+                                key: bottomChildKey,
+                                top: 0,
+                                left: 0,
+                                right: 0,
+                                child: bottomChild),
+                            Positioned(key: topChildKey, child: topChild),
+                          ],
+                        );
+                      }),
+                      crossFadeState: addAsMaterial
+                          ? CrossFadeState.showFirst
+                          : CrossFadeState.showSecond,
+                      duration: const Duration(milliseconds: 250),
                       firstChild: Column(
                         children: [
                           Row(
@@ -787,16 +828,16 @@ class _ProductEditorState extends State<ProductEditor> {
                                           child: Text(value.name ??
                                               "Projekt bez nazwy"),
                                         ),
-                                        Flexible(
-                                          child: CustomTextField(
-                                            label: "Ilość:",
-                                            controller: usedInCounts[index],
-                                            validator: addAsProject
-                                                ? numberValidator
-                                                : (value) => null,
-                                            type: TextInputType.number,
-                                          ),
-                                        ),
+                                        // Flexible(
+                                        //   child: CustomTextField(
+                                        //     label: "Ilość:",
+                                        //     controller: usedInCounts[index],
+                                        //     validator: addAsProject
+                                        //         ? numberValidator
+                                        //         : (value) => null,
+                                        //     type: TextInputType.number,
+                                        //   ),
+                                        // ),
                                         Flexible(
                                           child: IconButton(
                                             icon: const Icon(
@@ -804,14 +845,14 @@ class _ProductEditorState extends State<ProductEditor> {
                                             onPressed: () {
                                               List<Product> usedInCopy =
                                                   List.of(usedIn);
-                                              List<TextEditingController>
-                                                  usedInCountsCopy =
-                                                  List.of(usedInCounts);
+                                              // List<TextEditingController>
+                                              //     usedInCountsCopy =
+                                              //     List.of(usedInCounts);
                                               usedInCopy.removeAt(index);
-                                              usedInCountsCopy.removeAt(index);
+                                              // usedInCountsCopy.removeAt(index);
                                               setState(() {
                                                 usedIn = usedInCopy;
-                                                usedInCounts = usedInCountsCopy;
+                                                // usedInCounts = usedInCountsCopy;
                                               });
                                             },
                                           ),
@@ -826,10 +867,6 @@ class _ProductEditorState extends State<ProductEditor> {
                         ],
                       ),
                       secondChild: const SizedBox.shrink(),
-                      crossFadeState: addAsMaterial
-                          ? CrossFadeState.showFirst
-                          : CrossFadeState.showSecond,
-                      duration: const Duration(milliseconds: 200),
                     )
                   ],
                 ),
@@ -843,7 +880,9 @@ class _ProductEditorState extends State<ProductEditor> {
                         Product p = Product()
                           ..name = nameController.text
                           ..description = descriptionController.text
-                          ..count = int.parse(countController.text)
+                          ..count = countController.text.isNotEmpty
+                              ? int.parse(countController.text)
+                              : null
                           ..photos = photos
                               .map((bytes) => base64Encode(bytes))
                               .toList()

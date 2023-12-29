@@ -4,33 +4,35 @@ part 'product.g.dart';
 
 @collection
 class Product {
-  Id id = Isar.autoIncrement; // you can also use id = null to auto increment
+  Id id = Isar.autoIncrement;
 
   String? name;
   String? description;
   int? count;
 
   @Enumerated(EnumType.name)
-  ProjectLifeCycle? progress; //
+  ProjectLifeCycle? progress;
 
   List<String> photos = [];
 
   String? category;
 
-  final madeFrom = IsarLinks<Product>(); //
+  final madeFrom = IsarLinks<Product>();
+  // List<int> madeFromQuantities = [];
 
   @Backlink(to: "madeFrom")
-  final usedIn = IsarLinks<Product>(); //
+  final usedIn = IsarLinks<Product>();
+  // List<int> usedInQuantities = [];
 
-  Dimensions? dimensions; //
+  Dimensions? dimensions;
 
   int? addedTimestamp;
   int? lastModifiedTimestamp;
   int? finishedTimestamp;
 
-  int? consumed; //
-  int? available; //
-  int? needed; //
+  int? consumed;
+  int? available;
+  int? needed;
 
   bool isMaterial() {
     return (consumed != null || available != null || needed != null);
