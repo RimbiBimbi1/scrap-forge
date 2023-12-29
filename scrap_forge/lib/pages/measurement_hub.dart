@@ -8,6 +8,7 @@ import 'package:scrap_forge/measure_tool/corner_scanner.dart';
 import 'package:scrap_forge/measure_tool/framing_tool.dart';
 import 'package:scrap_forge/measure_tool/image_processor.dart';
 import 'package:scrap_forge/measure_tool/triangle_texturer.dart';
+import 'package:scrap_forge/pages/loading.dart';
 
 enum ASheetFormat {
   a5(name: 'A5', width: 148, height: 210),
@@ -265,13 +266,17 @@ class _MeasurementHubState extends State<MeasurementHub> {
             children: [
               Flexible(
                 child: ElevatedButton(
-                  onPressed: () => pickImage(fromCamera: false),
+                  onPressed: () async {
+                    await pickImage(fromCamera: false);
+                  },
                   child: const Text("Z galerii"),
                 ),
               ),
               Flexible(
                 child: ElevatedButton(
-                  onPressed: () => pickImage(fromCamera: true),
+                  onPressed: () async {
+                    await pickImage(fromCamera: true);
+                  },
                   child: const Text("Z aparatu"),
                 ),
               ),
@@ -298,12 +303,10 @@ class _MeasurementHubState extends State<MeasurementHub> {
           secondChild: Row(
             children: [ASheetFormat.a5, ASheetFormat.a4, ASheetFormat.a3]
                 .map((f) => TextButton(
-                      onPressed: () {
-                        setState(() {
-                          chooseFormat = false;
-                          sheetFormat = f;
-                        });
-                      },
+                      onPressed: () => setState(() {
+                        chooseFormat = false;
+                        sheetFormat = f;
+                      }),
                       child: Text(
                         f.name,
                         style: TextStyle(color: Colors.white),
@@ -318,11 +321,9 @@ class _MeasurementHubState extends State<MeasurementHub> {
         ),
         actions: [
           TextButton(
-              onPressed: () {
-                setState(() {
-                  chooseFormat = !chooseFormat;
-                });
-              },
+              onPressed: () => setState(() {
+                    chooseFormat = !chooseFormat;
+                  }),
               child: Text(
                 sheetFormat.name,
                 style: TextStyle(color: Colors.white),

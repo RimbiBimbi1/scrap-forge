@@ -23,12 +23,12 @@ Future<void> main() async {
       // initialRoute: '/measure',
       initialRoute: '/home',
       routes: {
-        '/': (context) => const Loading(),
         '/home': (context) => Home(),
         '/editProduct': (context) => ProductEditor(context: context),
         '/product': (context) => ProductPage(context: context),
         '/measure': (context) => MeasurementHub(),
         '/products': (context) => ProductGallery(context: context),
+        '/loading': (context) => const Loading(),
       },
     ),
   );

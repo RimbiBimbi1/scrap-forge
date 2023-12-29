@@ -17,11 +17,13 @@ class _LoadingState extends State<Loading> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-        backgroundColor: Colors.grey[900],
-        body: const Center(
-            child: SpinKitFadingCircle(
+      backgroundColor: Colors.grey[900],
+      body: const Center(
+        child: SpinKitFadingCircle(
           color: Colors.orange,
           size: 100.0,
-        )));
+        ),
+      ),
+    );
   }
 }

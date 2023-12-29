@@ -324,7 +324,7 @@ class _FramingToolState extends State<BoundingTool> {
       mainAxisAlignment: MainAxisAlignment.center,
       crossAxisAlignment: CrossAxisAlignment.center,
       children: [
-        SizedBox(
+        const SizedBox(
           height: 10,
         ),
         SizedBox(
@@ -421,9 +421,9 @@ class _FramingToolState extends State<BoundingTool> {
 
 class FramePainter extends CustomPainter {
   final List<Offset> points;
-  final activeArea;
-  final defaultColor;
-  final focusColor;
+  final int activeArea;
+  final Color defaultColor;
+  final Color focusColor;
 
   FramePainter(
       {required this.points,

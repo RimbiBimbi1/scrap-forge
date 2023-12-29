@@ -32,7 +32,6 @@ class _FramingToolState extends State<FramingTool> {
 
   @override
   void initState() {
-    // TODO: implement initState
     super.initState();
     setState(() {
       image = widget.displayImage(widget.size.width, widget.size.height);
@@ -90,7 +89,7 @@ class _FramingToolState extends State<FramingTool> {
       mainAxisAlignment: MainAxisAlignment.center,
       crossAxisAlignment: CrossAxisAlignment.center,
       children: [
-        SizedBox(
+        const SizedBox(
           height: 10,
         ),
         SizedBox(
@@ -126,7 +125,8 @@ class _FramingToolState extends State<FramingTool> {
                                   width: 2),
                             ),
                           ),
-                          size: Size(magnifierRadius * 2, magnifierRadius * 2),
+                          size: const Size(
+                              magnifierRadius * 2, magnifierRadius * 2),
                           magnificationScale: 2,
                         ),
                       ),
@@ -156,9 +156,9 @@ class _FramingToolState extends State<FramingTool> {
 
 class FramePainter extends CustomPainter {
   final List<Offset> points;
-  final activeCorner;
-  final defaultColor;
-  final focusColor;
+  final int activeCorner;
+  final Color defaultColor;
+  final Color focusColor;
 
   FramePainter(
       {required this.points,
