@@ -45,6 +45,11 @@ class _HomeState extends State<Home> {
     });
     ThemeData theme = Theme.of(context);
 
+    SystemChrome.setPreferredOrientations([
+      DeviceOrientation.portraitUp,
+      DeviceOrientation.portraitDown,
+    ]);
+
     return Scaffold(
       backgroundColor: Colors.grey[900],
       appBar: AppBar(

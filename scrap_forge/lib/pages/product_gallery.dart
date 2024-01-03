@@ -211,6 +211,10 @@ class _ProductGalleryState extends State<ProductGallery> {
 
   @override
   Widget build(BuildContext context) {
+    SystemChrome.setPreferredOrientations([
+      DeviceOrientation.portraitUp,
+      DeviceOrientation.portraitDown,
+    ]);
     db.listenToProducts().listen((event) async {
       List<Product> result = await getProducts(filter);
 

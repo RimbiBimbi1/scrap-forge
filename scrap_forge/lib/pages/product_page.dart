@@ -1,6 +1,7 @@
 import 'dart:convert';
 
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:scrap_forge/db_entities/product.dart';
 import 'package:scrap_forge/pages/loading.dart';
 import 'package:scrap_forge/utils/date_formatter.dart';
@@ -46,6 +47,10 @@ class _ProductPageState extends State<ProductPage> {
 
   @override
   Widget build(BuildContext context) {
+    SystemChrome.setPreferredOrientations([
+      DeviceOrientation.portraitUp,
+      DeviceOrientation.portraitDown,
+    ]);
     ThemeData theme = Theme.of(context);
 
     if (product != null) {

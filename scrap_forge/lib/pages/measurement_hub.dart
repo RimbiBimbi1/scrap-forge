@@ -234,6 +234,10 @@ class _MeasurementHubState extends State<MeasurementHub> {
 
   @override
   Widget build(BuildContext context) {
+    SystemChrome.setPreferredOrientations([
+      DeviceOrientation.portraitUp,
+      DeviceOrientation.portraitDown,
+    ]);
     double imgW = displayed.width.toDouble();
     double imgH = displayed.height.toDouble();
 
