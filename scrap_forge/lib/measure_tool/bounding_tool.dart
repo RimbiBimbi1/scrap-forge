@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'dart:math' as math;
 
 import 'package:scrap_forge/pages/measurement_hub.dart';
+import 'package:scrap_forge/utils/a_sheet_format.dart';
 
 double initialMagnifierRadius = 30;
 

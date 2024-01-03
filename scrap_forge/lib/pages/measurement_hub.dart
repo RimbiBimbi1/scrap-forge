@@ -8,29 +8,29 @@ import 'package:scrap_forge/measure_tool/corner_scanner.dart';
 import 'package:scrap_forge/measure_tool/framing_tool.dart';
 import 'package:scrap_forge/measure_tool/image_processor.dart';
 import 'package:scrap_forge/measure_tool/triangle_texturer.dart';
-import 'package:scrap_forge/pages/loading.dart';
-
-enum ASheetFormat {
-  a5(name: 'A5', width: 148, height: 210),
-  a4(name: 'A4', width: 210, height: 297),
-  a3(name: 'A3', width: 297, height: 420);
-
-  const ASheetFormat({
-    required this.name,
-    required this.width,
-    required this.height,
-  });
-
-  final String name;
-  final double width;
-  final double height;
-}
+import 'package:scrap_forge/utils/a_sheet_format.dart';
 
 class MeasurementHub extends StatefulWidget {
   const MeasurementHub({super.key});
 
   @override
   State<MeasurementHub> createState() => _MeasurementHubState();
+}
+
+Future<imgLib.Image> pickImage({bool fromCamera = true}) async {
+  ImageSource source = ImageSource.camera;
+  if (!fromCamera) {
+    source = ImageSource.gallery;
+  }
+  XFile? file = await ImagePicker().pickImage(source: source);
+  if (file != null) {
+    Uint8List bytes = await file.readAsBytes();
+    imgLib.Image? image = imgLib.decodeJpg(bytes);
+    if (image != null) {
+      return image;
+    }
+  }
+  return imgLib.Image.empty();
 }
 
 class _MeasurementHubState extends State<MeasurementHub> {
@@ -54,21 +54,6 @@ class _MeasurementHubState extends State<MeasurementHub> {
   @override
   void initState() {
     super.initState();
-  }
-
-  pickImage({bool fromCamera = true}) async {
-    ImageSource source = ImageSource.camera;
-    if (!fromCamera) {
-      source = ImageSource.gallery;
-    }
-    XFile? file = await ImagePicker().pickImage(source: source);
-    if (file != null) {
-      Uint8List bytes = await file.readAsBytes();
-      imgLib.Image? image = imgLib.decodeJpg(bytes);
-      if (image != null) {
-        detectSheet(image);
-      }
-    }
   }
 
   imgLib.Image getBinaryShadowless(imgLib.Image photo) {
@@ -271,7 +256,8 @@ class _MeasurementHubState extends State<MeasurementHub> {
               Flexible(
                 child: ElevatedButton(
                   onPressed: () async {
-                    await pickImage(fromCamera: false);
+                    imgLib.Image picked = await pickImage(fromCamera: false);
+                    if (picked.isNotEmpty) detectSheet(picked);
                   },
                   child: const Text("Z galerii"),
                 ),
@@ -279,7 +265,8 @@ class _MeasurementHubState extends State<MeasurementHub> {
               Flexible(
                 child: ElevatedButton(
                   onPressed: () async {
-                    await pickImage(fromCamera: true);
+                    imgLib.Image picked = await pickImage(fromCamera: true);
+                    if (picked.isNotEmpty) detectSheet(picked);
                   },
                   child: const Text("Z aparatu"),
                 ),
@@ -313,7 +300,7 @@ class _MeasurementHubState extends State<MeasurementHub> {
                       }),
                       child: Text(
                         f.name,
-                        style: TextStyle(color: Colors.white),
+                        style: const TextStyle(color: Colors.white),
                       ),
                     ))
                 .toList(),
@@ -321,7 +308,7 @@ class _MeasurementHubState extends State<MeasurementHub> {
           crossFadeState: chooseFormat
               ? CrossFadeState.showSecond
               : CrossFadeState.showFirst,
-          duration: Duration(milliseconds: 200),
+          duration: const Duration(milliseconds: 200),
         ),
         actions: [
           TextButton(
@@ -330,7 +317,7 @@ class _MeasurementHubState extends State<MeasurementHub> {
                   }),
               child: Text(
                 sheetFormat.name,
-                style: TextStyle(color: Colors.white),
+                style: const TextStyle(color: Colors.white),
               ))
         ],
         centerTitle: true,

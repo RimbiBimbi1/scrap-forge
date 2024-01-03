@@ -1,5 +1,6 @@
 import 'dart:math' as math;
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:scrap_forge/db_entities/product.dart';
 import 'package:scrap_forge/isar_service.dart';
@@ -40,15 +41,14 @@ class _HomeState extends State<Home> {
 
   @override
   Widget build(BuildContext context) {
-    db.listenToProducts().listen((event) {
-      if (mounted) getRecentProjects();
-    });
-    ThemeData theme = Theme.of(context);
-
     SystemChrome.setPreferredOrientations([
       DeviceOrientation.portraitUp,
       DeviceOrientation.portraitDown,
     ]);
+    db.listenToProducts().listen((event) {
+      if (mounted) getRecentProjects();
+    });
+    ThemeData theme = Theme.of(context);
 
     return Scaffold(
       backgroundColor: Colors.grey[900],
