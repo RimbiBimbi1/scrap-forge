@@ -5,7 +5,7 @@ class CustomTextField extends StatelessWidget {
   TextInputType type;
   int? maxLines;
   String? initialValue;
-  final validator;
+  String? Function(String? value) validator;
   TextEditingController controller;
 
   CustomTextField(

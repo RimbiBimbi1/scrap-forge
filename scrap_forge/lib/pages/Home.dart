@@ -53,7 +53,7 @@ class _HomeState extends State<Home> {
     return Scaffold(
       backgroundColor: Colors.grey[900],
       appBar: AppBar(
-        leading: SizedBox.shrink(),
+        leading: const SizedBox.shrink(),
         title: const Text("Moja kuźnia"),
         actions: [
           IconButton(onPressed: () {}, icon: const Icon(Icons.settings))
@@ -106,6 +106,7 @@ class _HomeState extends State<Home> {
                 children: [
                   ...recentlyViewed
                       .map((e) => ProductStripSmall(
+                            key: GlobalKey(),
                             product: e,
                           ))
                       .toList()
@@ -229,7 +230,7 @@ class _HomeState extends State<Home> {
                   ),
                 ],
               ),
-              SizedBox(
+              const SizedBox(
                 height: 100,
               )
             ],

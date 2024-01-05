@@ -11,7 +11,10 @@ import 'package:scrap_forge/widgets/recent_strip.dart';
 
 class ProductPage extends StatefulWidget {
   BuildContext context;
-  ProductPage({super.key, required this.context});
+  ProductPage({
+    super.key,
+    required this.context,
+  });
 
   @override
   State<ProductPage> createState() => _ProductPageState();
@@ -166,7 +169,7 @@ class _ProductPageState extends State<ProductPage> {
                           textScaleFactor: 1.1,
                         ),
                         Padding(
-                          padding: EdgeInsets.all(8),
+                          padding: const EdgeInsets.all(8),
                           child: Text(
                             StringMultiliner.multiline(product?.description)
                                 .toString(),
@@ -181,7 +184,7 @@ class _ProductPageState extends State<ProductPage> {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Text(
+                      const Text(
                         "Dane:",
                         textScaleFactor: 1.1,
                       ),

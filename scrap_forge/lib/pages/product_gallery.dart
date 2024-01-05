@@ -133,31 +133,76 @@ class _ProductGalleryState extends State<ProductGallery> {
       context: context,
       builder: (context) {
         return Dialog(
-          child: Padding(
-            padding: EdgeInsets.all(24),
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.start,
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              children: [
-                Text(
-                  "Przenieś wybrane produkty do:",
-                  textScaleFactor: 1.4,
-                ),
-                ...(asMaterials
-                        ? [
-                            ProductFilter.finishedProducts(),
-                            ProductFilter.inProgressProducts(),
-                            ProductFilter.plannedProducts(),
-                          ]
-                        : [
-                            ProductFilter.consumedMaterials(),
-                            ProductFilter.availableMaterials(),
-                            ProductFilter.neededMaterials(),
-                          ])
-                    .map((filter) =>
-                        //TODO
-                        Placeholder())
-              ],
+          child: SizedBox(
+            height: 320,
+            child: Padding(
+              padding: const EdgeInsets.all(24),
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  const Text(
+                    "Przenieś wybrane produkty do:",
+                    textScaleFactor: 1.4,
+                  ),
+                  Column(
+                    mainAxisAlignment: MainAxisAlignment.start,
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                    children: [
+                      ...(!asMaterials
+                              ? [
+                                  {
+                                    'filter': ProductFilter.finishedProducts(),
+                                    'label': "Ukończone",
+                                  },
+                                  {
+                                    'filter':
+                                        ProductFilter.inProgressProducts(),
+                                    'label': "W trakcie realizacji",
+                                  },
+                                  {
+                                    'filter': ProductFilter.plannedProducts(),
+                                    'label': "Planowanie",
+                                  },
+                                ]
+                              : [
+                                  {
+                                    'filter': ProductFilter.consumedMaterials(),
+                                    'label': "Wykorzystane",
+                                  },
+                                  {
+                                    'filter':
+                                        ProductFilter.availableMaterials(),
+                                    'label': "Dostępne",
+                                  },
+                                  {
+                                    'filter': ProductFilter.neededMaterials(),
+                                    'label': "Potrzebne",
+                                  },
+                                ])
+                          .map(
+                        (folder) => OutlinedButton(
+                          onPressed: () {
+                            Navigator.of(context).pop();
+                          },
+                          child: Container(
+                            alignment: AlignmentDirectional.centerStart,
+                            child: Text(
+                              (folder['label'] ?? "").toString(),
+                              textAlign: TextAlign.left,
+                            ),
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                  ElevatedButton(
+                      onPressed: () {
+                        Navigator.of(context).pop();
+                      },
+                      child: const Text('Anuluj'))
+                ],
+              ),
             ),
           ),
         );

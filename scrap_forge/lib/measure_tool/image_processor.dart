@@ -3,38 +3,6 @@ import 'dart:typed_data';
 import 'package:image/image.dart' as imgLib;
 
 class ImageProcessor {
-  static imgLib.Image getResized(imgLib.Image image) {
-    return imgLib.copyResize(image,
-        width: (image.width / 4).round(), height: (image.height / 4).round());
-  }
-
-  static imgLib.Image getExtendedImage(imgLib.Image image, int frameWidth) {
-    int w = image.width;
-    int h = image.height;
-    imgLib.Image ext =
-        imgLib.Image(width: w + (2 * frameWidth), height: h + (2 * frameWidth));
-    for (int y = 0; y < h; y++) {
-      for (int x = 0; x < w; x++) {
-        ext.setPixel(x + frameWidth, y + frameWidth, image.getPixel(x, y));
-      }
-    }
-    return ext;
-  }
-
-  static imgLib.Image getGrayscale(imgLib.Image image) {
-    int w = image.width;
-    int h = image.height;
-    imgLib.Image gs = imgLib.Image(width: w, height: h);
-    for (int y = 0; y < h; y++) {
-      for (int x = 0; x < w; x++) {
-        imgLib.Color pixel = image.getPixel(x, y);
-        double gray = pixel.r * 0.299 + pixel.g * 0.587 + pixel.b * 0.114;
-        gs.setPixelRgb(x, y, gray, gray, gray);
-      }
-    }
-    return gs;
-  }
-
   static imgLib.Image getGaussianBlurred(imgLib.Image image,
       {int kernelRadius = 1, double sd = 1.4}) {
     int w = image.width;
@@ -165,26 +133,20 @@ class ImageProcessor {
 
         double angle = direction[x][y];
 
-        try {
-          if (angle < 0) {
-            throw Exception();
-          }
-          if ((angle < radTh1) || (radTh7 <= angle)) {
-            q = image.getPixel(x, y + 1).r;
-            r = image.getPixel(x, y - 1).r;
-          } else if (angle < radTh3) {
-            q = image.getPixel(x + 1, y - 1).r;
-            r = image.getPixel(x - 1, y + 1).r;
-          } else if (angle < radTh5) {
-            q = image.getPixel(x + 1, y).r;
-            r = image.getPixel(x - 1, y).r;
-          } else if (angle < radTh7) {
-            q = image.getPixel(x - 1, y - 1).r;
-            r = image.getPixel(x + 1, y + 1).r;
-          }
-        } catch (exception) {
-          q = 255.0;
-          r = 255.0;
+        if (angle < 0) {
+          //do nothing
+        } else if ((angle < radTh1) || (radTh7 <= angle)) {
+          q = image.getPixel(x, y + 1).r;
+          r = image.getPixel(x, y - 1).r;
+        } else if (angle < radTh3) {
+          q = image.getPixel(x + 1, y - 1).r;
+          r = image.getPixel(x - 1, y + 1).r;
+        } else if (angle < radTh5) {
+          q = image.getPixel(x + 1, y).r;
+          r = image.getPixel(x - 1, y).r;
+        } else if (angle < radTh7) {
+          q = image.getPixel(x - 1, y - 1).r;
+          r = image.getPixel(x + 1, y + 1).r;
         }
 
         num gray = image.getPixel(x, y).r;
@@ -237,7 +199,7 @@ class ImageProcessor {
         }
       }
     }
-    return result.toDouble();
+    return result;
   }
 
   static imgLib.Image getHysteresised(imgLib.Image image,
@@ -366,15 +328,15 @@ class ImageProcessor {
 
     while (flooded.isNotEmpty) {
       imgLib.Point p = flooded.removeLast();
-      try {
-        if (floodfilled.getPixel(p.xi, p.yi).r == 0) {
-          floodfilled.setPixelRgb(p.xi, p.yi, 255, 255, 255);
-          if (p.x > 0) flooded.add(imgLib.Point(p.x - 1, p.y));
-          if (p.y > 0) flooded.add(imgLib.Point(p.x, p.y - 1));
-          if (p.x < w - 1) flooded.add(imgLib.Point(p.x + 1, p.y));
-          if (p.y < h - 1) flooded.add(imgLib.Point(p.x, p.y + 1));
-        }
-      } catch (ignored) {}
+      // try {
+      if (floodfilled.getPixel(p.xi, p.yi).r == 0) {
+        floodfilled.setPixelRgb(p.xi, p.yi, 255, 255, 255);
+        if (p.x > 0) flooded.add(imgLib.Point(p.x - 1, p.y));
+        if (p.y > 0) flooded.add(imgLib.Point(p.x, p.y - 1));
+        if (p.x < w - 1) flooded.add(imgLib.Point(p.x + 1, p.y));
+        if (p.y < h - 1) flooded.add(imgLib.Point(p.x, p.y + 1));
+      }
+      // } catch (ignored) {}
     }
     return floodfilled;
   }
@@ -400,14 +362,11 @@ class ImageProcessor {
 
     num l = w * h;
 
-    List<List<num>> X =
-        List.generate(w, (int index) => List.generate(h, (int index) => 0.0));
-    List<List<num>> Y =
-        List.generate(w, (int index) => List.generate(h, (int index) => 0.0));
-    List<List<num>> XY =
-        List.generate(w, (int index) => List.generate(h, (int index) => 0.0));
+    List<List<num>> X = List.generate(w, (int index) => List.filled(h, 0.0));
+    List<List<num>> Y = List.generate(w, (int index) => List.filled(h, 0.0));
+    List<List<num>> XY = List.generate(w, (int index) => List.filled(h, 0.0));
     List<List<num>> tempInvariant =
-        List.generate(w, (int index) => List.generate(h, (int index) => 0.0));
+        List.generate(w, (int index) => List.filled(h, 0.0));
 
     num meanX = 0.0;
     num meanY = 0.0;
