@@ -454,4 +454,56 @@ class ImageProcessor {
     }
     return 0;
   }
+
+  static imgLib.Image getBinaryShadowless(imgLib.Image image) {
+    const List<List<int>> Kx = [
+      [-1, 0, 1],
+      [-2, 0, 2],
+      [-1, 0, 1]
+    ];
+    const List<List<int>> Ky = [
+      [1, 2, 1],
+      [0, 0, 0],
+      [-1, -2, -1]
+    ];
+
+    imgLib.Image processed = imgLib.copyResize(
+      image, height: 400,
+      // height: (photo.height / 4).round(),
+      // width: (photo.width / 4).round(),
+    );
+
+    processed = ImageProcessor.getInvariant(processed);
+
+    processed = ImageProcessor.getGaussianBlurred(processed);
+
+    List<List<double>> xSobel =
+        ImageProcessor.getDirectionalSobel(processed, Kx);
+
+    List<List<double>> ySobel =
+        ImageProcessor.getDirectionalSobel(processed, Ky);
+
+    processed = ImageProcessor.getSobel(processed, xSobel, ySobel);
+
+    List<List<double>> direction =
+        ImageProcessor.getSobelDirection(processed, xSobel, ySobel);
+
+    processed = ImageProcessor.getNonMaxSuppressed(processed, direction);
+
+    processed = ImageProcessor.getDoubleThresholded(processed);
+
+    processed = ImageProcessor.getHysteresised(processed);
+
+    processed = ImageProcessor.getEroded(processed);
+    processed = ImageProcessor.getEroded(processed);
+    processed = ImageProcessor.getEroded(processed);
+
+    processed = ImageProcessor.getFloodfilled(processed);
+
+    processed = ImageProcessor.getDilated(processed);
+    processed = ImageProcessor.getDilated(processed);
+    processed = ImageProcessor.getDilated(processed);
+
+    return processed;
+  }
 }

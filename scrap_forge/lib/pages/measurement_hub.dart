@@ -202,7 +202,7 @@ class _MeasurementHubState extends State<MeasurementHub> {
   }
 
   Widget displayImage(double w, double h) {
-    List<int>? withHeader = imgLib.encodeJpg(displayed);
+    Uint8List encoded = imgLib.encodeJpg(displayed);
     return Center(
       child: SizedBox(
         width: w,
@@ -210,7 +210,7 @@ class _MeasurementHubState extends State<MeasurementHub> {
         child: Image(
           fit: BoxFit.scaleDown,
           image: MemoryImage(
-            Uint8List.fromList(withHeader),
+            encoded,
           ),
         ),
       ),

@@ -4,6 +4,7 @@ import 'package:scrap_forge/pages/home.dart';
 import 'package:scrap_forge/pages/loading.dart';
 
 import 'package:scrap_forge/pages/measurement_hub.dart';
+import 'package:scrap_forge/pages/measurement_hub2.dart';
 import 'package:scrap_forge/pages/product_editor.dart';
 import 'package:scrap_forge/pages/product_gallery.dart';
 import 'package:scrap_forge/pages/product_page.dart';
@@ -26,7 +27,8 @@ Future<void> main() async {
         '/home': (context) => Home(),
         '/editProduct': (context) => ProductEditor(context: context),
         '/product': (context) => ProductPage(context: context),
-        '/measure': (context) => MeasurementHub(),
+        // '/measure': (context) => MeasurementHub(),
+        '/measure': (context) => const MeasurementHub2(),
         '/products': (context) => ProductGallery(context: context),
         '/loading': (context) => const Loading(),
       },
