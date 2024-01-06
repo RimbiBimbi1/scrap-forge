@@ -330,57 +330,58 @@ class _FramingToolState extends State<BoundingTool> {
       mainAxisAlignment: MainAxisAlignment.center,
       crossAxisAlignment: CrossAxisAlignment.center,
       children: [
-        const SizedBox(
-          height: 10,
-        ),
-        SizedBox(
-          width: widget.size.width,
-          height: widget.size.height,
-          child: Stack(
-            children: [
-              image,
-              GestureDetector(
-                onPanStart: getActiveArea,
-                onPanUpdate: calcMagnifierPositions,
-                onPanEnd: (DragEndDetails details) => {
-                  setState(() {
-                    activeArea = -1;
-                  })
-                },
-              ),
-              ...corners
-                  .asMap()
-                  .map(
-                    (index, mag) => MapEntry(
-                      index,
-                      Positioned(
-                        left: mag.dx - magnifierRadius,
-                        top: mag.dy - magnifierRadius,
-                        child: RawMagnifier(
-                          decoration: MagnifierDecoration(
-                            shape: CircleBorder(
-                              side: BorderSide(
-                                  color: activeArea == index + 4
-                                      ? focusColor
-                                      : defaultColor,
-                                  width: 2),
+        Padding(
+          padding: const EdgeInsets.symmetric(vertical: 5),
+          child: SizedBox(
+            width: widget.size.width,
+            height: widget.size.height,
+            child: Stack(
+              children: [
+                image,
+                GestureDetector(
+                  onPanStart: getActiveArea,
+                  onPanUpdate: calcMagnifierPositions,
+                  onPanEnd: (DragEndDetails details) => {
+                    setState(() {
+                      activeArea = -1;
+                    })
+                  },
+                ),
+                ...corners
+                    .asMap()
+                    .map(
+                      (index, mag) => MapEntry(
+                        index,
+                        Positioned(
+                          left: mag.dx - magnifierRadius,
+                          top: mag.dy - magnifierRadius,
+                          child: RawMagnifier(
+                            decoration: MagnifierDecoration(
+                              shape: CircleBorder(
+                                side: BorderSide(
+                                    color: activeArea == index + 4
+                                        ? focusColor
+                                        : defaultColor,
+                                    width: 2),
+                              ),
                             ),
+                            size:
+                                Size(magnifierRadius * 2, magnifierRadius * 2),
+                            magnificationScale: 1,
                           ),
-                          size: Size(magnifierRadius * 2, magnifierRadius * 2),
-                          magnificationScale: 1,
                         ),
                       ),
-                    ),
-                  )
-                  .values,
-              CustomPaint(
-                painter: FramePainter(
-                    points: corners,
-                    activeArea: activeArea,
-                    defaultColor: defaultColor,
-                    focusColor: focusColor),
-              ),
-            ],
+                    )
+                    .values,
+                CustomPaint(
+                  painter: FramePainter(
+                      points: corners,
+                      activeArea: activeArea,
+                      defaultColor: defaultColor,
+                      focusColor: focusColor),
+                ),
+              ],
+            ),
           ),
         ),
         Flexible(

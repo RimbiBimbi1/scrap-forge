@@ -51,29 +51,39 @@ class _ProductStripSmallState extends State<ProductStripSmall> {
 
   @override
   void initState() {
-    getImage();
     super.initState();
+    getImage();
   }
 
   @override
   Widget build(BuildContext context) {
-    return TextButton(
-      onPressed: () async {
-        await Navigator.pushNamed(context, "/product",
-            arguments: {'productData': widget.product});
-      },
-      child: Row(
-        children: [
-          SizedBox(
-            width: 60,
-            height: 60,
-            child: thumbnail,
-          ),
-          Padding(
-            padding: const EdgeInsets.all(10),
-            child: displayName(),
-          ),
-        ],
+    ThemeData theme = Theme.of(context);
+    return Container(
+      padding: EdgeInsets.all(0),
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.all(
+          Radius.circular(5),
+        ),
+        color: theme.colorScheme.secondary,
+      ),
+      child: TextButton(
+        onPressed: () async {
+          await Navigator.pushNamed(context, "/product",
+              arguments: {'productData': widget.product});
+        },
+        child: Row(
+          children: [
+            SizedBox(
+              width: 60,
+              height: 60,
+              child: thumbnail,
+            ),
+            Padding(
+              padding: const EdgeInsets.all(10),
+              child: displayName(),
+            ),
+          ],
+        ),
       ),
     );
   }

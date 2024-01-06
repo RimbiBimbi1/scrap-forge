@@ -7,7 +7,7 @@ import 'package:scrap_forge/pages/loading.dart';
 import 'package:scrap_forge/utils/date_formatter.dart';
 import 'package:scrap_forge/utils/dimension_formatter.dart';
 import 'package:scrap_forge/utils/string_multiliner.dart';
-import 'package:scrap_forge/widgets/recent_strip.dart';
+import 'package:scrap_forge/widgets/product_strip_small.dart';
 
 class ProductPage extends StatefulWidget {
   BuildContext context;

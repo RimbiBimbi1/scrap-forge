@@ -7,7 +7,7 @@ import 'package:scrap_forge/measure_tool/image_processor.dart';
 import 'package:scrap_forge/pages/Loading.dart';
 import 'dart:isolate';
 
-import 'package:scrap_forge/pages/bounding_page.dart';
+import 'package:scrap_forge/pages/bounding.dart';
 import 'package:scrap_forge/utils/a_sheet_format.dart';
 
 class FramingPage extends StatefulWidget {
@@ -53,24 +53,16 @@ class _FramingPageState extends State<FramingPage> {
   void initState() {
     super.initState();
 
-    // Future<List<Offset>> corners = detectSheet(photo);
     sheetFormat = widget.sheetFormat;
     displayed = widget.picked;
 
     image = imgLib.decodeJpg(widget.picked) ?? imgLib.Image.empty();
 
     sheetCorners = isolateTask(detectSheetIsolated, [widget.picked]);
-    // detectSheet(widget.picked);
-    // setState(() {
-    //   displayed = widget.picked;
-    //   // sheetCorners = corners;
-    // });
   }
 
   @override
   Widget build(BuildContext context) {
-    // Future<List<Offset>> sheetCorners = detectSheet(displayed);
-
     return Scaffold(
       backgroundColor: Colors.grey[900],
       appBar: AppBar(
@@ -84,7 +76,7 @@ class _FramingPageState extends State<FramingPage> {
               ],
             );
           }),
-          firstChild: const Text("Pomiar"),
+          firstChild: const Text("Zaznacz rogi kartki"),
           secondChild: Row(
             children: [ASheetFormat.a5, ASheetFormat.a4, ASheetFormat.a3]
                 .map((f) => TextButton(
@@ -122,11 +114,12 @@ class _FramingPageState extends State<FramingPage> {
           child: FutureBuilder(
             future: sheetCorners,
             builder: (context, snapshot) {
+              double displayW = MediaQuery.of(context).size.width * 0.95;
+
               if (snapshot.connectionState == ConnectionState.done) {
                 double imgW = image.width.toDouble();
                 double imgH = image.height.toDouble();
 
-                double displayW = MediaQuery.of(context).size.width * 0.95;
                 double displayH = imgH * (displayW / imgW);
 
                 List<Offset> corners = (snapshot.data as List<Offset>)
@@ -152,7 +145,20 @@ class _FramingPageState extends State<FramingPage> {
                   },
                 );
               } else {
-                return const Loading();
+                return Padding(
+                  padding: const EdgeInsets.symmetric(vertical: 5),
+                  child: SizedBox(
+                    width: displayW,
+                    child: Center(
+                      child: Stack(
+                        children: [
+                          Image(image: MemoryImage(widget.picked)),
+                          const Loading(),
+                        ],
+                      ),
+                    ),
+                  ),
+                );
               }
             },
           ),

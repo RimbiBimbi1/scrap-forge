@@ -88,58 +88,58 @@ class _FramingToolState extends State<FramingTool> {
       mainAxisAlignment: MainAxisAlignment.center,
       crossAxisAlignment: CrossAxisAlignment.center,
       children: [
-        const SizedBox(
-          height: 10,
-        ),
-        SizedBox(
-          width: widget.size.width,
-          height: widget.size.height,
-          child: Stack(
-            children: [
-              image,
-              GestureDetector(
-                onPanStart: getClosestCorner,
-                onPanUpdate: calcMagnifierPosition,
-                onPanEnd: (DragEndDetails details) => {
-                  setState(() {
-                    activeCorner = -1;
-                  })
-                },
-              ),
-              ...widget.points
-                  .asMap()
-                  .map(
-                    (index, mag) => MapEntry(
-                      index,
-                      Positioned(
-                        left: mag.dx - magnifierRadius,
-                        top: mag.dy - magnifierRadius,
-                        child: RawMagnifier(
-                          decoration: MagnifierDecoration(
-                            shape: CircleBorder(
-                              side: BorderSide(
-                                  color: activeCorner == index
-                                      ? focusColor
-                                      : defaultColor,
-                                  width: 2),
+        Padding(
+          padding: const EdgeInsets.symmetric(vertical: 5),
+          child: SizedBox(
+            width: widget.size.width,
+            height: widget.size.height,
+            child: Stack(
+              children: [
+                image,
+                GestureDetector(
+                  onPanStart: getClosestCorner,
+                  onPanUpdate: calcMagnifierPosition,
+                  onPanEnd: (DragEndDetails details) => {
+                    setState(() {
+                      activeCorner = -1;
+                    })
+                  },
+                ),
+                ...widget.points
+                    .asMap()
+                    .map(
+                      (index, mag) => MapEntry(
+                        index,
+                        Positioned(
+                          left: mag.dx - magnifierRadius,
+                          top: mag.dy - magnifierRadius,
+                          child: RawMagnifier(
+                            decoration: MagnifierDecoration(
+                              shape: CircleBorder(
+                                side: BorderSide(
+                                    color: activeCorner == index
+                                        ? focusColor
+                                        : defaultColor,
+                                    width: 2),
+                              ),
                             ),
+                            size: const Size(
+                                magnifierRadius * 2, magnifierRadius * 2),
+                            magnificationScale: 2,
                           ),
-                          size: const Size(
-                              magnifierRadius * 2, magnifierRadius * 2),
-                          magnificationScale: 2,
                         ),
                       ),
-                    ),
-                  )
-                  .values,
-              CustomPaint(
-                painter: FramePainter(
-                    points: widget.points,
-                    activeCorner: activeCorner,
-                    defaultColor: defaultColor,
-                    focusColor: focusColor),
-              ),
-            ],
+                    )
+                    .values,
+                CustomPaint(
+                  painter: FramePainter(
+                      points: widget.points,
+                      activeCorner: activeCorner,
+                      defaultColor: defaultColor,
+                      focusColor: focusColor),
+                ),
+              ],
+            ),
           ),
         ),
         Flexible(

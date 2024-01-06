@@ -128,8 +128,8 @@ class _ProductStripState extends State<ProductStrip> {
 
   @override
   void initState() {
-    getImage();
     super.initState();
+    getImage();
   }
 
   @override

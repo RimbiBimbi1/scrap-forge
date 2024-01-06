@@ -73,7 +73,7 @@ class _BoundingPageState extends State<BoundingPage> {
               ],
             );
           }),
-          firstChild: const Text("Pomiar"),
+          firstChild: const Text("Obramuj przedmiot"),
           secondChild: Row(
             children: [ASheetFormat.a5, ASheetFormat.a4, ASheetFormat.a3]
                 .map((f) => TextButton(
@@ -111,6 +111,8 @@ class _BoundingPageState extends State<BoundingPage> {
           child: FutureBuilder(
             future: boundingData,
             builder: (context, snapshot) {
+              double displayW = MediaQuery.of(context).size.width * 0.95;
+
               if (snapshot.connectionState == ConnectionState.done) {
                 List<dynamic> result = snapshot.data;
 
@@ -121,7 +123,6 @@ class _BoundingPageState extends State<BoundingPage> {
                 double imgW = image.width.toDouble();
                 double imgH = image.height.toDouble();
 
-                double displayW = MediaQuery.of(context).size.width * 0.95;
                 double displayH = imgH * (displayW / imgW);
 
                 List<Offset> corners = cornersNormalized
@@ -137,7 +138,20 @@ class _BoundingPageState extends State<BoundingPage> {
                     sheetFormat: sheetFormat,
                     onBoundingBoxConfirmed: widget.onBoundingBoxConfirmed);
               } else {
-                return const Loading();
+                return Padding(
+                  padding: const EdgeInsets.symmetric(vertical: 5),
+                  child: SizedBox(
+                    width: displayW,
+                    child: Center(
+                      child: Stack(
+                        children: [
+                          Image(image: MemoryImage(widget.picked)),
+                          const Loading(),
+                        ],
+                      ),
+                    ),
+                  ),
+                );
               }
             },
           ),

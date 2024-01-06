@@ -8,7 +8,7 @@ import 'package:scrap_forge/utils/fetch_products.dart';
 import 'package:scrap_forge/utils/product_list_comparator.dart';
 import 'package:scrap_forge/widgets/custom_tile.dart';
 import 'package:scrap_forge/widgets/home_section.dart';
-import 'package:scrap_forge/widgets/recent_strip.dart';
+import 'package:scrap_forge/widgets/product_strip_small.dart';
 
 class Home extends StatefulWidget {
   Home({super.key});
@@ -51,12 +51,16 @@ class _HomeState extends State<Home> {
     ThemeData theme = Theme.of(context);
 
     return Scaffold(
-      backgroundColor: Colors.grey[900],
+      backgroundColor: theme.scaffoldBackgroundColor,
       appBar: AppBar(
         leading: const SizedBox.shrink(),
         title: const Text("Moja kuźnia"),
         actions: [
-          IconButton(onPressed: () {}, icon: const Icon(Icons.settings))
+          IconButton(
+              onPressed: () {
+                Navigator.pushNamed(context, '/settings');
+              },
+              icon: const Icon(Icons.settings))
         ],
         centerTitle: true,
       ),
@@ -69,7 +73,7 @@ class _HomeState extends State<Home> {
               padding: const EdgeInsets.all(8.0),
               child: FloatingActionButton(
                 heroTag: null,
-                backgroundColor: Colors.red,
+                backgroundColor: theme.colorScheme.primary,
                 onPressed: () {
                   Navigator.pushNamed(context, "/measure",
                       arguments: {'onBoundingBoxConfirmed': (values) {}});
@@ -83,7 +87,7 @@ class _HomeState extends State<Home> {
               padding: const EdgeInsets.all(8.0),
               child: FloatingActionButton(
                 heroTag: null,
-                backgroundColor: Colors.red,
+                backgroundColor: theme.colorScheme.primary,
                 onPressed: () {
                   Navigator.pushNamed(context, "/editProduct");
                 },
@@ -105,9 +109,12 @@ class _HomeState extends State<Home> {
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
                   ...recentlyViewed
-                      .map((e) => ProductStripSmall(
-                            key: GlobalKey(),
-                            product: e,
+                      .map((e) => Padding(
+                            padding: const EdgeInsets.symmetric(vertical: 3),
+                            child: ProductStripSmall(
+                              key: GlobalKey(),
+                              product: e,
+                            ),
                           ))
                       .toList()
                 ],

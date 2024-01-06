@@ -4,22 +4,24 @@ import 'package:scrap_forge/pages/home.dart';
 import 'package:scrap_forge/pages/loading.dart';
 
 import 'package:scrap_forge/pages/measurement_hub.dart';
-import 'package:scrap_forge/pages/measurement_hub2.dart';
 import 'package:scrap_forge/pages/product_editor.dart';
 import 'package:scrap_forge/pages/product_gallery.dart';
-import 'package:scrap_forge/pages/product_page.dart';
+import 'package:scrap_forge/pages/product.dart';
+import 'package:scrap_forge/pages/settings.dart';
 import 'package:scrap_forge/widgets/theme.dart';
 import 'package:scrap_forge/widgets/theme_manager.dart';
 
-ThemeManager _themeManager = ThemeManager();
+// ThemeManager themeManager = ThemeManager();
 
 Future<void> main() async {
   return runApp(
     MaterialApp(
-      // theme: lightTheme,
-      theme: darkTheme,
+      theme: lightTheme,
+      // theme: ThemeManager.themeMode,
+
       darkTheme: darkTheme,
-      themeMode: _themeManager.themeMode,
+      themeMode: ThemeManager.themeMode,
+      // themeMode: ThemeMode.light,
       // initialRoute: '/home',
       // initialRoute: '/measure',
       initialRoute: '/home',
@@ -31,6 +33,7 @@ Future<void> main() async {
         '/measure': (context) => const MeasurementHub2(),
         '/products': (context) => ProductGallery(context: context),
         '/loading': (context) => const Loading(),
+        '/settings': (context) => const Settings(),
       },
     ),
   );
