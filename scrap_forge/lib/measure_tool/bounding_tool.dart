@@ -1,7 +1,8 @@
+import 'dart:typed_data';
+
 import 'package:flutter/material.dart';
 import 'dart:math' as math;
 
-import 'package:scrap_forge/pages/measurement_hub.dart';
 import 'package:scrap_forge/utils/a_sheet_format.dart';
 
 double initialMagnifierRadius = 30;
@@ -13,6 +14,7 @@ class BoundingTool extends StatefulWidget {
   final Widget Function(double w, double h) displayImage;
   final ASheetFormat sheetFormat;
   final int projectionAreaPixels;
+  final Function(List<double>)? onBoundingBoxConfirmed;
 
   const BoundingTool({
     super.key,
@@ -21,6 +23,7 @@ class BoundingTool extends StatefulWidget {
     required this.size,
     required this.projectionAreaPixels,
     required this.sheetFormat,
+    this.onBoundingBoxConfirmed,
   });
 
   @override
@@ -28,6 +31,7 @@ class BoundingTool extends StatefulWidget {
 }
 
 class _FramingToolState extends State<BoundingTool> {
+  List<Offset> corners = List.empty();
   Offset magnifierPosition = Offset.zero;
   int activeArea = -1;
   /*
@@ -51,15 +55,14 @@ class _FramingToolState extends State<BoundingTool> {
   void initState() {
     super.initState();
 
+    corners = widget.points;
     double newRadius = calcMagnifierRadius(widget.points);
 
-    setState(() {
-      if (magnifierRadius != newRadius) {
-        magnifierRadius = newRadius;
-      }
-      trivialMode = checkTrivialMode(widget.points);
-      image = widget.displayImage(widget.size.width, widget.size.height);
-    });
+    if (magnifierRadius != newRadius) {
+      magnifierRadius = newRadius;
+    }
+    trivialMode = checkTrivialMode(widget.points);
+    image = widget.displayImage(widget.size.width, widget.size.height);
   }
 
   double calcMagnifierRadius(List<Offset> magnifiers) {
@@ -89,7 +92,7 @@ class _FramingToolState extends State<BoundingTool> {
     double x = details.localPosition.dx;
     double y = details.localPosition.dy;
 
-    List<Offset> points = widget.points;
+    List<Offset> points = corners;
 
     List<List<double>> temp = List.from([
       [0.0, 0.0],
@@ -191,9 +194,13 @@ class _FramingToolState extends State<BoundingTool> {
       double newRadius = calcMagnifierRadius([
         newPositions[0],
         newPositions[1],
-        widget.points[(activeArea + 2) % 4],
-        widget.points[(activeArea + 3) % 4]
+        corners[(activeArea + 2) % 4],
+        corners[(activeArea + 3) % 4]
       ]);
+
+      List<Offset> updated = List.from(corners);
+      updated[activeArea] = newPositions[0];
+      updated[(activeArea + 1) % 4] = newPositions[1];
 
       setState(
         () {
@@ -202,16 +209,14 @@ class _FramingToolState extends State<BoundingTool> {
           }
 
           linearCoefficients[activeArea][1] = bUpdated;
-
-          widget.points[activeArea] = newPositions[0];
-          widget.points[(activeArea + 1) % 4] = newPositions[1];
+          corners = updated;
         },
       );
     } else {
       int i = activeArea;
       int j = (activeArea + 1) % 4;
-      Offset corner1 = widget.points[i];
-      Offset corner2 = widget.points[j];
+      Offset corner1 = corners[i];
+      Offset corner2 = corners[j];
       if (corner1.dx == corner2.dx) {
         newPositions.add(Offset(corner1.dx + finger.dx, corner1.dy));
         newPositions.add(Offset(corner2.dx + finger.dx, corner2.dy));
@@ -222,23 +227,26 @@ class _FramingToolState extends State<BoundingTool> {
       double newRadius = calcMagnifierRadius([
         newPositions[0],
         newPositions[1],
-        widget.points[(activeArea + 2) % 4],
-        widget.points[(activeArea + 3) % 4]
+        corners[(activeArea + 2) % 4],
+        corners[(activeArea + 3) % 4]
       ]);
+
+      List<Offset> updated = List.from(corners);
+      updated[activeArea] = newPositions[0];
+      updated[(activeArea + 1) % 4] = newPositions[1];
 
       setState(() {
         if (magnifierRadius != newRadius) {
           magnifierRadius = newRadius;
         }
 
-        widget.points[activeArea] = newPositions[0];
-        widget.points[(activeArea + 1) % 4] = newPositions[1];
+        corners = updated;
       });
     }
   }
 
   void rotate(DragUpdateDetails details) {
-    List<Offset> points = widget.points;
+    List<Offset> points = corners;
     int i = activeArea % 4;
     // Offset linePrecursor = widget.points[i] + details.delta;
     Offset rectangleCenter = Offset(
@@ -268,21 +276,21 @@ class _FramingToolState extends State<BoundingTool> {
       rectangleCenter - cTNVRotated
     ]);
 
+    List<Offset> updated = List.from(corners);
+    updated[i] = rotated[0];
+    updated[(i + 1) % 4] = rotated[1];
+    updated[(i + 2) % 4] = rotated[2];
+    updated[(i + 3) % 4] = rotated[3];
+
     setState(() {
       trivialMode = checkTrivialMode(rotated);
-      widget.points[i] = rotated[0];
-      widget.points[(i + 1) % 4] = rotated[1];
-      widget.points[(i + 2) % 4] = rotated[2];
-      widget.points[(i + 3) % 4] = rotated[3];
+      corners = updated;
     });
   }
 
   void move(DragUpdateDetails details) {
     setState(() {
-      widget.points[0] += details.delta;
-      widget.points[1] += details.delta;
-      widget.points[2] += details.delta;
-      widget.points[3] += details.delta;
+      corners = corners.map((e) => e + details.delta).toList();
     });
   }
 
@@ -307,19 +315,16 @@ class _FramingToolState extends State<BoundingTool> {
 
   List<double> calculateDimensions() {
     double ratio = widget.sheetFormat.height / widget.size.height;
-    double dim1 = (widget.points[0] - widget.points[1]).distance * ratio;
-    double dim2 = (widget.points[1] - widget.points[2]).distance * ratio;
+    double dim1 = (corners[0] - corners[1]).distance * ratio;
+    double dim2 = (corners[1] - corners[2]).distance * ratio;
     double area =
-        math.min(widget.projectionAreaPixels * ratio * ratio, dim1 * dim2) *
-            0.01;
+        math.min(widget.projectionAreaPixels * ratio * ratio, dim1 * dim2);
 
     return List.from([dim1, dim2, area]);
   }
 
   @override
   Widget build(BuildContext context) {
-    final arguments = (ModalRoute.of(context)?.settings.arguments ??
-        <String, dynamic>{}) as Map;
     List<double> dimensions = calculateDimensions();
     return Column(
       mainAxisAlignment: MainAxisAlignment.center,
@@ -343,7 +348,7 @@ class _FramingToolState extends State<BoundingTool> {
                   })
                 },
               ),
-              ...widget.points
+              ...corners
                   .asMap()
                   .map(
                     (index, mag) => MapEntry(
@@ -370,7 +375,7 @@ class _FramingToolState extends State<BoundingTool> {
                   .values,
               CustomPaint(
                 painter: FramePainter(
-                    points: widget.points,
+                    points: corners,
                     activeArea: activeArea,
                     defaultColor: defaultColor,
                     focusColor: focusColor),
@@ -396,19 +401,22 @@ class _FramingToolState extends State<BoundingTool> {
                     style: const TextStyle(color: Colors.white),
                   ),
                   Text(
-                    "Pole przedmiotu: ${dimensions[2].toStringAsFixed(2)}cm2",
+                    "Pole przedmiotu: ${(dimensions[2] * 0.01).toStringAsFixed(2)}cm2",
                     style: const TextStyle(color: Colors.white),
                   ),
                 ],
               ),
               ElevatedButton(
-                onPressed: () => {
-                  arguments['onExit'](
-                    List<double>.from(
-                      [dimensions[0], dimensions[1], projectionAreaCM2],
-                    ),
-                  ),
-                  Navigator.pop(context),
+                onPressed: () {
+                  if (widget.onBoundingBoxConfirmed != null) {
+                    widget.onBoundingBoxConfirmed!(
+                      List<double>.from(
+                        [dimensions[0], dimensions[1], dimensions[2]],
+                      ),
+                    );
+                  }
+                  Navigator.popUntil(context, ModalRoute.withName('/measure'));
+                  Navigator.pop(context);
                 },
                 child: const Text("Zatwierdź"),
               ),

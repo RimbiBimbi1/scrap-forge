@@ -33,9 +33,8 @@ class _FramingToolState extends State<FramingTool> {
   @override
   void initState() {
     super.initState();
-    setState(() {
-      image = widget.displayImage(widget.size.width, widget.size.height);
-    });
+
+    image = widget.displayImage(widget.size.width, widget.size.height);
   }
 
   void getClosestCorner(DragStartDetails details) {

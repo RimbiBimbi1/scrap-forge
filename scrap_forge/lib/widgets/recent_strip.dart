@@ -23,7 +23,7 @@ class _ProductStripSmallState extends State<ProductStripSmall> {
     fit: BoxFit.fill,
   );
 
-  Future<void> getImage() async {
+  void getImage() {
     String? data;
 
     if (widget.product.photos.isEmpty) {

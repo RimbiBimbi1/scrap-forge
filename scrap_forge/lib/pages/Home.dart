@@ -72,7 +72,7 @@ class _HomeState extends State<Home> {
                 backgroundColor: Colors.red,
                 onPressed: () {
                   Navigator.pushNamed(context, "/measure",
-                      arguments: {'onExit': (values) {}});
+                      arguments: {'onBoundingBoxConfirmed': (values) {}});
                 },
                 child: const Icon(
                   Icons.straighten,

@@ -30,9 +30,7 @@ class _ProductPageState extends State<ProductPage> {
         <String, dynamic>{}) as Map;
     Product? product = arguments['productData'];
     if (product != null) {
-      setState(() {
-        this.product = product;
-      });
+      this.product = product;
     }
   }
 

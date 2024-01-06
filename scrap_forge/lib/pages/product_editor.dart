@@ -43,7 +43,7 @@ class _ProductEditorState extends State<ProductEditor> {
 
   final areaController = TextEditingController();
   final areaUnitController = TextEditingController();
-  SizeUnit areaUnit = SizeUnit.millimeter;
+  SizeUnit areaUnit = SizeUnit.centimeter;
 
   bool addAsProject = true;
   final progressController = TextEditingController();
@@ -67,6 +67,9 @@ class _ProductEditorState extends State<ProductEditor> {
         <String, dynamic>{}) as Map;
     if (arguments.isNotEmpty) {
       Product? product = arguments['productData'];
+
+      //init controllers
+
       if (product != null) {
         nameController.text = product.name ?? "";
         descriptionController.text =
@@ -107,33 +110,32 @@ class _ProductEditorState extends State<ProductEditor> {
         neededController.text =
             (product.needed != null) ? product.needed.toString() : "";
 
-        setState(() {
-          addAsProject = product.progress != null;
-          addAsMaterial = (product.consumed != null ||
-              product.available != null ||
-              product.needed != null);
+        //init other variables
 
-          photos = product.photos.map((photo) => base64Decode(photo)).toList();
+        addAsProject = product.progress != null;
+        addAsMaterial = (product.consumed != null ||
+            product.available != null ||
+            product.needed != null);
 
-          madeFrom = product.madeFrom.toList();
-          // madeFromCounts = List.generate(
-          //     product.madeFrom.length, (index) => TextEditingController());
-          usedIn = product.usedIn.toList();
-          // usedInCounts = List.generate(
-          //     product.usedIn.length, (index) => TextEditingController());
+        photos = product.photos.map((photo) => base64Decode(photo)).toList();
 
-          if (product.dimensions != null) {
-            lengthUnit =
-                product.dimensions!.lengthDisplayUnit ?? SizeUnit.millimeter;
-            widthUnit =
-                product.dimensions!.widthDisplayUnit ?? SizeUnit.millimeter;
-            heightUnit =
-                product.dimensions!.heightDisplayUnit ?? SizeUnit.millimeter;
-            areaUnit =
-                product.dimensions!.areaDisplayUnit ?? SizeUnit.millimeter;
-          }
-          edit = product;
-        });
+        madeFrom = product.madeFrom.toList();
+        // madeFromCounts = List.generate(
+        //     product.madeFrom.length, (index) => TextEditingController());
+        usedIn = product.usedIn.toList();
+        // usedInCounts = List.generate(
+        //     product.usedIn.length, (index) => TextEditingController());
+
+        if (product.dimensions != null) {
+          lengthUnit =
+              product.dimensions!.lengthDisplayUnit ?? SizeUnit.millimeter;
+          widthUnit =
+              product.dimensions!.widthDisplayUnit ?? SizeUnit.millimeter;
+          heightUnit =
+              product.dimensions!.heightDisplayUnit ?? SizeUnit.millimeter;
+          areaUnit = product.dimensions!.areaDisplayUnit ?? SizeUnit.centimeter;
+        }
+        edit = product;
       }
     }
   }
@@ -225,17 +227,16 @@ class _ProductEditorState extends State<ProductEditor> {
     switch (emptyCount) {
       case 3:
         lengthController.text =
-            (received[0] / lengthUnit.multiplier).round().toString();
+            (received[0] / lengthUnit.multiplier).toStringAsFixed(2);
         widthController.text =
-            (received[1] / widthUnit.multiplier).round().toString();
+            (received[1] / widthUnit.multiplier).toStringAsFixed(2);
         break;
       case 2:
         int updatedCount = 0;
         for (final (index, ctrl) in dimCtrls.indexed) {
           if (ctrl.text.isEmpty) {
             ctrl.text = (received[updatedCount] / dimUnits[index].multiplier)
-                .round()
-                .toString();
+                .toStringAsFixed(2);
             updatedCount++;
           }
         }
@@ -257,15 +258,16 @@ class _ProductEditorState extends State<ProductEditor> {
         dimCtrls[toUpdate].text =
             (((diffs[0] > diffs[1]) ? received[0] : received[1]) /
                     dimUnits[toUpdate].multiplier)
-                .round()
-                .toString();
+                .toStringAsFixed(2);
         break;
       default:
         break;
     }
 
     if (areaController.text.isEmpty) {
-      areaController.text = received[2].round().toString();
+      areaController.text =
+          (received[2] / (areaUnit.multiplier * areaUnit.multiplier))
+              .toStringAsFixed(2);
     }
   }
 
@@ -435,7 +437,8 @@ class _ProductEditorState extends State<ProductEditor> {
                               onPressed: () {
                                 Navigator.pushNamed(context, "/measure",
                                     arguments: {
-                                      'onExit': updateDimensions,
+                                      'onBoundingBoxConfirmed':
+                                          updateDimensions,
                                     });
                               },
                               child: const Icon(

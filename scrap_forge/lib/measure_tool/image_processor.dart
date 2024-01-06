@@ -455,7 +455,8 @@ class ImageProcessor {
     return 0;
   }
 
-  static imgLib.Image getBinaryShadowless(imgLib.Image image) {
+  static imgLib.Image getBinaryShadowless(imgLib.Image image,
+      {int height = 400}) {
     const List<List<int>> Kx = [
       [-1, 0, 1],
       [-2, 0, 2],
@@ -468,7 +469,7 @@ class ImageProcessor {
     ];
 
     imgLib.Image processed = imgLib.copyResize(
-      image, height: 400,
+      image, height: height,
       // height: (photo.height / 4).round(),
       // width: (photo.width / 4).round(),
     );
