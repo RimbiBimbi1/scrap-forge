@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:image/image.dart' as imgLib;
+import 'package:scrap_forge/db_entities/appSettings.dart';
 import 'package:scrap_forge/measure_tool/corner_scanner.dart';
 import 'package:scrap_forge/measure_tool/framing_tool.dart';
 import 'package:scrap_forge/measure_tool/image_processor.dart';
@@ -14,11 +15,15 @@ class FramingPage extends StatefulWidget {
   final Uint8List picked;
   final ASheetFormat sheetFormat;
   final Function(List<double>)? onBoundingBoxConfirmed;
+  final MeasurementToolQuality framingQuality;
+  final MeasurementToolQuality boundingQuality;
   const FramingPage({
     super.key,
     required this.picked,
     this.sheetFormat = ASheetFormat.a4,
     this.onBoundingBoxConfirmed,
+    this.framingQuality = MeasurementToolQuality.medium,
+    this.boundingQuality = MeasurementToolQuality.medium,
   });
 
   @override
@@ -58,7 +63,8 @@ class _FramingPageState extends State<FramingPage> {
 
     image = imgLib.decodeJpg(widget.picked) ?? imgLib.Image.empty();
 
-    sheetCorners = isolateTask(detectSheetIsolated, [widget.picked]);
+    sheetCorners = isolateTask(
+        detectSheetIsolated, [widget.picked, widget.framingQuality]);
   }
 
   @override
@@ -139,6 +145,7 @@ class _FramingPageState extends State<FramingPage> {
                                       Offset(e.dx / displayW, e.dy / displayH))
                                   .toList(),
                               sheetFormat: sheetFormat,
+                              boundingQuality: widget.boundingQuality,
                               onBoundingBoxConfirmed:
                                   widget.onBoundingBoxConfirmed,
                             )));
@@ -185,12 +192,12 @@ Future isolateTask(
 List<Offset> detectSheetIsolated(List<dynamic> args) {
   SendPort resultPort = args[0];
 
-  List<Offset> corners = detectSheet(args[1]);
+  List<Offset> corners = detectSheet(args[1], args[2]);
 
   Isolate.exit(resultPort, corners);
 }
 
-List<Offset> detectSheet(Uint8List picked) {
+List<Offset> detectSheet(Uint8List picked, MeasurementToolQuality quality) {
   imgLib.Image? photo = imgLib.decodeJpg(picked);
   if (photo == null) {
     return List.empty();
@@ -200,7 +207,7 @@ List<Offset> detectSheet(Uint8List picked) {
     photo = imgLib.copyRotate(photo, angle: 90);
   }
 
-  double h = 800;
+  double h = quality.height.toDouble();
   double w = photo.width / photo.height * h;
 
   imgLib.Image processed =

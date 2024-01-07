@@ -11,14 +11,14 @@ import 'package:scrap_forge/widgets/home_section.dart';
 import 'package:scrap_forge/widgets/product_strip_small.dart';
 
 class Home extends StatefulWidget {
-  Home({super.key});
+  const Home({super.key});
 
   @override
   State<Home> createState() => _HomeState();
 }
 
 class _HomeState extends State<Home> {
-  final db = IsarService();
+  final IsarService db = IsarService();
 
   List<Product> recentlyViewed = List.empty();
 

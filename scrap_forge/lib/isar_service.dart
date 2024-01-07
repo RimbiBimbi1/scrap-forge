@@ -1,6 +1,8 @@
 import 'package:isar/isar.dart';
 import 'package:path_provider/path_provider.dart';
+import 'package:scrap_forge/db_entities/appSettings.dart';
 import 'package:scrap_forge/db_entities/product.dart';
+import 'package:scrap_forge/pages/settings.dart';
 import 'package:scrap_forge/utils/fetch_products.dart';
 
 class IsarService {
@@ -14,11 +16,24 @@ class IsarService {
     if (Isar.instanceNames.isEmpty) {
       final dir = await getApplicationDocumentsDirectory();
 
-      return await Isar.open([ProductSchema],
+      return await Isar.open([ProductSchema, AppSettingsSchema],
           inspector: true, directory: dir.path);
     }
 
     return Future.value(Isar.getInstance());
+  }
+
+  Future<void> saveSettings(AppSettings appSettings) async {
+    final isar = await db;
+
+    isar.writeTxnSync(() {
+      isar.appSettings.putSync(appSettings);
+    });
+  }
+
+  Future<AppSettings?> getAppSettings() async {
+    final isar = await db;
+    return await isar.appSettings.get(1);
   }
 
   Future<void> saveProduct(Product product) async {

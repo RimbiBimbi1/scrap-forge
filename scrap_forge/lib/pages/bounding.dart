@@ -3,6 +3,8 @@ import 'dart:typed_data';
 
 import 'package:flutter/material.dart';
 import 'package:image/image.dart' as imgLib;
+import 'package:scrap_forge/db_entities/appSettings.dart';
+import 'package:scrap_forge/isar_service.dart';
 import 'package:scrap_forge/measure_tool/auto_bounding_box_scanner.dart';
 import 'package:scrap_forge/measure_tool/bounding_tool.dart';
 import 'package:scrap_forge/measure_tool/image_processor.dart';
@@ -14,6 +16,7 @@ class BoundingPage extends StatefulWidget {
   final Uint8List picked;
   final List<Offset> corners;
   final ASheetFormat sheetFormat;
+  final MeasurementToolQuality boundingQuality;
   final Function(List<double>)? onBoundingBoxConfirmed;
 
   const BoundingPage({
@@ -21,6 +24,7 @@ class BoundingPage extends StatefulWidget {
     required this.picked,
     required this.corners,
     this.sheetFormat = ASheetFormat.a4,
+    this.boundingQuality = MeasurementToolQuality.medium,
     this.onBoundingBoxConfirmed,
   });
 
@@ -55,6 +59,7 @@ class _BoundingPageState extends State<BoundingPage> {
     boundingData = isolateTask(detectSheetIsolated, [
       imgLib.decodeJpg(widget.picked) ?? imgLib.Image.empty(),
       widget.corners,
+      widget.boundingQuality
     ]);
   }
 
@@ -179,7 +184,7 @@ List<Offset> detectSheetIsolated(List<dynamic> args) {
   SendPort resultPort = args[0];
 
   imgLib.Image sheet = texture(args[1], args[2]);
-  List<dynamic> result = detectBoundingBox(sheet);
+  List<dynamic> result = detectBoundingBox(sheet, args[3]);
   List<Offset> corners = result[0] as List<Offset>;
   int projectionAreaPixels = result[1] as int;
 
@@ -229,9 +234,14 @@ imgLib.Image texture(imgLib.Image photo, List<Offset> sheetCorners) {
   return sheetCropped;
 }
 
-List<dynamic> detectBoundingBox(imgLib.Image sheetImage) {
-  imgLib.Image binary =
-      ImageProcessor.getBinaryShadowless(sheetImage, height: 400);
+List<dynamic> detectBoundingBox(
+  imgLib.Image sheetImage,
+  MeasurementToolQuality quality,
+) {
+  imgLib.Image binary = ImageProcessor.getBinaryShadowless(
+    sheetImage,
+    height: quality.height.toInt(),
+  );
 
   int projectionAreaPixels = binary
       .getBytes()

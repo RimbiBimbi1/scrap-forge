@@ -3,14 +3,21 @@ import 'dart:typed_data';
 import 'package:flutter/material.dart';
 import 'package:image/image.dart' as imgLib;
 import 'package:image_picker/image_picker.dart';
+import 'package:scrap_forge/db_entities/appSettings.dart';
 import 'package:scrap_forge/pages/framing.dart';
 import 'package:scrap_forge/utils/a_sheet_format.dart';
 
-class MeasurementHub2 extends StatefulWidget {
-  const MeasurementHub2({super.key});
+class MeasurementHub extends StatefulWidget {
+  final MeasurementToolQuality framingQuality;
+  final MeasurementToolQuality boundingQuality;
+  const MeasurementHub({
+    super.key,
+    this.framingQuality = MeasurementToolQuality.medium,
+    this.boundingQuality = MeasurementToolQuality.medium,
+  });
 
   @override
-  State<MeasurementHub2> createState() => _MeasurementHub2State();
+  State<MeasurementHub> createState() => _MeasurementHubState();
 }
 
 Future<Uint8List> pickImage({bool fromCamera = true}) async {
@@ -27,7 +34,7 @@ Future<Uint8List> pickImage({bool fromCamera = true}) async {
   return Uint8List(0);
 }
 
-class _MeasurementHub2State extends State<MeasurementHub2> {
+class _MeasurementHubState extends State<MeasurementHub> {
   bool chooseFormat = false;
   ASheetFormat sheetFormat = ASheetFormat.a4;
 
@@ -101,6 +108,8 @@ class _MeasurementHub2State extends State<MeasurementHub2> {
                             builder: (context) => FramingPage(
                                 picked: picked,
                                 sheetFormat: sheetFormat,
+                                framingQuality: widget.framingQuality,
+                                boundingQuality: widget.boundingQuality,
                                 onBoundingBoxConfirmed:
                                     arguments['onBoundingBoxConfirmed']),
                           ),
@@ -131,6 +140,8 @@ class _MeasurementHub2State extends State<MeasurementHub2> {
                             builder: (context) => FramingPage(
                               picked: picked,
                               sheetFormat: sheetFormat,
+                              framingQuality: widget.framingQuality,
+                              boundingQuality: widget.boundingQuality,
                               onBoundingBoxConfirmed:
                                   arguments['onBoundingBoxConfirmed'],
                             ),

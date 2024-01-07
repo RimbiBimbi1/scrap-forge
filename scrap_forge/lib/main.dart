@@ -1,4 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:isar/isar.dart';
+import 'package:scrap_forge/db_entities/appSettings.dart';
+import 'package:scrap_forge/isar_service.dart';
 
 import 'package:scrap_forge/pages/home.dart';
 import 'package:scrap_forge/pages/loading.dart';
@@ -14,29 +17,77 @@ import 'package:scrap_forge/widgets/theme_manager.dart';
 // ThemeManager themeManager = ThemeManager();
 
 Future<void> main() async {
-  return runApp(
-    MaterialApp(
-      theme: lightTheme,
-      // theme: ThemeManager.themeMode,
+  return runApp(const ScrapForgeApp());
+}
 
+class ScrapForgeApp extends StatefulWidget {
+  const ScrapForgeApp({super.key});
+
+  @override
+  State<ScrapForgeApp> createState() => _ScrapForgeAppState();
+}
+
+class _ScrapForgeAppState extends State<ScrapForgeApp> {
+  AppSettings appSettings = AppSettings();
+
+  Future<void> getAppSettings() async {
+    final IsarService isar = IsarService();
+
+    AppSettings appSettings = await isar.getAppSettings() ??
+        await () async {
+          AppSettings settings = AppSettings()..darkMode = true;
+          await isar.saveSettings(settings);
+          return settings;
+        }();
+
+    setState(() {
+      this.appSettings = appSettings;
+    });
+  }
+
+  void updateSettings(AppSettings newSettings) {
+    setState(() {
+      this.appSettings = newSettings;
+    });
+  }
+
+  Future<void> saveSettings(AppSettings newSettings) async {
+    final IsarService isar = IsarService();
+    await isar.saveSettings(newSettings);
+  }
+
+  @override
+  void initState() {
+    super.initState();
+
+    getAppSettings();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return MaterialApp(
+      theme: lightTheme,
       darkTheme: darkTheme,
-      themeMode: ThemeManager.themeMode,
-      // themeMode: ThemeMode.light,
-      // initialRoute: '/home',
-      // initialRoute: '/measure',
+      themeMode: appSettings.darkMode ? ThemeMode.dark : ThemeMode.light,
       initialRoute: '/home',
       routes: {
-        '/home': (context) => Home(),
+        '/home': (context) => const Home(),
         '/editProduct': (context) => ProductEditor(context: context),
         '/product': (context) => ProductPage(context: context),
-        // '/measure': (context) => MeasurementHub(),
-        '/measure': (context) => const MeasurementHub2(),
+        '/measure': (context) => MeasurementHub(
+              framingQuality: appSettings.framingQuality,
+              boundingQuality: appSettings.boundingQuality,
+            ),
         '/products': (context) => ProductGallery(context: context),
         '/loading': (context) => const Loading(),
-        '/settings': (context) => const Settings(),
+        '/settings': (context) => Settings(
+              appSettings: appSettings,
+              updateSettings: updateSettings,
+              saveSettings: saveSettings,
+            ),
       },
-    ),
-  );
+    );
+  }
 }
 
 
