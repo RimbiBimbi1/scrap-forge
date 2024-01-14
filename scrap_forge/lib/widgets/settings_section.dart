@@ -19,7 +19,10 @@ class SettingsSection extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
           header,
-          ...children,
+          ...children.map((child) => Padding(
+                padding: const EdgeInsets.symmetric(vertical: 5.0),
+                child: child,
+              )),
         ],
       ),
     );

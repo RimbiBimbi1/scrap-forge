@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-const double magnifierRadius = 25;
+const double magnifierRadius = 35;
 
 class FramingTool extends StatefulWidget {
   final Size size;
@@ -24,9 +24,6 @@ class FramingTool extends StatefulWidget {
 class _FramingToolState extends State<FramingTool> {
   Offset magnifierPosition = Offset.zero;
   int activeCorner = -1;
-
-  final Color defaultColor = Colors.white;
-  final focusColor = Colors.amber;
 
   Widget image = Container();
 
@@ -84,10 +81,15 @@ class _FramingToolState extends State<FramingTool> {
 
   @override
   Widget build(BuildContext context) {
+    ThemeData theme = Theme.of(context);
+
+    Color defaultColor = Color.fromARGB(255, 255, 0, 0);
+    Color focusColor = Color.fromARGB(255, 255, 255, 255);
     return Column(
-      mainAxisAlignment: MainAxisAlignment.center,
+      mainAxisAlignment: MainAxisAlignment.spaceBetween,
       crossAxisAlignment: CrossAxisAlignment.center,
       children: [
+        const SizedBox.shrink(),
         Padding(
           padding: const EdgeInsets.symmetric(vertical: 5),
           child: SizedBox(
@@ -142,10 +144,17 @@ class _FramingToolState extends State<FramingTool> {
             ),
           ),
         ),
-        Flexible(
-          child: ElevatedButton(
-            onPressed: () => widget.setCorners(widget.points),
-            child: const Text("Zatwierdź"),
+        Container(
+          padding: const EdgeInsets.symmetric(vertical: 16),
+          color: theme.colorScheme.secondary,
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              ElevatedButton(
+                onPressed: () => widget.setCorners(widget.points),
+                child: const Text("Zatwierdź"),
+              ),
+            ],
           ),
         ),
       ],

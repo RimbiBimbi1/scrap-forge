@@ -56,7 +56,7 @@ class _ProductPageState extends State<ProductPage> {
 
     if (product != null) {
       return Scaffold(
-        backgroundColor: Colors.grey[900],
+        // backgroundColor: Colors.grey[900],
         appBar: AppBar(
           title: const Text("Strona produktu"),
           actions: [
@@ -120,30 +120,38 @@ class _ProductPageState extends State<ProductPage> {
                   ),
                 ),
                 (product!.photos.isNotEmpty)
-                    ? SizedBox(
-                        height: 220,
-                        child: ListView(
-                          primary: false,
-                          shrinkWrap: true,
-                          scrollDirection: Axis.horizontal,
-                          children: [
-                            ...product!.photos.map(
-                              (photo) => Padding(
-                                padding: const EdgeInsets.all(4.0),
-                                child: Container(
-                                  width: 160,
-                                  clipBehavior: Clip.hardEdge,
-                                  decoration: BoxDecoration(
-                                    borderRadius: const BorderRadius.all(
-                                        Radius.circular(8)),
-                                    image: DecorationImage(
-                                        image: MemoryImage(base64Decode(photo)),
-                                        fit: BoxFit.cover),
+                    ? Container(
+                        decoration: BoxDecoration(
+                          color: theme.colorScheme.secondary,
+                          borderRadius: BorderRadius.circular(8),
+                        ),
+                        alignment: Alignment.center,
+                        child: SizedBox(
+                          height: 220,
+                          child: ListView(
+                            primary: false,
+                            shrinkWrap: true,
+                            scrollDirection: Axis.horizontal,
+                            children: [
+                              ...product!.photos.map(
+                                (photo) => Padding(
+                                  padding: const EdgeInsets.all(4.0),
+                                  child: Container(
+                                    width: 160,
+                                    clipBehavior: Clip.hardEdge,
+                                    decoration: BoxDecoration(
+                                      borderRadius: const BorderRadius.all(
+                                          Radius.circular(8)),
+                                      image: DecorationImage(
+                                          image:
+                                              MemoryImage(base64Decode(photo)),
+                                          fit: BoxFit.cover),
+                                    ),
                                   ),
                                 ),
                               ),
-                            ),
-                          ],
+                            ],
+                          ),
                         ),
                       )
                     : Center(

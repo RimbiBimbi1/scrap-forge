@@ -17,9 +17,11 @@ class _LoadingState extends State<Loading> {
 
   @override
   Widget build(BuildContext context) {
-    return const Scaffold(
-      backgroundColor: Color.fromARGB(127, 33, 33, 33),
-      body: Center(
+    ThemeData theme = Theme.of(context);
+
+    return Container(
+      color: const Color.fromARGB(180, 33, 33, 33),
+      child: Center(
         // child: SpinKitFadingCircle(
         //   color: Colors.orange,
         //   size: 100.0,
@@ -27,19 +29,22 @@ class _LoadingState extends State<Loading> {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            AspectRatio(
+            const AspectRatio(
               aspectRatio: 1,
               child: RiveAnimation.asset('assets/hearth2.riv'),
             ),
             Text(
               'Ładowanie...',
-              style: TextStyle(color: Colors.amber, fontSize: 25, shadows: [
-                Shadow(
-                  color: Colors.black,
-                  offset: Offset(0, 0),
-                  blurRadius: 7,
-                )
-              ]),
+              style: TextStyle(
+                  color: theme.colorScheme.onPrimary,
+                  fontSize: 25,
+                  shadows: const [
+                    Shadow(
+                      color: Colors.black,
+                      offset: Offset(1, 1),
+                      blurRadius: 7,
+                    )
+                  ]),
             )
           ],
         ),

@@ -261,6 +261,8 @@ class _ProductGalleryState extends State<ProductGallery> {
       DeviceOrientation.portraitUp,
       DeviceOrientation.portraitDown,
     ]);
+    ThemeData theme = Theme.of(context);
+
     db.listenToProducts().listen((event) async {
       List<Product> result = await getProducts(filter);
 
@@ -275,7 +277,7 @@ class _ProductGalleryState extends State<ProductGallery> {
     });
     return Scaffold(
       persistentFooterAlignment: AlignmentDirectional.center,
-      backgroundColor: Colors.grey[900],
+      // backgroundColor: Colors.grey[900],
       persistentFooterButtons: [
         AnimatedCrossFade(
           crossFadeState: selectionMode

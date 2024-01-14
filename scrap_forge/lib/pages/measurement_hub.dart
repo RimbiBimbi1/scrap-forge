@@ -5,7 +5,6 @@ import 'package:image/image.dart' as imgLib;
 import 'package:image_picker/image_picker.dart';
 import 'package:scrap_forge/db_entities/appSettings.dart';
 import 'package:scrap_forge/pages/framing.dart';
-import 'package:scrap_forge/utils/a_sheet_format.dart';
 
 class MeasurementHub extends StatefulWidget {
   final MeasurementToolQuality framingQuality;
@@ -36,15 +35,17 @@ Future<Uint8List> pickImage({bool fromCamera = true}) async {
 
 class _MeasurementHubState extends State<MeasurementHub> {
   bool chooseFormat = false;
-  ASheetFormat sheetFormat = ASheetFormat.a4;
+  SheetFormat sheetFormat = SheetFormat.a4;
 
   @override
   Widget build(BuildContext context) {
+    ThemeData theme = Theme.of(context);
+
     Map arguments = (ModalRoute.of(context)?.settings.arguments ??
         <String, dynamic>{}) as Map;
 
     return Scaffold(
-      backgroundColor: Colors.grey[900],
+      // backgroundColor: Colors.grey[900],
       appBar: AppBar(
         title: AnimatedCrossFade(
           layoutBuilder: ((topChild, topChildKey, bottomChild, bottomChildKey) {
@@ -58,7 +59,7 @@ class _MeasurementHubState extends State<MeasurementHub> {
           }),
           firstChild: const Text("Wybierz zdjęcie"),
           secondChild: Row(
-            children: [ASheetFormat.a5, ASheetFormat.a4, ASheetFormat.a3]
+            children: [SheetFormat.a5, SheetFormat.a4, SheetFormat.a3]
                 .map((f) => TextButton(
                       onPressed: () => setState(() {
                         chooseFormat = false;
@@ -100,6 +101,13 @@ class _MeasurementHubState extends State<MeasurementHub> {
               children: [
                 Flexible(
                   child: OutlinedButton(
+                    style: OutlinedButton.styleFrom(
+                      backgroundColor: theme.colorScheme.secondary,
+                      side: BorderSide(
+                        color: theme.colorScheme.outline,
+                        width: 1,
+                      ),
+                    ),
                     onPressed: () async {
                       Uint8List picked = await pickImage(fromCamera: false);
                       if (context.mounted && picked.isNotEmpty) {
@@ -132,6 +140,13 @@ class _MeasurementHubState extends State<MeasurementHub> {
                 ),
                 Flexible(
                   child: OutlinedButton(
+                    style: OutlinedButton.styleFrom(
+                      backgroundColor: theme.colorScheme.secondary,
+                      side: BorderSide(
+                        color: theme.colorScheme.outline,
+                        width: 1,
+                      ),
+                    ),
                     onPressed: () async {
                       Uint8List picked = await pickImage(fromCamera: true);
                       if (context.mounted && picked.isNotEmpty) {

@@ -71,7 +71,7 @@ class _ProductStripState extends State<ProductStrip> {
           padding: const EdgeInsets.symmetric(vertical: 3),
           child: Text(
             StringMultiliner.multiline(widget.product.description).toString(),
-            style: textStyle,
+            // style: textStyle,
             textAlign: TextAlign.justify,
           ),
         ),
@@ -90,7 +90,7 @@ class _ProductStripState extends State<ProductStrip> {
                 //   Text("Szerokość: ${widget.product.dimensions?.width}mm"),
                 // if (widget.product.dimensions?.height != null)
                 //   Text("Wysokość: ${widget.product.dimensions?.height}mm"),
-                Divider(),
+                const Divider(),
                 Text("Wykorzystane: ${widget.product.consumed ?? 0}"),
                 Text("Na stanie: ${widget.product.available ?? 0}"),
                 Text("Potrzebne: ${widget.product.needed ?? 0}")
@@ -111,14 +111,14 @@ class _ProductStripState extends State<ProductStrip> {
             ? Text(
                 "Dodano: ${DateTime.fromMillisecondsSinceEpoch(1000 * widget.product.addedTimestamp!).toString().substring(0, 10)}",
                 maxLines: 1,
-                style: textStyle,
+                // style: textStyle,
               )
             : Container(),
         (!widget.asMaterial && widget.product.finishedTimestamp != null)
             ? Text(
                 "Ukończono: ${DateTime.fromMillisecondsSinceEpoch(1000 * widget.product.finishedTimestamp!).toString().substring(0, 10)}",
                 maxLines: 1,
-                style: textStyle,
+                // style: textStyle,
               )
             : Container()
         // Text(
@@ -135,44 +135,45 @@ class _ProductStripState extends State<ProductStrip> {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      decoration: const BoxDecoration(
-        border: Border(
-          bottom: BorderSide(
-            width: 2,
-            color: Colors.white10,
-          ),
+    ThemeData theme = Theme.of(context);
+
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 4.0),
+      child: Container(
+        decoration: BoxDecoration(
+          color: theme.colorScheme.secondary,
+          borderRadius: BorderRadius.circular(5),
         ),
-      ),
-      child: TextButton(
-        onPressed: widget.onPressed ??
-            () async {
-              await Navigator.pushNamed(context, "/product",
-                  arguments: {'productData': widget.product});
-            },
-        onLongPress: widget.onLongPress,
-        child: SizedBox(
-          height: 125,
-          child: Row(
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            mainAxisAlignment: MainAxisAlignment.start,
-            children: [
-              if (thumbnail != null) SizedBox(height: 120, child: thumbnail),
-              Flexible(
-                child: Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 8),
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.start,
-                    crossAxisAlignment: CrossAxisAlignment.stretch,
-                    children: [
-                      displayHeader(),
-                      displayBody(),
-                      // displayFooter()
-                    ],
+        child: TextButton(
+          onPressed: widget.onPressed ??
+              () async {
+                await Navigator.pushNamed(context, "/product",
+                    arguments: {'productData': widget.product});
+              },
+          onLongPress: widget.onLongPress,
+          child: SizedBox(
+            height: 125,
+            child: Row(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              mainAxisAlignment: MainAxisAlignment.start,
+              children: [
+                if (thumbnail != null) SizedBox(height: 120, child: thumbnail),
+                Flexible(
+                  child: Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 8),
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.start,
+                      crossAxisAlignment: CrossAxisAlignment.stretch,
+                      children: [
+                        displayHeader(),
+                        displayBody(),
+                        // displayFooter()
+                      ],
+                    ),
                   ),
-                ),
-              )
-            ],
+                )
+              ],
+            ),
           ),
         ),
       ),

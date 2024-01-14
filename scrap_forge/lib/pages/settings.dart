@@ -33,6 +33,7 @@ class _SettingsState extends State<Settings> {
   @override
   Widget build(BuildContext context) {
     ThemeData theme = Theme.of(context);
+    double width = MediaQuery.of(context).size.width * 0.95;
 
     return Scaffold(
       backgroundColor: theme.scaffoldBackgroundColor,
@@ -55,7 +56,7 @@ class _SettingsState extends State<Settings> {
             crossAxisAlignment: CrossAxisAlignment.center,
             children: [
               SettingsSection(
-                header: Text('Wygląd Aplikacji'),
+                header: const Text('Wygląd aplikacji'),
                 children: [
                   SwitchListTile(
                     title: const Text('Ciemny motyw'),
@@ -74,16 +75,23 @@ class _SettingsState extends State<Settings> {
                 ],
               ),
               SettingsSection(
-                header: Text('Narzędzie pomiarowe'),
+                header: const Text('Narzędzie pomiarowe'),
                 children: [
                   Row(
                     crossAxisAlignment: CrossAxisAlignment.center,
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      const SizedBox(
-                          width: 150,
-                          child: Text("Dokładność odszukiwania kartki")),
+                      SizedBox(
+                          width: width * 0.4,
+                          child: const Text("Dokładność odszukiwania kartki")),
                       DropdownMenu<MeasurementToolQuality>(
+                        inputDecorationTheme: InputDecorationTheme(
+                          contentPadding: const EdgeInsets.all(20),
+                          enabledBorder: OutlineInputBorder(
+                            borderSide: BorderSide(
+                                color: theme.colorScheme.outline, width: 1),
+                          ),
+                        ),
                         initialSelection: appSettings.framingQuality,
                         dropdownMenuEntries: MeasurementToolQuality.values
                             .map(
@@ -107,10 +115,18 @@ class _SettingsState extends State<Settings> {
                     crossAxisAlignment: CrossAxisAlignment.center,
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      const SizedBox(
-                          width: 150,
-                          child: Text("Dokładność odszukiwania przedmiotu")),
+                      SizedBox(
+                          width: width * 0.4,
+                          child:
+                              const Text("Dokładność odszukiwania przedmiotu")),
                       DropdownMenu<MeasurementToolQuality>(
+                        inputDecorationTheme: InputDecorationTheme(
+                          contentPadding: const EdgeInsets.all(20),
+                          enabledBorder: OutlineInputBorder(
+                            borderSide: BorderSide(
+                                color: theme.colorScheme.outline, width: 1),
+                          ),
+                        ),
                         initialSelection: appSettings.boundingQuality,
                         dropdownMenuEntries: MeasurementToolQuality.values
                             .map(
@@ -129,6 +145,28 @@ class _SettingsState extends State<Settings> {
                         },
                       )
                     ],
+                  ),
+                  TextButton(
+                    onPressed: () {},
+                    child: const Row(
+                      crossAxisAlignment: CrossAxisAlignment.center,
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Text("Własne formaty tła:"),
+                        Icon(Icons.arrow_right),
+                      ],
+                    ),
+                  ),
+                  TextButton(
+                    onPressed: () {},
+                    child: const Row(
+                      crossAxisAlignment: CrossAxisAlignment.center,
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Text("Domyślny format tła:"),
+                        Icon(Icons.arrow_right),
+                      ],
+                    ),
                   ),
                 ],
               ),

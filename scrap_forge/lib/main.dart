@@ -35,7 +35,7 @@ class _ScrapForgeAppState extends State<ScrapForgeApp> {
 
     AppSettings appSettings = await isar.getAppSettings() ??
         await () async {
-          AppSettings settings = AppSettings()..darkMode = true;
+          AppSettings settings = AppSettings();
           await isar.saveSettings(settings);
           return settings;
         }();

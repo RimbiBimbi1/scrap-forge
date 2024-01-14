@@ -1,12 +1,12 @@
 import 'package:flutter/material.dart';
 
 class HomeSection extends StatelessWidget {
-  Color? background;
+  final Color? background;
 
-  Widget? header;
-  List<Widget> children;
+  final Widget? header;
+  final List<Widget> children;
 
-  HomeSection(
+  const HomeSection(
       {super.key, this.background, this.header, required this.children});
 
   @override

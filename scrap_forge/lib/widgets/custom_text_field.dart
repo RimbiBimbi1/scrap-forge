@@ -1,14 +1,14 @@
 import 'package:flutter/material.dart';
 
 class CustomTextField extends StatelessWidget {
-  String label;
-  TextInputType type;
-  int? maxLines;
-  String? initialValue;
-  String? Function(String? value) validator;
-  TextEditingController controller;
+  final String label;
+  final TextInputType type;
+  final int? maxLines;
+  final String? initialValue;
+  final String? Function(String? value) validator;
+  final TextEditingController controller;
 
-  CustomTextField(
+  const CustomTextField(
       {super.key,
       required this.label,
       required this.controller,
@@ -19,29 +19,24 @@ class CustomTextField extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    ThemeData theme = Theme.of(context);
+
     return Padding(
-      padding: const EdgeInsets.fromLTRB(0, 8, 0, 8),
+      padding: const EdgeInsets.symmetric(vertical: 8),
       child: TextFormField(
         controller: controller,
         validator: validator,
         initialValue: initialValue,
-        // onSaved: onSaved,
         keyboardType: type,
         maxLines: maxLines,
-        style: const TextStyle(
-          color: Colors.white,
-        ),
         decoration: InputDecoration(
             label: Text(
               label,
-              style: const TextStyle(color: Colors.white),
-              textScaleFactor: 1.05,
             ),
-            // disabledBorder: OutlineInputBorder(
-            //     borderSide: BorderSide(color: Colors.grey[800]!)),
             enabledBorder: OutlineInputBorder(
-                borderSide: BorderSide(color: Colors.grey[800]!)),
-            contentPadding: const EdgeInsets.all(15)),
+                borderSide:
+                    BorderSide(color: theme.colorScheme.outline, width: 1)),
+            contentPadding: const EdgeInsets.all(18)),
       ),
     );
   }

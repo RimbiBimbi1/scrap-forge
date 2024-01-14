@@ -6,9 +6,9 @@ import 'package:flutter_svg/svg.dart';
 import 'package:scrap_forge/db_entities/product.dart';
 
 class ProductStripSmall extends StatefulWidget {
-  Product product;
+  final Product product;
 
-  ProductStripSmall({
+  const ProductStripSmall({
     super.key,
     required this.product,
   });
@@ -36,6 +36,8 @@ class _ProductStripSmallState extends State<ProductStripSmall> {
   }
 
   Text displayName() {
+    ThemeData theme = Theme.of(context);
+
     String name = "Twój wspaniały projekt";
     if (widget.product.name != null) {
       name = widget.product.name!;
@@ -43,6 +45,7 @@ class _ProductStripSmallState extends State<ProductStripSmall> {
     return Text(
       name,
       textScaleFactor: 1.2,
+      style: TextStyle(color: theme.colorScheme.onSecondary),
     );
   }
 

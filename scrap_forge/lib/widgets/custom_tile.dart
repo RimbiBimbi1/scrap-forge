@@ -1,14 +1,13 @@
 import 'package:flutter/material.dart';
 
 class CustomTile extends StatelessWidget {
-  Color? background;
-  Widget? backgroundImage;
-  Color? color;
-  Widget? child;
-  String title;
+  final Color? background;
+  final Color? color;
+  final Widget? child;
+  final String title;
   final onPressed;
 
-  CustomTile({
+  const CustomTile({
     super.key,
     this.onPressed,
     this.child,

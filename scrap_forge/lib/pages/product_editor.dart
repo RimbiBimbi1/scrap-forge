@@ -56,9 +56,7 @@ class _ProductEditorState extends State<ProductEditor> {
 
   List<Uint8List> photos = List.empty();
   List<Product> madeFrom = List.empty();
-  // List<TextEditingController> madeFromCounts = List.empty();
   List<Product> usedIn = List.empty();
-  // List<TextEditingController> usedInCounts = List.empty();
 
   @override
   void initState() {
@@ -120,11 +118,8 @@ class _ProductEditorState extends State<ProductEditor> {
         photos = product.photos.map((photo) => base64Decode(photo)).toList();
 
         madeFrom = product.madeFrom.toList();
-        // madeFromCounts = List.generate(
-        //     product.madeFrom.length, (index) => TextEditingController());
+
         usedIn = product.usedIn.toList();
-        // usedInCounts = List.generate(
-        //     product.usedIn.length, (index) => TextEditingController());
 
         if (product.dimensions != null) {
           lengthUnit =
@@ -195,8 +190,6 @@ class _ProductEditorState extends State<ProductEditor> {
   void onMaterialsUsedPicked(materials) {
     setState(() {
       madeFrom = materials;
-      // madeFromCounts =
-      //     List.generate(materials.length, (index) => TextEditingController());
     });
     Navigator.pop(context);
   }
@@ -204,15 +197,12 @@ class _ProductEditorState extends State<ProductEditor> {
   void onProductsMadeWithPicked(products) {
     setState(() {
       usedIn = products;
-      // usedInCounts =
-      //     List.generate(usedIn.length, (index) => TextEditingController());
     });
     Navigator.pop(context);
   }
 
   Text label(String text) => Text(
         text,
-        style: const TextStyle(color: Colors.white),
         textScaleFactor: 1.2,
       );
 
@@ -277,8 +267,9 @@ class _ProductEditorState extends State<ProductEditor> {
       DeviceOrientation.portraitUp,
       DeviceOrientation.portraitDown,
     ]);
+    ThemeData theme = Theme.of(context);
+
     return Scaffold(
-      backgroundColor: Colors.grey[900],
       appBar: AppBar(
         title: Text(
             edit == null ? "Dodaj nowy produkt" : "Edytuj \"${edit?.name}\""),
@@ -326,15 +317,18 @@ class _ProductEditorState extends State<ProductEditor> {
                     mainAxisAlignment: MainAxisAlignment.center,
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Text(
+                      const Text(
                         "Zdjęcia:",
                         textScaleFactor: 1.2,
-                        style: TextStyle(
-                            color: Theme.of(context).colorScheme.onBackground),
                       ),
                       SizedBox(
                         height: 200,
-                        child: Center(
+                        child: Container(
+                          alignment: Alignment.center,
+                          decoration: BoxDecoration(
+                            color: theme.colorScheme.secondary,
+                            borderRadius: BorderRadius.circular(8),
+                          ),
                           child: ListView(
                             primary: false,
                             shrinkWrap: true,
@@ -376,9 +370,9 @@ class _ProductEditorState extends State<ProductEditor> {
                                               shadows: [
                                                 Shadow(
                                                   color: Colors.black,
-                                                  blurRadius: 5,
+                                                  blurRadius: 4,
                                                   offset: Offset(1, 2),
-                                                )
+                                                ),
                                               ],
                                             ),
                                           ),
@@ -387,30 +381,49 @@ class _ProductEditorState extends State<ProductEditor> {
                                     ),
                                   )
                                   .values,
-                              SizedBox(
-                                height: 200,
-                                width: 135,
-                                child: Column(
-                                  mainAxisAlignment: MainAxisAlignment.center,
-                                  crossAxisAlignment:
-                                      CrossAxisAlignment.stretch,
-                                  children: [
-                                    Flexible(
-                                      fit: FlexFit.tight,
-                                      child: OutlinedButton(
-                                        onPressed: pickImagesFromGallery,
-                                        child: const Icon(
-                                            Icons.add_photo_alternate),
+                              Padding(
+                                padding: const EdgeInsets.all(4.0),
+                                child: SizedBox(
+                                  height: 200,
+                                  width: 135,
+                                  child: Column(
+                                    mainAxisAlignment: MainAxisAlignment.center,
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.stretch,
+                                    children: [
+                                      Flexible(
+                                        fit: FlexFit.tight,
+                                        child: OutlinedButton(
+                                          style: OutlinedButton.styleFrom(
+                                            backgroundColor:
+                                                theme.colorScheme.background,
+                                            side: BorderSide(
+                                              color: theme.colorScheme.outline,
+                                              width: 1,
+                                            ),
+                                          ),
+                                          onPressed: pickImagesFromGallery,
+                                          child: const Icon(
+                                              Icons.add_photo_alternate),
+                                        ),
                                       ),
-                                    ),
-                                    Flexible(
-                                      fit: FlexFit.tight,
-                                      child: OutlinedButton(
-                                        onPressed: pickImageFromCamera,
-                                        child: const Icon(Icons.add_a_photo),
+                                      Flexible(
+                                        fit: FlexFit.tight,
+                                        child: OutlinedButton(
+                                          onPressed: pickImageFromCamera,
+                                          style: OutlinedButton.styleFrom(
+                                            backgroundColor:
+                                                theme.colorScheme.background,
+                                            side: BorderSide(
+                                              color: theme.colorScheme.outline,
+                                              width: 1,
+                                            ),
+                                          ),
+                                          child: const Icon(Icons.add_a_photo),
+                                        ),
                                       ),
-                                    ),
-                                  ],
+                                    ],
+                                  ),
                                 ),
                               ),
                             ],
@@ -429,11 +442,16 @@ class _ProductEditorState extends State<ProductEditor> {
                           const Text(
                             "Wymiary:",
                             textScaleFactor: 1.2,
-                            style: TextStyle(color: Colors.white),
+                            // style: TextStyle(color: Colors.white),
                           ),
                           Flexible(
                             flex: 10,
                             child: OutlinedButton(
+                              style: OutlinedButton.styleFrom(
+                                  side: BorderSide(
+                                color: theme.colorScheme.outline,
+                                width: 1,
+                              )),
                               onPressed: () {
                                 Navigator.pushNamed(context, "/measure",
                                     arguments: {
@@ -497,6 +515,14 @@ class _ProductEditorState extends State<ProductEditor> {
                                     ),
                                   ),
                                   DropdownMenu<SizeUnit>(
+                                    inputDecorationTheme: InputDecorationTheme(
+                                      contentPadding: const EdgeInsets.all(20),
+                                      enabledBorder: OutlineInputBorder(
+                                        borderSide: BorderSide(
+                                            color: theme.colorScheme.outline,
+                                            width: 1),
+                                      ),
+                                    ),
                                     dropdownMenuEntries: const [
                                       DropdownMenuEntry(
                                           value: SizeUnit.millimeter,
@@ -529,20 +555,30 @@ class _ProductEditorState extends State<ProductEditor> {
                               type: TextInputType.number,
                             ),
                           ),
-                          DropdownMenu<SizeUnit>(
-                            dropdownMenuEntries: const [
-                              DropdownMenuEntry(
-                                  value: SizeUnit.millimeter, label: "mm2"),
-                              DropdownMenuEntry(
-                                  value: SizeUnit.centimeter, label: "cm2"),
-                              DropdownMenuEntry(
-                                  value: SizeUnit.meter, label: "m2"),
-                            ],
-                            initialSelection: areaUnit,
-                            controller: areaUnitController,
-                            onSelected: (value) => setState(() {
-                              areaUnit = value ?? SizeUnit.millimeter;
-                            }),
+                          SizedBox(
+                            child: DropdownMenu<SizeUnit>(
+                              inputDecorationTheme: InputDecorationTheme(
+                                contentPadding: const EdgeInsets.all(20),
+                                enabledBorder: OutlineInputBorder(
+                                  borderSide: BorderSide(
+                                      color: theme.colorScheme.outline,
+                                      width: 1),
+                                ),
+                              ),
+                              dropdownMenuEntries: const [
+                                DropdownMenuEntry(
+                                    value: SizeUnit.millimeter, label: "mm2"),
+                                DropdownMenuEntry(
+                                    value: SizeUnit.centimeter, label: "cm2"),
+                                DropdownMenuEntry(
+                                    value: SizeUnit.meter, label: "m2"),
+                              ],
+                              initialSelection: areaUnit,
+                              controller: areaUnitController,
+                              onSelected: (value) => setState(() {
+                                areaUnit = value ?? SizeUnit.millimeter;
+                              }),
+                            ),
                           )
                         ],
                       ),
@@ -555,6 +591,7 @@ class _ProductEditorState extends State<ProductEditor> {
                         initialValue: addAsProject,
                         builder: (FormFieldState<bool> field) {
                           return SwitchListTile(
+                            activeColor: theme.colorScheme.primary,
                             contentPadding: const EdgeInsets.all(0),
                             title: const Text("Dodaj jako projekt"),
                             value: addAsProject,
@@ -598,6 +635,14 @@ class _ProductEditorState extends State<ProductEditor> {
                                 validator: numberValidator,
                               ),
                               DropdownMenu<ProjectLifeCycle>(
+                                inputDecorationTheme: InputDecorationTheme(
+                                  contentPadding: const EdgeInsets.all(20),
+                                  enabledBorder: OutlineInputBorder(
+                                    borderSide: BorderSide(
+                                        color: theme.colorScheme.outline,
+                                        width: 1),
+                                  ),
+                                ),
                                 width: MediaQuery.of(context).size.width - 20,
                                 dropdownMenuEntries: const [
                                   DropdownMenuEntry(
@@ -718,6 +763,7 @@ class _ProductEditorState extends State<ProductEditor> {
                         validator: switchValidator,
                         builder: (FormFieldState<bool> field) {
                           return SwitchListTile(
+                            activeColor: theme.colorScheme.primary,
                             contentPadding: const EdgeInsets.all(0),
                             title: const Text("Dodaj jako materiał"),
                             value: addAsMaterial,

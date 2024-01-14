@@ -9,18 +9,17 @@ import 'package:scrap_forge/pages/Loading.dart';
 import 'dart:isolate';
 
 import 'package:scrap_forge/pages/bounding.dart';
-import 'package:scrap_forge/utils/a_sheet_format.dart';
 
 class FramingPage extends StatefulWidget {
   final Uint8List picked;
-  final ASheetFormat sheetFormat;
+  final SheetFormat sheetFormat;
   final Function(List<double>)? onBoundingBoxConfirmed;
   final MeasurementToolQuality framingQuality;
   final MeasurementToolQuality boundingQuality;
   const FramingPage({
     super.key,
     required this.picked,
-    this.sheetFormat = ASheetFormat.a4,
+    this.sheetFormat = SheetFormat.a4,
     this.onBoundingBoxConfirmed,
     this.framingQuality = MeasurementToolQuality.medium,
     this.boundingQuality = MeasurementToolQuality.medium,
@@ -35,7 +34,7 @@ class _FramingPageState extends State<FramingPage> {
 
   imgLib.Image image = imgLib.Image.empty();
   bool chooseFormat = false;
-  ASheetFormat sheetFormat = ASheetFormat.a4;
+  SheetFormat sheetFormat = SheetFormat.a4;
 
   Future<dynamic>? sheetCorners;
 
@@ -69,8 +68,10 @@ class _FramingPageState extends State<FramingPage> {
 
   @override
   Widget build(BuildContext context) {
+    ThemeData theme = Theme.of(context);
+
     return Scaffold(
-      backgroundColor: Colors.grey[900],
+      // backgroundColor: Colors.grey[900],
       appBar: AppBar(
         title: AnimatedCrossFade(
           layoutBuilder: ((topChild, topChildKey, bottomChild, bottomChildKey) {
@@ -84,7 +85,7 @@ class _FramingPageState extends State<FramingPage> {
           }),
           firstChild: const Text("Zaznacz rogi kartki"),
           secondChild: Row(
-            children: [ASheetFormat.a5, ASheetFormat.a4, ASheetFormat.a3]
+            children: [SheetFormat.a5, SheetFormat.a4, SheetFormat.a3]
                 .map((f) => TextButton(
                       onPressed: () => setState(() {
                         chooseFormat = false;
@@ -116,7 +117,6 @@ class _FramingPageState extends State<FramingPage> {
       ),
       body: SafeArea(
         child: Center(
-          // padding: Ed,
           child: FutureBuilder(
             future: sheetCorners,
             builder: (context, snapshot) {
@@ -152,18 +152,12 @@ class _FramingPageState extends State<FramingPage> {
                   },
                 );
               } else {
-                return Padding(
-                  padding: const EdgeInsets.symmetric(vertical: 50),
-                  child: SizedBox(
-                    width: displayW,
-                    child: Stack(
-                      alignment: Alignment.center,
-                      children: [
-                        Image(image: MemoryImage(widget.picked)),
-                        const Loading(),
-                      ],
-                    ),
-                  ),
+                return Stack(
+                  alignment: Alignment.center,
+                  children: [
+                    Image(image: MemoryImage(widget.picked)),
+                    const Loading(),
+                  ],
                 );
               }
             },

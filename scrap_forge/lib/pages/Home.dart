@@ -45,10 +45,11 @@ class _HomeState extends State<Home> {
       DeviceOrientation.portraitUp,
       DeviceOrientation.portraitDown,
     ]);
+    ThemeData theme = Theme.of(context);
+
     db.listenToProducts().listen((event) {
       if (mounted) getRecentProjects();
     });
-    ThemeData theme = Theme.of(context);
 
     return Scaffold(
       backgroundColor: theme.scaffoldBackgroundColor,
@@ -74,6 +75,7 @@ class _HomeState extends State<Home> {
               child: FloatingActionButton(
                 heroTag: null,
                 backgroundColor: theme.colorScheme.primary,
+                foregroundColor: theme.colorScheme.onPrimary,
                 onPressed: () {
                   Navigator.pushNamed(context, "/measure",
                       arguments: {'onBoundingBoxConfirmed': (values) {}});
@@ -88,6 +90,7 @@ class _HomeState extends State<Home> {
               child: FloatingActionButton(
                 heroTag: null,
                 backgroundColor: theme.colorScheme.primary,
+                foregroundColor: theme.colorScheme.onPrimary,
                 onPressed: () {
                   Navigator.pushNamed(context, "/editProduct");
                 },

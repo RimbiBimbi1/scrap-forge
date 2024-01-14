@@ -10,12 +10,11 @@ import 'package:scrap_forge/measure_tool/bounding_tool.dart';
 import 'package:scrap_forge/measure_tool/image_processor.dart';
 import 'package:scrap_forge/measure_tool/triangle_texturer.dart';
 import 'package:scrap_forge/pages/loading.dart';
-import 'package:scrap_forge/utils/a_sheet_format.dart';
 
 class BoundingPage extends StatefulWidget {
   final Uint8List picked;
   final List<Offset> corners;
-  final ASheetFormat sheetFormat;
+  final SheetFormat sheetFormat;
   final MeasurementToolQuality boundingQuality;
   final Function(List<double>)? onBoundingBoxConfirmed;
 
@@ -23,7 +22,7 @@ class BoundingPage extends StatefulWidget {
     super.key,
     required this.picked,
     required this.corners,
-    this.sheetFormat = ASheetFormat.a4,
+    this.sheetFormat = SheetFormat.a4,
     this.boundingQuality = MeasurementToolQuality.medium,
     this.onBoundingBoxConfirmed,
   });
@@ -35,7 +34,7 @@ class BoundingPage extends StatefulWidget {
 class _BoundingPageState extends State<BoundingPage> {
   Future<dynamic>? boundingData;
   bool chooseFormat = false;
-  ASheetFormat sheetFormat = ASheetFormat.a4;
+  SheetFormat sheetFormat = SheetFormat.a4;
 
   Widget displayImage(Uint8List image, double w, double h) {
     return Center(
@@ -65,8 +64,10 @@ class _BoundingPageState extends State<BoundingPage> {
 
   @override
   Widget build(BuildContext context) {
+    ThemeData theme = Theme.of(context);
+
     return Scaffold(
-      backgroundColor: Colors.grey[900],
+      // backgroundColor: Colors.grey[900],
       appBar: AppBar(
         title: AnimatedCrossFade(
           layoutBuilder: ((topChild, topChildKey, bottomChild, bottomChildKey) {
@@ -80,7 +81,7 @@ class _BoundingPageState extends State<BoundingPage> {
           }),
           firstChild: const Text("Obramuj przedmiot"),
           secondChild: Row(
-            children: [ASheetFormat.a5, ASheetFormat.a4, ASheetFormat.a3]
+            children: [SheetFormat.a5, SheetFormat.a4, SheetFormat.a3]
                 .map((f) => TextButton(
                       onPressed: () => setState(() {
                         chooseFormat = false;
@@ -143,19 +144,11 @@ class _BoundingPageState extends State<BoundingPage> {
                     sheetFormat: sheetFormat,
                     onBoundingBoxConfirmed: widget.onBoundingBoxConfirmed);
               } else {
-                return Padding(
-                  padding: const EdgeInsets.symmetric(vertical: 5),
-                  child: SizedBox(
-                    width: displayW,
-                    child: Center(
-                      child: Stack(
-                        children: [
-                          Image(image: MemoryImage(widget.picked)),
-                          const Loading(),
-                        ],
-                      ),
-                    ),
-                  ),
+                return Stack(
+                  children: [
+                    Image(image: MemoryImage(widget.picked)),
+                    const Loading(),
+                  ],
                 );
               }
             },

@@ -3,7 +3,7 @@ import 'dart:typed_data';
 import 'package:flutter/material.dart';
 import 'dart:math' as math;
 
-import 'package:scrap_forge/utils/a_sheet_format.dart';
+import 'package:scrap_forge/db_entities/appSettings.dart';
 
 double initialMagnifierRadius = 30;
 
@@ -12,7 +12,7 @@ class BoundingTool extends StatefulWidget {
 
   final List<Offset> points;
   final Widget Function(double w, double h) displayImage;
-  final ASheetFormat sheetFormat;
+  final SheetFormat sheetFormat;
   final int projectionAreaPixels;
   final Function(List<double>)? onBoundingBoxConfirmed;
 
@@ -42,9 +42,6 @@ class _FramingToolState extends State<BoundingTool> {
   */
   bool trivialMode = false;
   double magnifierRadius = initialMagnifierRadius;
-
-  final Color defaultColor = Colors.white;
-  final focusColor = Colors.amber;
 
   List<List<double>> linearCoefficients = List.empty();
   double projectionAreaCM2 = 0;
@@ -325,11 +322,17 @@ class _FramingToolState extends State<BoundingTool> {
 
   @override
   Widget build(BuildContext context) {
+    ThemeData theme = Theme.of(context);
+
+    Color defaultColor = const Color.fromARGB(255, 255, 0, 0);
+    Color focusColor = const Color.fromARGB(255, 255, 255, 255);
+
     List<double> dimensions = calculateDimensions();
     return Column(
-      mainAxisAlignment: MainAxisAlignment.center,
+      mainAxisAlignment: MainAxisAlignment.spaceBetween,
       crossAxisAlignment: CrossAxisAlignment.center,
       children: [
+        const SizedBox.shrink(),
         Padding(
           padding: const EdgeInsets.symmetric(vertical: 5),
           child: SizedBox(
@@ -384,7 +387,9 @@ class _FramingToolState extends State<BoundingTool> {
             ),
           ),
         ),
-        Flexible(
+        Container(
+          padding: const EdgeInsets.symmetric(vertical: 16),
+          color: theme.colorScheme.secondary,
           child: Row(
             mainAxisAlignment: MainAxisAlignment.spaceAround,
             crossAxisAlignment: CrossAxisAlignment.center,
@@ -394,16 +399,16 @@ class _FramingToolState extends State<BoundingTool> {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    "Długość: ${dimensions[0].round()}mm",
-                    style: const TextStyle(color: Colors.white),
+                    "Długość: ${math.max(dimensions[0], dimensions[1]).round()}mm",
+                    style: TextStyle(color: theme.colorScheme.onSecondary),
                   ),
                   Text(
-                    "Szerokość: ${dimensions[1].round()}mm",
-                    style: const TextStyle(color: Colors.white),
+                    "Szerokość: ${math.min(dimensions[0], dimensions[1]).round()}mm",
+                    style: TextStyle(color: theme.colorScheme.onSecondary),
                   ),
                   Text(
                     "Pole przedmiotu: ${(dimensions[2] * 0.01).toStringAsFixed(2)}cm2",
-                    style: const TextStyle(color: Colors.white),
+                    style: TextStyle(color: theme.colorScheme.onSecondary),
                   ),
                 ],
               ),
