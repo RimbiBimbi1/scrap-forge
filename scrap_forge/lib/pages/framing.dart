@@ -153,16 +153,15 @@ class _FramingPageState extends State<FramingPage> {
                 );
               } else {
                 return Padding(
-                  padding: const EdgeInsets.symmetric(vertical: 5),
+                  padding: const EdgeInsets.symmetric(vertical: 50),
                   child: SizedBox(
                     width: displayW,
-                    child: Center(
-                      child: Stack(
-                        children: [
-                          Image(image: MemoryImage(widget.picked)),
-                          const Loading(),
-                        ],
-                      ),
+                    child: Stack(
+                      alignment: Alignment.center,
+                      children: [
+                        Image(image: MemoryImage(widget.picked)),
+                        const Loading(),
+                      ],
                     ),
                   ),
                 );

@@ -33,10 +33,13 @@ class _LoadingState extends State<Loading> {
             ),
             Text(
               'Ładowanie...',
-              style: TextStyle(
-                color: Colors.red,
-                fontSize: 20,
-              ),
+              style: TextStyle(color: Colors.amber, fontSize: 25, shadows: [
+                Shadow(
+                  color: Colors.black,
+                  offset: Offset(0, 0),
+                  blurRadius: 7,
+                )
+              ]),
             )
           ],
         ),
