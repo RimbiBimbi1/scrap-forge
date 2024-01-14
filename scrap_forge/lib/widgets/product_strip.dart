@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'dart:typed_data';
 
 import 'package:flutter/material.dart';
+import 'package:flutter_svg/svg.dart';
 import 'package:scrap_forge/db_entities/product.dart';
 import 'package:scrap_forge/utils/dimension_formatter.dart';
 import 'package:scrap_forge/utils/string_multiliner.dart';
@@ -26,7 +27,7 @@ class ProductStrip extends StatefulWidget {
 class _ProductStripState extends State<ProductStrip> {
   Widget? thumbnail;
 
-  Future<void> getImage() async {
+  void getImage() {
     String? data;
 
     if (widget.product.photos.isEmpty) {
@@ -156,11 +157,7 @@ class _ProductStripState extends State<ProductStrip> {
             crossAxisAlignment: CrossAxisAlignment.stretch,
             mainAxisAlignment: MainAxisAlignment.start,
             children: [
-              if (thumbnail != null)
-                SizedBox(
-                  height: 120,
-                  child: thumbnail,
-                ),
+              if (thumbnail != null) SizedBox(height: 120, child: thumbnail),
               Flexible(
                 child: Padding(
                   padding: const EdgeInsets.symmetric(horizontal: 8),

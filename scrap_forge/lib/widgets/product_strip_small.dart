@@ -18,10 +18,7 @@ class ProductStripSmall extends StatefulWidget {
 }
 
 class _ProductStripSmallState extends State<ProductStripSmall> {
-  Widget thumbnail = SvgPicture.asset(
-    'assets/image-placeholder.svg',
-    fit: BoxFit.fill,
-  );
+  Widget? thumbnail;
 
   void getImage() {
     String? data;
@@ -59,9 +56,9 @@ class _ProductStripSmallState extends State<ProductStripSmall> {
   Widget build(BuildContext context) {
     ThemeData theme = Theme.of(context);
     return Container(
-      padding: EdgeInsets.all(0),
+      padding: const EdgeInsets.all(0),
       decoration: BoxDecoration(
-        borderRadius: BorderRadius.all(
+        borderRadius: const BorderRadius.all(
           Radius.circular(5),
         ),
         color: theme.colorScheme.secondary,
@@ -76,7 +73,12 @@ class _ProductStripSmallState extends State<ProductStripSmall> {
             SizedBox(
               width: 60,
               height: 60,
-              child: thumbnail,
+              child: (thumbnail != null)
+                  ? thumbnail
+                  : SvgPicture.asset(
+                      'assets/image-placeholder.svg',
+                      fit: BoxFit.fill,
+                    ),
             ),
             Padding(
               padding: const EdgeInsets.all(10),
