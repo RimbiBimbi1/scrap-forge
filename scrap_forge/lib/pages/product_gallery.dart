@@ -25,7 +25,7 @@ class _ProductGalleryState extends State<ProductGallery> {
   bool selectionMode = false;
   List<bool> selected = List.empty();
   ValueSetter? confirmSelection;
-  ProductFilter filter = ProductFilter();
+  ProductFilter baseFilter = ProductFilter();
 
   @override
   void initState() {
@@ -38,17 +38,17 @@ class _ProductGalleryState extends State<ProductGallery> {
         <String, dynamic>{}) as Map;
 
     bool? selectionMode = arguments["select"];
-    ProductFilter filter = arguments["productFilter"];
+    ProductFilter baseFilter = arguments["productFilter"];
     ValueSetter? confirmSelection = arguments["confirmSelection"];
 
     // if (filter != null) {
-    List<Product> result = await getProducts(filter);
+    List<Product> result = await getProducts(baseFilter);
 
     setState(() {
       this.products = result;
       this.selected = List.filled(result.length, false);
-      this.filter = filter;
-      this.asMaterials = filter.materialsOnly;
+      this.baseFilter = baseFilter;
+      this.asMaterials = baseFilter.materialsOnly;
       this.selectionMode = selectionMode ?? false;
       this.confirmSelection = confirmSelection;
     });
@@ -175,12 +175,12 @@ class _ProductGalleryState extends State<ProductGallery> {
                                     'moveTo': ProductFilter.consumedMaterials(),
                                     'label': "Wykorzystane",
                                     'move': (Product p) {
-                                      if (filter.availableOnly > -1) {
+                                      if (baseFilter.availableOnly > -1) {
                                         p.consumed ??= 0;
                                         p.consumed =
                                             p.consumed! + (p.available ?? 0);
                                         p.available = null;
-                                      } else if (filter.neededOnly > -1) {
+                                      } else if (baseFilter.neededOnly > -1) {
                                         p.consumed ??= 0;
                                         p.consumed =
                                             p.consumed! + (p.needed ?? 0);
@@ -194,12 +194,12 @@ class _ProductGalleryState extends State<ProductGallery> {
                                         ProductFilter.availableMaterials(),
                                     'label': "Dostępne",
                                     'move': (Product p) {
-                                      if (filter.consumedOnly > -1) {
+                                      if (baseFilter.consumedOnly > -1) {
                                         p.available ??= 0;
                                         p.available =
                                             p.available! + (p.consumed ?? 0);
                                         p.consumed = null;
-                                      } else if (filter.neededOnly > -1) {
+                                      } else if (baseFilter.neededOnly > -1) {
                                         p.available ??= 0;
                                         p.available =
                                             p.available! + (p.needed ?? 0);
@@ -212,12 +212,13 @@ class _ProductGalleryState extends State<ProductGallery> {
                                     'moveTo': ProductFilter.neededMaterials(),
                                     'label': "Potrzebne",
                                     'move': (Product p) {
-                                      if (filter.consumedOnly > -1) {
+                                      if (baseFilter.consumedOnly > -1) {
                                         p.needed ??= 0;
                                         p.needed =
                                             p.needed! + (p.consumed ?? 0);
                                         p.consumed = null;
-                                      } else if (filter.availableOnly > -1) {
+                                      } else if (baseFilter.availableOnly >
+                                          -1) {
                                         p.needed ??= 0;
                                         p.needed =
                                             p.needed! + (p.available ?? 0);
@@ -321,7 +322,7 @@ class _ProductGalleryState extends State<ProductGallery> {
     ThemeData theme = Theme.of(context);
 
     db.listenToProducts().listen((event) async {
-      List<Product> result = await getProducts(filter);
+      List<Product> result = await getProducts(baseFilter);
 
       if (mounted &&
           !ProductListComparator.compareByLastModifiedTimestamps(
