@@ -150,39 +150,96 @@ class _ProductGalleryState extends State<ProductGallery> {
                     crossAxisAlignment: CrossAxisAlignment.stretch,
                     children: [
                       ...(!asMaterials
-                              ? [
+                              ? ([
                                   {
-                                    'filter': ProductFilter.finishedProducts(),
+                                    // 'moveTo': ProjectLifeCycle.finished,
                                     'label': "Ukończone",
+                                    'move': (Product p) =>
+                                        p..progress = ProjectLifeCycle.finished
                                   },
                                   {
-                                    'filter':
-                                        ProductFilter.inProgressProducts(),
+                                    // 'moveTo': ProjectLifeCycle.inProgress,
                                     'label': "W trakcie realizacji",
+                                    'move': (Product p) => p
+                                      ..progress = ProjectLifeCycle.inProgress
                                   },
                                   {
-                                    'filter': ProductFilter.plannedProducts(),
+                                    // 'moveTo': ProjectLifeCycle.planned,
                                     'label': "Planowanie",
-                                  },
-                                ]
-                              : [
-                                  {
-                                    'filter': ProductFilter.consumedMaterials(),
-                                    'label': "Wykorzystane",
-                                  },
-                                  {
-                                    'filter':
-                                        ProductFilter.availableMaterials(),
-                                    'label': "Dostępne",
-                                  },
-                                  {
-                                    'filter': ProductFilter.neededMaterials(),
-                                    'label': "Potrzebne",
+                                    'move': (Product p) =>
+                                        p..progress = ProjectLifeCycle.planned
                                   },
                                 ])
+                              : ([
+                                  {
+                                    'moveTo': ProductFilter.consumedMaterials(),
+                                    'label': "Wykorzystane",
+                                    'move': (Product p) {
+                                      if (filter.availableOnly > -1) {
+                                        p.consumed ??= 0;
+                                        p.consumed =
+                                            p.consumed! + (p.available ?? 0);
+                                        p.available = null;
+                                      } else if (filter.neededOnly > -1) {
+                                        p.consumed ??= 0;
+                                        p.consumed =
+                                            p.consumed! + (p.needed ?? 0);
+                                        p.needed = null;
+                                      }
+                                      return p;
+                                    }
+                                  },
+                                  {
+                                    'moveTo':
+                                        ProductFilter.availableMaterials(),
+                                    'label': "Dostępne",
+                                    'move': (Product p) {
+                                      if (filter.consumedOnly > -1) {
+                                        p.available ??= 0;
+                                        p.available =
+                                            p.available! + (p.consumed ?? 0);
+                                        p.consumed = null;
+                                      } else if (filter.neededOnly > -1) {
+                                        p.available ??= 0;
+                                        p.available =
+                                            p.available! + (p.needed ?? 0);
+                                        p.needed = null;
+                                      }
+                                      return p;
+                                    }
+                                  },
+                                  {
+                                    'moveTo': ProductFilter.neededMaterials(),
+                                    'label': "Potrzebne",
+                                    'move': (Product p) {
+                                      if (filter.consumedOnly > -1) {
+                                        p.needed ??= 0;
+                                        p.needed =
+                                            p.needed! + (p.consumed ?? 0);
+                                        p.consumed = null;
+                                      } else if (filter.availableOnly > -1) {
+                                        p.needed ??= 0;
+                                        p.needed =
+                                            p.needed! + (p.available ?? 0);
+                                        p.available = null;
+                                      }
+                                      return p;
+                                    }
+                                  },
+                                ]))
                           .map(
                         (folder) => OutlinedButton(
                           onPressed: () {
+                            List<Product> moved = products
+                                .asMap()
+                                .entries
+                                .where((p) => selected[p.key])
+                                .map((e) => (folder['move'] as Product Function(
+                                    Product p))(e.value))
+                                .toList();
+
+                            db.saveProducts(moved);
+
                             Navigator.of(context).pop();
                           },
                           child: Container(

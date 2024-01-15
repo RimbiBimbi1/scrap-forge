@@ -44,6 +44,14 @@ class IsarService {
     });
   }
 
+  Future<void> saveProducts(List<Product> products) async {
+    final isar = await db;
+
+    isar.writeTxnSync(() {
+      isar.products.putAllSync(products);
+    });
+  }
+
   Future<List<Product>> getAllProducts() async {
     final isar = await db;
     return await isar.products.where().findAll();
