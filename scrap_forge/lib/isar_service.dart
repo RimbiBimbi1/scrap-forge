@@ -2,7 +2,6 @@ import 'package:isar/isar.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:scrap_forge/db_entities/appSettings.dart';
 import 'package:scrap_forge/db_entities/product.dart';
-import 'package:scrap_forge/pages/settings.dart';
 import 'package:scrap_forge/utils/fetch_products.dart';
 
 class IsarService {
@@ -71,46 +70,76 @@ class IsarService {
 
     return isar.products
         .filter()
-        .optional(
-          filter.projectsOnly,
+        .nameContains(filter.nameHas, caseSensitive: false)
+        // .optional(filter.ca, (q) => null)
+        // .categoryContains('', caseSensitive: false)
+        .group(
           (q) => q
-              .progressIsNotNull()
               .optional(
-                filter.finishedOnly,
-                (q) => q.progressMatches(ProjectLifeCycle.finished.name),
+                filter.showFinished,
+                (q) => q.progressEqualTo(ProjectLifeCycle.finished),
               )
+              .or()
               .optional(
-                filter.inProgressOnly,
-                (q) => q.progressMatches(ProjectLifeCycle.inProgress.name),
+                filter.showInProgress,
+                (q) => q.progressEqualTo(ProjectLifeCycle.inProgress),
               )
+              .or()
               .optional(
-                filter.plannedOnly,
-                (q) => q.progressMatches(ProjectLifeCycle.planned.name),
+                filter.showPlanned,
+                (q) => q.progressEqualTo(ProjectLifeCycle.planned),
+              )
+              .or()
+              .optional(
+                filter.showMaterials,
+                (q) => q.group(
+                  (q) => q
+                      .consumedIsNotNull()
+                      .availableIsNotNull()
+                      .neededIsNotNull(),
+                ),
               ),
         )
         .optional(
-          filter.materialsOnly,
-          (q) => q
-              .group(
-                (q) => q
-                    .neededIsNotNull()
-                    .or()
-                    .availableIsNotNull()
-                    .or()
-                    .consumedIsNotNull(),
-              )
-              .optional(
-                filter.consumedOnly > -1,
-                (q) => q.consumedGreaterThan(filter.consumedOnly),
-              )
-              .optional(
-                filter.availableOnly > -1,
-                (q) => q.availableGreaterThan(filter.availableOnly),
-              )
-              .optional(
-                filter.neededOnly > -1,
-                (q) => q.neededGreaterThan(filter.neededOnly),
-              ),
+          !filter.showProjects,
+          (q) => q.group(
+            (q) => q
+                .optional(
+                  filter.minConsumed != null,
+                  (q) => q
+                      .consumedIsNotNull()
+                      .consumedGreaterThan(filter.minConsumed! - 1),
+                )
+                .optional(
+                  filter.maxConsumed != null,
+                  (q) => q
+                      .consumedIsNotNull()
+                      .consumedLessThan(filter.maxConsumed! + 1),
+                )
+                .optional(
+                  filter.minAvailable != null,
+                  (q) => q
+                      .availableIsNotNull()
+                      .availableGreaterThan(filter.minAvailable! - 1),
+                )
+                .optional(
+                  filter.maxAvailable != null,
+                  (q) => q
+                      .availableIsNotNull()
+                      .availableLessThan(filter.maxAvailable! + 1),
+                )
+                .optional(
+                  filter.minNeeded != null,
+                  (q) => q
+                      .neededIsNotNull()
+                      .neededGreaterThan(filter.minNeeded! - 1),
+                )
+                .optional(
+                  filter.maxNeeded != null,
+                  (q) =>
+                      q.neededIsNotNull().neededLessThan(filter.maxNeeded! + 1),
+                ),
+          ),
         )
         .findAllSync();
   }

@@ -1,5 +1,5 @@
 import 'dart:convert';
-import 'dart:math' as math;
+import 'dart:ffi';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:image_picker/image_picker.dart';
@@ -102,11 +102,11 @@ class _ProductEditorState extends State<ProductEditor> {
         }
         progress = product.progress;
         consumedController.text =
-            (product.consumed != null) ? product.consumed.toString() : "";
+            (product.consumed != null) ? product.consumed.toString() : "0";
         availableController.text =
-            (product.available != null) ? product.available.toString() : "";
+            (product.available != null) ? product.available.toString() : "0";
         neededController.text =
-            (product.needed != null) ? product.needed.toString() : "";
+            (product.needed != null) ? product.needed.toString() : "0";
 
         //init other variables
 
@@ -133,6 +133,16 @@ class _ProductEditorState extends State<ProductEditor> {
         edit = product;
       }
     }
+  }
+
+  int? asMaterialValueParse(String? value) {
+    if (addAsMaterial) {
+      if (value != null && value.isNotEmpty) {
+        return int.parse(value);
+      }
+      return 0;
+    }
+    return null;
   }
 
   String? numberValidator(String? value) {
@@ -511,7 +521,13 @@ class _ProductEditorState extends State<ProductEditor> {
                                       controller: dimension['controller']
                                           as TextEditingController,
                                       validator: numberValidator,
-                                      type: TextInputType.number,
+                                      type:
+                                          const TextInputType.numberWithOptions(
+                                              signed: false),
+                                      inputFormatters: [
+                                        FilteringTextInputFormatter.allow(
+                                            RegExp('[0-9.,]'))
+                                      ],
                                     ),
                                   ),
                                   DropdownMenu<SizeUnit>(
@@ -711,16 +727,6 @@ class _ProductEditorState extends State<ProductEditor> {
                                               child: Text(value.name ??
                                                   "Materiał bez nazwy"),
                                             ),
-                                            // Flexible(
-                                            //   child: CustomTextField(
-                                            //     label: "Ilość:",
-                                            //     controller: madeFromCounts[index],
-                                            //     validator: addAsProject
-                                            //         ? numberValidator
-                                            //         : (value) => null,
-                                            //     type: TextInputType.number,
-                                            //   ),
-                                            // ),
                                             Flexible(
                                               child: IconButton(
                                                 icon: const Icon(Icons
@@ -728,17 +734,10 @@ class _ProductEditorState extends State<ProductEditor> {
                                                 onPressed: () {
                                                   List<Product> madeFromCopy =
                                                       List.of(madeFrom);
-                                                  // List<TextEditingController>
-                                                  //     madeFromCountsCopy =
-                                                  //     List.of(madeFromCounts);
                                                   madeFromCopy.removeAt(index);
-                                                  // madeFromCountsCopy
-                                                  // .removeAt(index);
                                                   setState(
                                                     () {
                                                       madeFrom = madeFromCopy;
-                                                      // madeFromCounts =
-                                                      //     madeFromCountsCopy;
                                                     },
                                                   );
                                                 },
@@ -889,16 +888,6 @@ class _ProductEditorState extends State<ProductEditor> {
                                             child: Text(value.name ??
                                                 "Projekt bez nazwy"),
                                           ),
-                                          // Flexible(
-                                          //   child: CustomTextField(
-                                          //     label: "Ilość:",
-                                          //     controller: usedInCounts[index],
-                                          //     validator: addAsProject
-                                          //         ? numberValidator
-                                          //         : (value) => null,
-                                          //     type: TextInputType.number,
-                                          //   ),
-                                          // ),
                                           Flexible(
                                             child: IconButton(
                                               icon: const Icon(
@@ -906,14 +895,9 @@ class _ProductEditorState extends State<ProductEditor> {
                                               onPressed: () {
                                                 List<Product> usedInCopy =
                                                     List.of(usedIn);
-                                                // List<TextEditingController>
-                                                //     usedInCountsCopy =
-                                                //     List.of(usedInCounts);
                                                 usedInCopy.removeAt(index);
-                                                // usedInCountsCopy.removeAt(index);
                                                 setState(() {
                                                   usedIn = usedInCopy;
-                                                  // usedInCounts = usedInCountsCopy;
                                                 });
                                               },
                                             ),
@@ -935,9 +919,6 @@ class _ProductEditorState extends State<ProductEditor> {
                     onPressed: () {
                       if (_formKey.currentState != null) {
                         if (_formKey.currentState!.validate()) {
-                          // if (edit != null) {
-                          //   db.clearProductLinked(edit!);
-                          // }
                           Product p = Product()
                             ..name = nameController.text
                             ..description = descriptionController.text
@@ -958,41 +939,38 @@ class _ProductEditorState extends State<ProductEditor> {
                             ..dimensions = Dimensions(
                               length: (lengthController.text != "")
                                   ? double.parse(lengthController.text
-                                      .replaceAll(',', '.'))
+                                      .replaceAll(RegExp(','), '.'))
                                   : null,
                               lengthDisplayUnit: SizeUnit.fromString(
                                   lengthUnitController.text),
                               width: (widthController.text != "")
-                                  ? double.parse(widthController.text)
+                                  ? double.parse(widthController.text
+                                      .replaceAll(RegExp(','), '.'))
                                   : null,
                               widthDisplayUnit:
                                   SizeUnit.fromString(widthUnitController.text),
                               height: (heightController.text != "")
-                                  ? double.parse(heightController.text)
+                                  ? double.parse(heightController.text
+                                      .replaceAll(RegExp(','), '.'))
                                   : null,
                               heightDisplayUnit: SizeUnit.fromString(
                                   heightUnitController.text),
                               projectionArea: (areaController.text != "")
-                                  ? double.parse(areaController.text)
+                                  ? double.parse(areaController.text
+                                      .replaceAll(RegExp(','), '.'))
                                   : null,
                               areaDisplayUnit: SizeUnit.fromString(
                                   areaUnitController.text.substring(
                                       0, areaUnitController.text.length - 1)),
                             )
                             ..consumed =
-                                (addAsMaterial && consumedController.text != "")
-                                    ? int.parse(consumedController.text)
-                                    : null
-                            ..available = (addAsMaterial &&
-                                    availableController.text != "")
-                                ? int.parse(availableController.text)
-                                : null
-                            ..madeFrom.addAll(madeFrom)
-                            ..usedIn.addAll(usedIn)
+                                asMaterialValueParse(consumedController.text)
+                            ..available =
+                                asMaterialValueParse(availableController.text)
                             ..needed =
-                                (addAsMaterial && neededController.text != "")
-                                    ? int.parse(neededController.text)
-                                    : null;
+                                asMaterialValueParse(neededController.text)
+                            ..madeFrom.addAll(madeFrom)
+                            ..usedIn.addAll(usedIn);
                           if (edit != null) {
                             p.id = edit!.id;
                             p.addedTimestamp = edit!.addedTimestamp;

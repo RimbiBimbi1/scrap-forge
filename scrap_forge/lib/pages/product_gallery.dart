@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:scrap_forge/db_entities/product.dart';
 import 'package:scrap_forge/isar_service.dart';
+import 'package:scrap_forge/pages/gallery_filter_menu.dart';
 import 'package:scrap_forge/utils/fetch_products.dart';
 import 'package:scrap_forge/utils/product_list_comparator.dart';
 import 'package:scrap_forge/widgets/product_strip.dart';
@@ -26,6 +27,7 @@ class _ProductGalleryState extends State<ProductGallery> {
   List<bool> selected = List.empty();
   ValueSetter? confirmSelection;
   ProductFilter baseFilter = ProductFilter();
+  // ProductFilter? customFilter;
 
   @override
   void initState() {
@@ -48,7 +50,7 @@ class _ProductGalleryState extends State<ProductGallery> {
       this.products = result;
       this.selected = List.filled(result.length, false);
       this.baseFilter = baseFilter;
-      this.asMaterials = baseFilter.materialsOnly;
+      this.asMaterials = baseFilter.showMaterials;
       this.selectionMode = selectionMode ?? false;
       this.confirmSelection = confirmSelection;
     });
@@ -58,6 +60,15 @@ class _ProductGalleryState extends State<ProductGallery> {
   Future<List<Product>> getProducts(filter) async {
     const getDbProducts = fetchProducts;
     return await getDbProducts(filter);
+  }
+
+  Future<void> onFilterUpdate(filter) async {
+    List<Product> products = await getProducts(filter);
+    setState(() {
+      this.products = products;
+      this.baseFilter = filter;
+      this.selected = List.filled(products.length, false);
+    });
   }
 
   void onTileLongPress(int index) {
@@ -78,6 +89,7 @@ class _ProductGalleryState extends State<ProductGallery> {
           (index, p) => MapEntry(
               index,
               AnimatedCrossFade(
+                  key: GlobalKey(),
                   firstChild: Row(
                     children: [
                       Flexible(
@@ -152,19 +164,16 @@ class _ProductGalleryState extends State<ProductGallery> {
                       ...(!asMaterials
                               ? ([
                                   {
-                                    // 'moveTo': ProjectLifeCycle.finished,
                                     'label': "Ukończone",
                                     'move': (Product p) =>
                                         p..progress = ProjectLifeCycle.finished
                                   },
                                   {
-                                    // 'moveTo': ProjectLifeCycle.inProgress,
                                     'label': "W trakcie realizacji",
                                     'move': (Product p) => p
                                       ..progress = ProjectLifeCycle.inProgress
                                   },
                                   {
-                                    // 'moveTo': ProjectLifeCycle.planned,
                                     'label': "Planowanie",
                                     'move': (Product p) =>
                                         p..progress = ProjectLifeCycle.planned
@@ -175,12 +184,12 @@ class _ProductGalleryState extends State<ProductGallery> {
                                     'moveTo': ProductFilter.consumedMaterials(),
                                     'label': "Wykorzystane",
                                     'move': (Product p) {
-                                      if (baseFilter.availableOnly > -1) {
+                                      if (baseFilter.minAvailable != null) {
                                         p.consumed ??= 0;
                                         p.consumed =
                                             p.consumed! + (p.available ?? 0);
                                         p.available = null;
-                                      } else if (baseFilter.neededOnly > -1) {
+                                      } else if (baseFilter.minNeeded != null) {
                                         p.consumed ??= 0;
                                         p.consumed =
                                             p.consumed! + (p.needed ?? 0);
@@ -194,12 +203,12 @@ class _ProductGalleryState extends State<ProductGallery> {
                                         ProductFilter.availableMaterials(),
                                     'label': "Dostępne",
                                     'move': (Product p) {
-                                      if (baseFilter.consumedOnly > -1) {
+                                      if (baseFilter.minConsumed != null) {
                                         p.available ??= 0;
                                         p.available =
                                             p.available! + (p.consumed ?? 0);
                                         p.consumed = null;
-                                      } else if (baseFilter.neededOnly > -1) {
+                                      } else if (baseFilter.minNeeded != null) {
                                         p.available ??= 0;
                                         p.available =
                                             p.available! + (p.needed ?? 0);
@@ -212,13 +221,13 @@ class _ProductGalleryState extends State<ProductGallery> {
                                     'moveTo': ProductFilter.neededMaterials(),
                                     'label': "Potrzebne",
                                     'move': (Product p) {
-                                      if (baseFilter.consumedOnly > -1) {
+                                      if (baseFilter.minConsumed != null) {
                                         p.needed ??= 0;
                                         p.needed =
                                             p.needed! + (p.consumed ?? 0);
                                         p.consumed = null;
-                                      } else if (baseFilter.availableOnly >
-                                          -1) {
+                                      } else if (baseFilter.minAvailable !=
+                                          null) {
                                         p.needed ??= 0;
                                         p.needed =
                                             p.needed! + (p.available ?? 0);
@@ -398,8 +407,20 @@ class _ProductGalleryState extends State<ProductGallery> {
         title: const Text("Produkty"),
         actions: [
           IconButton(
-            onPressed: () {},
-            icon: const Icon(Icons.settings),
+            onPressed: () {
+              Navigator.of(context).push(
+                MaterialPageRoute(
+                  builder: (context) => GalleryFilterMenu(
+                    setFilter: (ProductFilter filter) {
+                      onFilterUpdate(filter);
+                      Navigator.of(context).pop();
+                    },
+                    filter: baseFilter,
+                  ),
+                ),
+              );
+            },
+            icon: const Icon(Icons.filter_alt),
           ),
         ],
         centerTitle: true,
@@ -409,7 +430,7 @@ class _ProductGalleryState extends State<ProductGallery> {
           padding: const EdgeInsets.all(10),
           child: ListView(
             shrinkWrap: true,
-            children: [...displayProducts()],
+            children: displayProducts(),
           ),
         ),
       ),

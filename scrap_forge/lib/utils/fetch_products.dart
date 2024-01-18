@@ -10,74 +10,83 @@ Future<List<Product>> fetchProducts(ProductFilter filter) async {
 }
 
 class ProductFilter {
-  bool projectsOnly;
-  bool finishedOnly;
-  bool inProgressOnly;
-  bool plannedOnly;
+  String nameHas;
+  bool showProjects;
+  bool showFinished;
+  bool showInProgress;
+  bool showPlanned;
 
-  bool materialsOnly;
-  int consumedOnly;
-  int availableOnly;
-  int neededOnly;
+  bool showMaterials;
+  int? minConsumed;
+  int? minAvailable;
+  int? minNeeded;
+
+  int? maxConsumed;
+  int? maxAvailable;
+  int? maxNeeded;
 
   ProductFilter({
-    this.projectsOnly = false,
-    this.finishedOnly = false,
-    this.inProgressOnly = false,
-    this.plannedOnly = false,
-    this.materialsOnly = false,
-    this.consumedOnly = -1,
-    this.availableOnly = -1,
-    this.neededOnly = -1,
+    this.nameHas = '',
+    this.showProjects = false,
+    this.showFinished = false,
+    this.showInProgress = false,
+    this.showPlanned = false,
+    this.showMaterials = false,
+    this.minConsumed,
+    this.minAvailable,
+    this.minNeeded,
+    this.maxConsumed,
+    this.maxAvailable,
+    this.maxNeeded,
   });
 
   static ProductFilter projects() {
-    return ProductFilter(projectsOnly: true);
+    return ProductFilter(showProjects: true);
   }
 
   static ProductFilter finishedProducts() {
     return ProductFilter(
-      projectsOnly: true,
-      finishedOnly: true,
+      showProjects: true,
+      showFinished: true,
     );
   }
 
   static ProductFilter inProgressProducts() {
     return ProductFilter(
-      projectsOnly: true,
-      inProgressOnly: true,
+      showProjects: true,
+      showInProgress: true,
     );
   }
 
   static ProductFilter plannedProducts() {
     return ProductFilter(
-      projectsOnly: true,
-      plannedOnly: true,
+      showProjects: true,
+      showPlanned: true,
     );
   }
 
   static ProductFilter materials() {
-    return ProductFilter(materialsOnly: true);
+    return ProductFilter(showMaterials: true);
   }
 
   static ProductFilter consumedMaterials() {
     return ProductFilter(
-      materialsOnly: true,
-      consumedOnly: 0,
+      showMaterials: true,
+      minConsumed: 1,
     );
   }
 
   static ProductFilter availableMaterials() {
     return ProductFilter(
-      materialsOnly: true,
-      availableOnly: 0,
+      showMaterials: true,
+      minAvailable: 1,
     );
   }
 
   static ProductFilter neededMaterials() {
     return ProductFilter(
-      materialsOnly: true,
-      neededOnly: 0,
+      showMaterials: true,
+      minNeeded: 1,
     );
   }
 }

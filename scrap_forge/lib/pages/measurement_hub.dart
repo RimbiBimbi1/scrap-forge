@@ -1,7 +1,6 @@
 import 'dart:typed_data';
 
 import 'package:flutter/material.dart';
-import 'package:image/image.dart' as imgLib;
 import 'package:image_picker/image_picker.dart';
 import 'package:scrap_forge/db_entities/appSettings.dart';
 import 'package:scrap_forge/pages/framing.dart';
