@@ -41,7 +41,7 @@ class CustomTextField extends StatelessWidget {
         keyboardType: type,
         maxLines: maxLines,
         decoration: InputDecoration(
-          errorMaxLines: 4,
+          errorMaxLines: 5,
           label: label,
           enabledBorder: OutlineInputBorder(
               borderSide:

@@ -4,8 +4,9 @@ import 'package:scrap_forge/db_entities/product.dart';
 import 'package:scrap_forge/utils/fetch_products.dart';
 import 'package:scrap_forge/utils/safe_calculator.dart';
 import 'package:scrap_forge/widgets/custom_text_field.dart';
-import 'package:scrap_forge/widgets/min_max_input.dart';
+import 'package:scrap_forge/widgets/input_reset_switch.dart';
 import 'package:scrap_forge/widgets/settings_section.dart';
+import 'package:scrap_forge/widgets/shared_input_error.dart';
 
 class GalleryFilterMenu extends StatefulWidget {
   final void Function(ProductFilter filter) setFilter;
@@ -116,6 +117,23 @@ class _GalleryFilterMenuState extends State<GalleryFilterMenu> {
         SizeUnit.millimeter);
   }
 
+  String? minMaxValidator(TextEditingController minController,
+      TextEditingController maxController) {
+    if (minController.text.isEmpty && maxController.text.isEmpty) {
+      return null;
+    }
+    num? minValue = filterFieldValue(minController.text);
+    num? maxValue = filterFieldValue(maxController.text);
+    if ((minController.text.isNotEmpty && minValue == null) ||
+        (maxController.text.isNotEmpty && maxValue == null)) {
+      return "Wpisz liczbę dodatnią, lub pozostaw pole puste.";
+    }
+    if (minValue != null && maxValue != null && minValue > maxValue) {
+      return "Wartość minimalna nie może być większa od maksymalnej";
+    }
+    return null;
+  }
+
   String getInitialDimensionFilter(double? value, SizeUnit? unit) {
     return (SafeCalculator.divide(
               value,
@@ -134,6 +152,41 @@ class _GalleryFilterMenuState extends State<GalleryFilterMenu> {
       return null;
     }
     return value;
+  }
+
+  List<Widget> minMaxInputs({
+    required TextEditingController minController,
+    required TextEditingController maxController,
+    required void Function(bool value) onSwitched,
+    required TextInputType type,
+    required List<TextInputFormatter> inputFormatters,
+  }) {
+    return [
+      CustomTextField(
+        label: const Text("Od:"),
+        type: type,
+        inputFormatters: inputFormatters,
+        controller: minController,
+        validator: (value) => null,
+        onChanged: (value) {
+          bool shouldEnable = value != null && value.isNotEmpty ||
+              maxController.text.isNotEmpty;
+          onSwitched(shouldEnable);
+        },
+      ),
+      CustomTextField(
+        label: const Text("Do:"),
+        type: type,
+        inputFormatters: inputFormatters,
+        controller: maxController,
+        validator: (value) => null,
+        onChanged: (value) {
+          bool shouldEnable = value != null && value.isNotEmpty ||
+              minController.text.isNotEmpty;
+          onSwitched(shouldEnable);
+        },
+      ),
+    ];
   }
 
   @override
@@ -218,12 +271,12 @@ class _GalleryFilterMenuState extends State<GalleryFilterMenu> {
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
                   CustomTextField(
-                    label: Text("Nazwa:"),
+                    label: const Text("Nazwa:"),
                     controller: nameController,
                     validator: (value) => null,
                   ),
                   CustomTextField(
-                    label: Text("Kategoria:"),
+                    label: const Text("Kategoria:"),
                     controller: categoryController,
                     validator: (value) => null,
                   ),
@@ -302,7 +355,7 @@ class _GalleryFilterMenuState extends State<GalleryFilterMenu> {
                           return SwitchListTile(
                             activeColor: theme.colorScheme.primary,
                             contentPadding: const EdgeInsets.all(0),
-                            title: Text("Wyświetl materiały:"),
+                            title: const Text("Wyświetl materiały:"),
                             value: enableMaterials,
                             onChanged: (value) {
                               if (!value) {
@@ -391,12 +444,47 @@ class _GalleryFilterMenuState extends State<GalleryFilterMenu> {
                             progress['minController'] as TextEditingController;
                         TextEditingController maxController =
                             progress['maxController'] as TextEditingController;
-                        return MinMaxInput(
-                          label: label,
-                          enabled: enabled,
-                          minController: minController,
-                          maxController: maxController,
-                          onSwitched: onSwitched,
+
+                        return Column(
+                          crossAxisAlignment: CrossAxisAlignment.stretch,
+                          mainAxisAlignment: MainAxisAlignment.start,
+                          children: [
+                            InputResetSwitch(
+                              label: label,
+                              enabled: enabled,
+                              onSwitched: onSwitched,
+                            ),
+                            Row(
+                              mainAxisSize: MainAxisSize.min,
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: minMaxInputs(
+                                minController: minController,
+                                maxController: maxController,
+                                onSwitched: onSwitched,
+                                type: const TextInputType.numberWithOptions(
+                                  signed: false,
+                                  decimal: false,
+                                ),
+                                inputFormatters: [
+                                  FilteringTextInputFormatter.digitsOnly
+                                ],
+                              )
+                                  .map((widget) => Flexible(child: widget))
+                                  .toList(),
+                            ),
+                            Row(
+                              children: [
+                                Flexible(
+                                  child: SharedErrorField(
+                                    validator: (value) => minMaxValidator(
+                                      minController,
+                                      maxController,
+                                    ),
+                                  ),
+                                ),
+                              ],
+                            )
+                          ],
                         );
                       },
                     ).toList(),
@@ -496,117 +584,31 @@ class _GalleryFilterMenuState extends State<GalleryFilterMenu> {
                           crossAxisAlignment: CrossAxisAlignment.stretch,
                           mainAxisAlignment: MainAxisAlignment.start,
                           children: [
-                            Row(
-                              mainAxisSize: MainAxisSize.min,
-                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                              children: [
-                                Flexible(
-                                  flex: 4,
-                                  fit: FlexFit.tight,
-                                  child: Padding(
-                                    padding: const EdgeInsets.symmetric(
-                                        vertical: 20.0),
-                                    child: Text(
-                                      label ?? '',
-                                      textScaleFactor: 1.1,
-                                    ),
-                                  ),
-                                ),
-                                Flexible(
-                                  fit: FlexFit.tight,
-                                  child: AnimatedCrossFade(
-                                    firstChild: Container(),
-                                    secondChild: FormField<bool>(
-                                      initialValue: enabled,
-                                      builder: (FormFieldState<bool> field) {
-                                        return SwitchListTile(
-                                          activeColor:
-                                              theme.colorScheme.primary,
-                                          contentPadding:
-                                              const EdgeInsets.all(0),
-                                          value: enabled,
-                                          onChanged: onSwitched,
-                                        );
-                                      },
-                                    ),
-                                    crossFadeState: enabled
-                                        ? CrossFadeState.showSecond
-                                        : CrossFadeState.showFirst,
-                                    duration: const Duration(milliseconds: 200),
-                                  ),
-                                )
-                              ],
+                            InputResetSwitch(
+                              label: label,
+                              enabled: enabled,
+                              onSwitched: onSwitched,
                             ),
                             Row(
                               mainAxisSize: MainAxisSize.min,
                               mainAxisAlignment: MainAxisAlignment.center,
                               children: [
-                                Flexible(
-                                  child: CustomTextField(
-                                    label: Text("Od:"),
-                                    type: const TextInputType.numberWithOptions(
-                                        signed: false, decimal: true),
-                                    inputFormatters: [
-                                      FilteringTextInputFormatter.allow(
-                                          RegExp('[0-9.,]'))
-                                    ],
-                                    controller: minController,
-                                    validator: (value) {
-                                      if (value != null) {
-                                        double? minValue = double.tryParse(
-                                            value.replaceAll(RegExp(','), '.'));
-                                        double? maxValue =
-                                            filterFieldValue(maxController.text)
-                                                ?.toDouble();
-                                        if (minValue == null ||
-                                            maxValue == null ||
-                                            minValue <= maxValue) {
-                                          return null;
-                                        }
-                                        return "Wartość minimalna nie może być większa od maksymalnej";
-                                      }
-                                      return "Wpisz liczbę dodatnią, lub pozostaw to pole puste.";
-                                    },
-                                    onChanged: (value) {
-                                      bool shouldEnable =
-                                          value != null && value.isNotEmpty ||
-                                              maxController.text.isNotEmpty;
-                                      onSwitched(shouldEnable);
-                                    },
+                                ...minMaxInputs(
+                                  minController: minController,
+                                  maxController: maxController,
+                                  onSwitched: onSwitched,
+                                  type: const TextInputType.numberWithOptions(
+                                    signed: false,
+                                    decimal: false,
                                   ),
-                                ),
-                                Flexible(
-                                  child: CustomTextField(
-                                    label: Text("Do:"),
-                                    type: const TextInputType.numberWithOptions(
-                                        signed: false, decimal: true),
-                                    inputFormatters: [
-                                      FilteringTextInputFormatter.allow(
-                                          RegExp('[0-9.,]'))
-                                    ],
-                                    controller: maxController,
-                                    validator: (value) {
-                                      if (value == null || value.isEmpty) {
-                                        return null;
-                                      }
-
-                                      double? maxValue = double.tryParse(
-                                          value.replaceAll(RegExp(','), '.'));
-
-                                      if (maxValue != null) {
-                                        return null;
-                                      }
-
-                                      return "Wpisz liczbę dodatnią, lub pozostaw to pole puste.";
-                                    },
-                                    onChanged: (value) {
-                                      bool shouldEnable =
-                                          value != null && value.isNotEmpty ||
-                                              minController.text.isNotEmpty;
-                                      onSwitched(shouldEnable);
-                                    },
-                                  ),
-                                ),
+                                  inputFormatters: [
+                                    FilteringTextInputFormatter.allow(
+                                      RegExp('[0-9.,]'),
+                                    )
+                                  ],
+                                )
+                                    .map((widget) => Flexible(child: widget))
+                                    .toList(),
                                 Flexible(
                                     child: DropdownMenu<SizeUnit>(
                                   width: 100,
@@ -636,21 +638,40 @@ class _GalleryFilterMenuState extends State<GalleryFilterMenu> {
                                 ))
                               ],
                             ),
+                            //Error field
+                            Row(
+                              children: [
+                                Flexible(
+                                  child: SharedErrorField(
+                                    validator: (value) => minMaxValidator(
+                                      minController,
+                                      maxController,
+                                    ),
+                                  ),
+                                ),
+                              ],
+                            )
                           ],
                         );
                       }).toList(),
                     ],
                   ),
-                  SettingsSection(header: Text("Data dodania:"), children: [
-                    SettingsSection(header: Text("Wieksze niż:"), children: []),
-                    SettingsSection(
-                        header: Text("Mniejsze niż:"), children: []),
-                  ]),
-                  SettingsSection(header: Text("Data ukończenia:"), children: [
-                    SettingsSection(header: Text("Wieksze niż:"), children: []),
-                    SettingsSection(
-                        header: Text("Mniejsze niż:"), children: []),
-                  ]),
+                  const SettingsSection(
+                      header: Text("Data dodania:"),
+                      children: [
+                        SettingsSection(
+                            header: Text("Wieksze niż:"), children: []),
+                        SettingsSection(
+                            header: Text("Mniejsze niż:"), children: []),
+                      ]),
+                  const SettingsSection(
+                      header: Text("Data ukończenia:"),
+                      children: [
+                        SettingsSection(
+                            header: Text("Wieksze niż:"), children: []),
+                        SettingsSection(
+                            header: Text("Mniejsze niż:"), children: []),
+                      ]),
                 ],
               ),
             ),

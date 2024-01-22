@@ -1,5 +1,4 @@
 import 'dart:convert';
-import 'dart:ffi';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:image_picker/image_picker.dart';
@@ -9,10 +8,11 @@ import 'package:scrap_forge/utils/fetch_products.dart';
 import 'package:scrap_forge/utils/safe_calculator.dart';
 import 'package:scrap_forge/utils/string_multiliner.dart';
 import 'package:scrap_forge/widgets/custom_text_field.dart';
+import 'package:scrap_forge/widgets/shared_input_error.dart';
 
 class ProductEditor extends StatefulWidget {
-  BuildContext context;
-  ProductEditor({super.key, required this.context});
+  final BuildContext context;
+  const ProductEditor({super.key, required this.context});
 
   @override
   State<ProductEditor> createState() => _ProductEditorState();
@@ -393,7 +393,7 @@ class _ProductEditorState extends State<ProductEditor> {
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
                   CustomTextField(
-                    label: Text("Nazwa:"),
+                    label: const Text("Nazwa:"),
                     controller: nameController,
                     validator: (value) {
                       if (value == null || value.isEmpty || value == "") {
@@ -403,14 +403,14 @@ class _ProductEditorState extends State<ProductEditor> {
                     },
                   ),
                   CustomTextField(
-                    label: Text("Kategoria:"),
+                    label: const Text("Kategoria:"),
                     controller: categoryController,
                     validator: (value) {
                       return null;
                     },
                   ),
                   CustomTextField(
-                    label: Text("Opis:"),
+                    label: const Text("Opis:"),
                     controller: descriptionController,
                     validator: (value) {
                       return null;
@@ -660,7 +660,7 @@ class _ProductEditorState extends State<ProductEditor> {
                         children: [
                           Flexible(
                             child: CustomTextField(
-                              label: Text("Powierzchnia rzutu:"),
+                              label: const Text("Powierzchnia rzutu:"),
                               controller: areaController,
                               validator: numberValidator,
                               type: TextInputType.number,
@@ -741,7 +741,7 @@ class _ProductEditorState extends State<ProductEditor> {
                           firstChild: Column(
                             children: [
                               CustomTextField(
-                                label: Text("Ilość:"),
+                                label: const Text("Ilość:"),
                                 controller: countController,
                                 validator: numberValidator,
                               ),
@@ -900,7 +900,7 @@ class _ProductEditorState extends State<ProductEditor> {
                               children: [
                                 Flexible(
                                   child: CustomTextField(
-                                    label: Text("Użyte:"),
+                                    label: const Text("Użyte:"),
                                     controller: consumedController,
                                     validator: addAsMaterial
                                         ? numberValidator
@@ -910,7 +910,7 @@ class _ProductEditorState extends State<ProductEditor> {
                                 ),
                                 Flexible(
                                   child: CustomTextField(
-                                    label: Text("Dostępne:"),
+                                    label: const Text("Dostępne:"),
                                     controller: availableController,
                                     validator: addAsMaterial
                                         ? numberValidator
@@ -920,7 +920,7 @@ class _ProductEditorState extends State<ProductEditor> {
                                 ),
                                 Flexible(
                                   child: CustomTextField(
-                                    label: Text("Potrzebne"),
+                                    label: const Text("Potrzebne"),
                                     controller: neededController,
                                     validator: addAsMaterial
                                         ? numberValidator
@@ -930,16 +930,7 @@ class _ProductEditorState extends State<ProductEditor> {
                                 )
                               ],
                             ),
-                            SizedBox(
-                              height: 25,
-                              child: TextFormField(
-                                maxLines: 1,
-                                validator: switchValidator,
-                                readOnly: true,
-
-                                // enabled: false,
-                              ),
-                            ),
+                            SharedErrorField(validator: switchValidator),
                             Row(
                               mainAxisAlignment: MainAxisAlignment.spaceBetween,
                               children: [
@@ -1010,6 +1001,8 @@ class _ProductEditorState extends State<ProductEditor> {
                       )
                     ],
                   ),
+                  if (!addAsMaterial && !addAsProject)
+                    SharedErrorField(validator: switchValidator),
                   ElevatedButton(
                     onPressed: confirmEdit,
                     child: const Text("Zapisz"),

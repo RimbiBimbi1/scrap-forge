@@ -147,15 +147,15 @@ class IsarService {
             (q) => q
                 .optional(
                   filter.minDimensions!.length != null,
-                  (q) => q.lengthGreaterThan(filter.minDimensions!.length),
+                  (q) => q.lengthGreaterThan(filter.minDimensions!.length! - 1),
                 )
                 .optional(
                   filter.minDimensions!.width != null,
-                  (q) => q.widthGreaterThan(filter.minDimensions!.width),
+                  (q) => q.widthGreaterThan(filter.minDimensions!.width! - 1),
                 )
                 .optional(
                   filter.minDimensions!.height != null,
-                  (q) => q.heightGreaterThan(filter.minDimensions!.height),
+                  (q) => q.heightGreaterThan(filter.minDimensions!.height! - 1),
                 ),
           ),
         )
@@ -165,15 +165,15 @@ class IsarService {
             (q) => q
                 .optional(
                   filter.maxDimensions!.length != null,
-                  (q) => q.lengthLessThan(filter.maxDimensions!.length),
+                  (q) => q.lengthLessThan(filter.maxDimensions!.length! + 1),
                 )
                 .optional(
                   filter.maxDimensions!.width != null,
-                  (q) => q.widthLessThan(filter.maxDimensions!.width),
+                  (q) => q.widthLessThan(filter.maxDimensions!.width! + 1),
                 )
                 .optional(
                   filter.maxDimensions!.height != null,
-                  (q) => q.heightLessThan(filter.maxDimensions!.height),
+                  (q) => q.heightLessThan(filter.maxDimensions!.height! + 1),
                 ),
           ),
         )

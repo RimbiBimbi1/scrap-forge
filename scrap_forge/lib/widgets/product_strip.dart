@@ -8,10 +8,10 @@ import 'package:scrap_forge/utils/dimension_formatter.dart';
 import 'package:scrap_forge/utils/string_multiliner.dart';
 
 class ProductStrip extends StatefulWidget {
-  Product product;
-  bool asMaterial;
-  VoidCallback? onLongPress;
-  VoidCallback? onPressed;
+  final Product product;
+  final bool asMaterial;
+  final VoidCallback? onLongPress;
+  final VoidCallback? onPressed;
   ProductStrip({
     super.key,
     required this.product,
