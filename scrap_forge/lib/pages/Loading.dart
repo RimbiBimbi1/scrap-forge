@@ -1,18 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:rive/rive.dart';
 
-class Loading extends StatefulWidget {
+class Loading extends StatelessWidget {
   const Loading({super.key});
-
-  @override
-  State<Loading> createState() => _LoadingState();
-}
-
-class _LoadingState extends State<Loading> {
-  @override
-  void initState() {
-    super.initState();
-  }
 
   @override
   Widget build(BuildContext context) {

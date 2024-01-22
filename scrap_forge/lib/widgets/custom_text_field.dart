@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
 class CustomTextField extends StatelessWidget {
-  final String label;
+  final Widget? label;
   final TextInputType type;
   final int? maxLines;
   final String? initialValue;
@@ -42,13 +42,12 @@ class CustomTextField extends StatelessWidget {
         maxLines: maxLines,
         decoration: InputDecoration(
           errorMaxLines: 4,
-          label: Text(
-            label,
-          ),
+          label: label,
           enabledBorder: OutlineInputBorder(
               borderSide:
                   BorderSide(color: theme.colorScheme.outline, width: 1)),
-          contentPadding: const EdgeInsets.all(18),
+          contentPadding:
+              const EdgeInsets.symmetric(vertical: 20, horizontal: 10),
         ),
       ),
     );

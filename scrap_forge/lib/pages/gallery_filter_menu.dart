@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:scrap_forge/db_entities/product.dart';
 import 'package:scrap_forge/utils/fetch_products.dart';
+import 'package:scrap_forge/utils/safe_calculator.dart';
 import 'package:scrap_forge/widgets/custom_text_field.dart';
+import 'package:scrap_forge/widgets/min_max_input.dart';
 import 'package:scrap_forge/widgets/settings_section.dart';
-import 'dart:math';
 
 class GalleryFilterMenu extends StatefulWidget {
   final void Function(ProductFilter filter) setFilter;
@@ -34,34 +36,104 @@ class _GalleryFilterMenuState extends State<GalleryFilterMenu> {
   TextEditingController maxAvaliable = TextEditingController();
   TextEditingController maxNeeded = TextEditingController();
 
+  bool enableLength = false;
+  bool enableWidth = false;
+  bool enableHeight = false;
+
+  TextEditingController minLength = TextEditingController();
+  TextEditingController minWidth = TextEditingController();
+  TextEditingController minHeight = TextEditingController();
+  TextEditingController maxLength = TextEditingController();
+  TextEditingController maxWidth = TextEditingController();
+  TextEditingController maxHeight = TextEditingController();
+
+  final lengthUnitController = TextEditingController();
+  SizeUnit lengthUnit = SizeUnit.millimeter;
+  final widthUnitController = TextEditingController();
+  SizeUnit widthUnit = SizeUnit.millimeter;
+  final heightUnitController = TextEditingController();
+  SizeUnit heightUnit = SizeUnit.millimeter;
+
   @override
   void initState() {
     super.initState();
     ProductFilter filter = widget.filter;
 
     this.customFilter = filter;
+
     enableMaterials = filter.showMaterials;
     enableConsumed = filter.minConsumed != null || filter.maxConsumed != null;
     enableAvailable =
         filter.minAvailable != null || filter.maxAvailable != null;
     enableNeeded = filter.minNeeded != null || filter.maxNeeded != null;
+
     minConsumed.text = (filter.minConsumed ?? '').toString();
     minAvaliable.text = (filter.minAvailable ?? '').toString();
     minNeeded.text = (filter.minNeeded ?? '').toString();
     maxConsumed.text = (filter.maxConsumed ?? '').toString();
     maxAvaliable.text = (filter.maxAvailable ?? '').toString();
     maxNeeded.text = (filter.maxNeeded ?? '').toString();
+
+    minLength.text = getInitialDimensionFilter(
+      filter.minDimensions?.length,
+      filter.minDimensions?.lengthDisplayUnit,
+    );
+
+    minWidth.text = getInitialDimensionFilter(
+      filter.minDimensions?.width,
+      filter.minDimensions?.widthDisplayUnit,
+    );
+    minHeight.text = getInitialDimensionFilter(
+      filter.minDimensions?.height,
+      filter.minDimensions?.heightDisplayUnit,
+    );
+
+    maxLength.text = getInitialDimensionFilter(
+      filter.maxDimensions?.length,
+      filter.maxDimensions?.lengthDisplayUnit,
+    );
+    maxWidth.text = getInitialDimensionFilter(
+      filter.maxDimensions?.width,
+      filter.maxDimensions?.widthDisplayUnit,
+    );
+    maxHeight.text = getInitialDimensionFilter(
+      filter.maxDimensions?.height,
+      filter.maxDimensions?.heightDisplayUnit,
+    );
+
+    enableLength = (minLength.text.isNotEmpty || maxLength.text.isNotEmpty);
+    enableWidth = (minWidth.text.isNotEmpty || maxWidth.text.isNotEmpty);
+    enableHeight = (minHeight.text.isNotEmpty || maxHeight.text.isNotEmpty);
+
+    lengthUnit = (filter.minDimensions?.lengthDisplayUnit ??
+        filter.maxDimensions?.lengthDisplayUnit ??
+        SizeUnit.millimeter);
+    widthUnit = (filter.minDimensions?.widthDisplayUnit ??
+        filter.maxDimensions?.widthDisplayUnit ??
+        SizeUnit.millimeter);
+    heightUnit = (filter.minDimensions?.heightDisplayUnit ??
+        filter.maxDimensions?.heightDisplayUnit ??
+        SizeUnit.millimeter);
   }
 
-  int? filterFieldValue(
-    bool enabled,
-    String? input, {
-    int? ifDisabled = null,
-    int? ifEmpty = null,
-  }) {
-    if (!enabled) return ifDisabled;
-    if (input == null || input.isEmpty) return ifEmpty;
-    return int.tryParse(input);
+  String getInitialDimensionFilter(double? value, SizeUnit? unit) {
+    return (SafeCalculator.divide(
+              value,
+              unit?.multiplier,
+            ) ??
+            '')
+        .toString();
+  }
+
+  num? filterFieldValue(String? input) {
+    if (input == null || input.isEmpty) {
+      return null;
+    }
+    num? value = double.tryParse(input.replaceAll(RegExp(','), '.'));
+    if (value == null) {
+      return null;
+    }
+    return value;
   }
 
   @override
@@ -85,29 +157,49 @@ class _GalleryFilterMenuState extends State<GalleryFilterMenu> {
                           customFilter.showPlanned
                       ..showMaterials = enableMaterials
                       ..nameHas = nameController.text
-                      ..minConsumed = filterFieldValue(
-                        enableConsumed,
-                        minConsumed.text,
+                      ..minConsumed =
+                          filterFieldValue(minConsumed.text)?.toInt()
+                      ..minAvailable =
+                          filterFieldValue(minAvaliable.text)?.toInt()
+                      ..minNeeded = filterFieldValue(minNeeded.text)?.toInt()
+                      ..maxConsumed =
+                          filterFieldValue(maxConsumed.text)?.toInt()
+                      ..maxAvailable =
+                          filterFieldValue(maxAvaliable.text)?.toInt()
+                      ..maxNeeded = filterFieldValue(maxNeeded.text)?.toInt()
+                      ..minDimensions = Dimensions(
+                        length: SafeCalculator.multiply(
+                          filterFieldValue(minLength.text)?.toDouble(),
+                          lengthUnit.multiplier,
+                        )?.toDouble(),
+                        width: SafeCalculator.multiply(
+                          filterFieldValue(minWidth.text)?.toDouble(),
+                          widthUnit.multiplier,
+                        )?.toDouble(),
+                        height: SafeCalculator.multiply(
+                          filterFieldValue(minHeight.text)?.toDouble(),
+                          heightUnit.multiplier,
+                        )?.toDouble(),
+                        lengthDisplayUnit: lengthUnit,
+                        widthDisplayUnit: widthUnit,
+                        heightDisplayUnit: heightUnit,
                       )
-                      ..minAvailable = filterFieldValue(
-                        enableAvailable,
-                        minAvaliable.text,
-                      )
-                      ..minNeeded = filterFieldValue(
-                        enableNeeded,
-                        minNeeded.text,
-                      )
-                      ..maxConsumed = filterFieldValue(
-                        enableConsumed,
-                        maxConsumed.text,
-                      )
-                      ..maxAvailable = filterFieldValue(
-                        enableAvailable,
-                        maxAvaliable.text,
-                      )
-                      ..maxNeeded = filterFieldValue(
-                        enableNeeded,
-                        maxNeeded.text,
+                      ..maxDimensions = Dimensions(
+                        length: SafeCalculator.multiply(
+                                filterFieldValue(maxLength.text)?.toDouble(),
+                                lengthUnit.multiplier)
+                            ?.toDouble(),
+                        width: SafeCalculator.multiply(
+                          filterFieldValue(maxWidth.text)?.toDouble(),
+                          widthUnit.multiplier,
+                        )?.toDouble(),
+                        height: SafeCalculator.multiply(
+                                filterFieldValue(maxHeight.text)?.toDouble(),
+                                heightUnit.multiplier)
+                            ?.toDouble(),
+                        lengthDisplayUnit: lengthUnit,
+                        widthDisplayUnit: widthUnit,
+                        heightDisplayUnit: heightUnit,
                       ),
                   );
                 }
@@ -126,12 +218,12 @@ class _GalleryFilterMenuState extends State<GalleryFilterMenu> {
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
                   CustomTextField(
-                    label: "Nazwa:",
+                    label: Text("Nazwa:"),
                     controller: nameController,
                     validator: (value) => null,
                   ),
                   CustomTextField(
-                    label: "Kategoria:",
+                    label: Text("Kategoria:"),
                     controller: categoryController,
                     validator: (value) => null,
                   ),
@@ -299,7 +391,107 @@ class _GalleryFilterMenuState extends State<GalleryFilterMenu> {
                             progress['minController'] as TextEditingController;
                         TextEditingController maxController =
                             progress['maxController'] as TextEditingController;
-
+                        return MinMaxInput(
+                          label: label,
+                          enabled: enabled,
+                          minController: minController,
+                          maxController: maxController,
+                          onSwitched: onSwitched,
+                        );
+                      },
+                    ).toList(),
+                  ),
+                  SettingsSection(
+                    header: Container(
+                      padding: const EdgeInsets.symmetric(vertical: 10),
+                      decoration: BoxDecoration(
+                        border: BorderDirectional(
+                          bottom: BorderSide(
+                              color: theme.colorScheme.outline, width: 2),
+                        ),
+                      ),
+                      child: const Text(
+                        "Wymiary:",
+                        textScaleFactor: 1.2,
+                      ),
+                    ),
+                    children: [
+                      ...[
+                        {
+                          'label': "Długość:",
+                          'enabled': enableLength,
+                          'onChanged': (bool enabled) {
+                            if (!enabled) {
+                              minLength.text = '';
+                              maxLength.text = '';
+                            }
+                            setState(() {
+                              enableLength = enabled;
+                            });
+                          },
+                          'minController': minLength,
+                          'maxController': maxLength,
+                          'unitController': lengthUnitController,
+                          'unit': lengthUnit,
+                          'setUnit': (value) {
+                            setState(() {
+                              lengthUnit = value ?? SizeUnit.millimeter;
+                            });
+                          }
+                        },
+                        {
+                          'label': "Szerokość:",
+                          'enabled': enableWidth,
+                          'onChanged': (bool enabled) {
+                            if (!enabled) {
+                              minWidth.text = '';
+                              maxWidth.text = '';
+                            }
+                            setState(() {
+                              enableWidth = enabled;
+                            });
+                          },
+                          'minController': minWidth,
+                          'maxController': maxWidth,
+                          'unitController': widthUnitController,
+                          'unit': widthUnit,
+                          'setUnit': (value) {
+                            setState(() {
+                              widthUnit = value ?? SizeUnit.millimeter;
+                            });
+                          }
+                        },
+                        {
+                          'label': "Wysokość:",
+                          'enabled': enableHeight,
+                          'onChanged': (bool enabled) {
+                            if (!enabled) {
+                              minHeight.text = '';
+                              maxHeight.text = '';
+                            }
+                            setState(() {
+                              enableHeight = enabled;
+                            });
+                          },
+                          'minController': minHeight,
+                          'maxController': maxHeight,
+                          'unitController': heightUnitController,
+                          'unit': heightUnit,
+                          'setUnit': (value) {
+                            setState(() {
+                              heightUnit = value ?? SizeUnit.millimeter;
+                            });
+                          }
+                        },
+                      ].map((dim) {
+                        String label = dim['label'] as String;
+                        bool enabled = dim['enabled'] as bool;
+                        void Function(bool value) onSwitched =
+                            dim['onChanged'] as void Function(bool val);
+                        TextEditingController minController =
+                            dim['minController'] as TextEditingController;
+                        TextEditingController maxController =
+                            dim['maxController'] as TextEditingController;
                         return Column(
                           crossAxisAlignment: CrossAxisAlignment.stretch,
                           mainAxisAlignment: MainAxisAlignment.start,
@@ -309,10 +501,15 @@ class _GalleryFilterMenuState extends State<GalleryFilterMenu> {
                               mainAxisAlignment: MainAxisAlignment.spaceBetween,
                               children: [
                                 Flexible(
+                                  flex: 4,
+                                  fit: FlexFit.tight,
                                   child: Padding(
                                     padding: const EdgeInsets.symmetric(
                                         vertical: 20.0),
-                                    child: Text(label),
+                                    child: Text(
+                                      label ?? '',
+                                      textScaleFactor: 1.1,
+                                    ),
                                   ),
                                 ),
                                 Flexible(
@@ -335,7 +532,7 @@ class _GalleryFilterMenuState extends State<GalleryFilterMenu> {
                                     crossFadeState: enabled
                                         ? CrossFadeState.showSecond
                                         : CrossFadeState.showFirst,
-                                    duration: Duration(milliseconds: 200),
+                                    duration: const Duration(milliseconds: 200),
                                   ),
                                 )
                               ],
@@ -346,19 +543,21 @@ class _GalleryFilterMenuState extends State<GalleryFilterMenu> {
                               children: [
                                 Flexible(
                                   child: CustomTextField(
-                                    label: "Co najmniej:",
+                                    label: Text("Od:"),
                                     type: const TextInputType.numberWithOptions(
-                                        signed: false),
+                                        signed: false, decimal: true),
                                     inputFormatters: [
-                                      FilteringTextInputFormatter.digitsOnly
+                                      FilteringTextInputFormatter.allow(
+                                          RegExp('[0-9.,]'))
                                     ],
-                                    controller: progress['minController']
-                                        as TextEditingController,
+                                    controller: minController,
                                     validator: (value) {
                                       if (value != null) {
-                                        int? minValue = int.tryParse(value);
-                                        int? maxValue = filterFieldValue(
-                                            true, maxController.text);
+                                        double? minValue = double.tryParse(
+                                            value.replaceAll(RegExp(','), '.'));
+                                        double? maxValue =
+                                            filterFieldValue(maxController.text)
+                                                ?.toDouble();
                                         if (minValue == null ||
                                             maxValue == null ||
                                             minValue <= maxValue) {
@@ -366,7 +565,7 @@ class _GalleryFilterMenuState extends State<GalleryFilterMenu> {
                                         }
                                         return "Wartość minimalna nie może być większa od maksymalnej";
                                       }
-                                      return "Wpisz dodatnią liczbę całkowitą, lub pozostaw to pole puste.";
+                                      return "Wpisz liczbę dodatnią, lub pozostaw to pole puste.";
                                     },
                                     onChanged: (value) {
                                       bool shouldEnable =
@@ -378,26 +577,27 @@ class _GalleryFilterMenuState extends State<GalleryFilterMenu> {
                                 ),
                                 Flexible(
                                   child: CustomTextField(
-                                    label: "Co najwyżej:",
+                                    label: Text("Do:"),
                                     type: const TextInputType.numberWithOptions(
-                                        signed: false),
+                                        signed: false, decimal: true),
                                     inputFormatters: [
-                                      FilteringTextInputFormatter.digitsOnly
+                                      FilteringTextInputFormatter.allow(
+                                          RegExp('[0-9.,]'))
                                     ],
-                                    controller: progress['maxController']
-                                        as TextEditingController,
+                                    controller: maxController,
                                     validator: (value) {
                                       if (value == null || value.isEmpty) {
                                         return null;
                                       }
 
-                                      int? maxValue = int.tryParse(value);
+                                      double? maxValue = double.tryParse(
+                                          value.replaceAll(RegExp(','), '.'));
 
                                       if (maxValue != null) {
                                         return null;
                                       }
 
-                                      return "Wpisz dodatnią liczbę całkowitą, lub pozostaw to pole puste.";
+                                      return "Wpisz liczbę dodatnią, lub pozostaw to pole puste.";
                                     },
                                     onChanged: (value) {
                                       bool shouldEnable =
@@ -407,14 +607,46 @@ class _GalleryFilterMenuState extends State<GalleryFilterMenu> {
                                     },
                                   ),
                                 ),
+                                Flexible(
+                                    child: DropdownMenu<SizeUnit>(
+                                  width: 100,
+                                  inputDecorationTheme: InputDecorationTheme(
+                                    contentPadding: const EdgeInsets.symmetric(
+                                        vertical: 22, horizontal: 10),
+                                    enabledBorder: OutlineInputBorder(
+                                      borderSide: BorderSide(
+                                          color: theme.colorScheme.outline,
+                                          width: 1),
+                                    ),
+                                  ),
+                                  dropdownMenuEntries: const [
+                                    DropdownMenuEntry(
+                                        value: SizeUnit.millimeter,
+                                        label: "mm"),
+                                    DropdownMenuEntry(
+                                        value: SizeUnit.centimeter,
+                                        label: "cm"),
+                                    DropdownMenuEntry(
+                                        value: SizeUnit.meter, label: "m"),
+                                  ],
+                                  initialSelection: dim['unit'] as SizeUnit,
+                                  controller: dim['unitController']
+                                      as TextEditingController,
+                                  onSelected: dim['setUnit'] as ValueSetter,
+                                ))
                               ],
                             ),
                           ],
                         );
-                      },
-                    ).toList(),
+                      }).toList(),
+                    ],
                   ),
-                  SettingsSection(header: Text("Wymiary:"), children: [
+                  SettingsSection(header: Text("Data dodania:"), children: [
+                    SettingsSection(header: Text("Wieksze niż:"), children: []),
+                    SettingsSection(
+                        header: Text("Mniejsze niż:"), children: []),
+                  ]),
+                  SettingsSection(header: Text("Data ukończenia:"), children: [
                     SettingsSection(header: Text("Wieksze niż:"), children: []),
                     SettingsSection(
                         header: Text("Mniejsze niż:"), children: []),

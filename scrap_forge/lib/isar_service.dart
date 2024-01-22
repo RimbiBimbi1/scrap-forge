@@ -141,6 +141,42 @@ class IsarService {
                 ),
           ),
         )
+        .optional(
+          filter.minDimensions != null,
+          (q) => q.dimensions(
+            (q) => q
+                .optional(
+                  filter.minDimensions!.length != null,
+                  (q) => q.lengthGreaterThan(filter.minDimensions!.length),
+                )
+                .optional(
+                  filter.minDimensions!.width != null,
+                  (q) => q.widthGreaterThan(filter.minDimensions!.width),
+                )
+                .optional(
+                  filter.minDimensions!.height != null,
+                  (q) => q.heightGreaterThan(filter.minDimensions!.height),
+                ),
+          ),
+        )
+        .optional(
+          filter.maxDimensions != null,
+          (q) => q.dimensions(
+            (q) => q
+                .optional(
+                  filter.maxDimensions!.length != null,
+                  (q) => q.lengthLessThan(filter.maxDimensions!.length),
+                )
+                .optional(
+                  filter.maxDimensions!.width != null,
+                  (q) => q.widthLessThan(filter.maxDimensions!.width),
+                )
+                .optional(
+                  filter.maxDimensions!.height != null,
+                  (q) => q.heightLessThan(filter.maxDimensions!.height),
+                ),
+          ),
+        )
         .findAllSync();
   }
 

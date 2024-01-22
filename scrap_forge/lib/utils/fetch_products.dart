@@ -25,6 +25,9 @@ class ProductFilter {
   int? maxAvailable;
   int? maxNeeded;
 
+  Dimensions? minDimensions;
+  Dimensions? maxDimensions;
+
   ProductFilter({
     this.nameHas = '',
     this.showProjects = false,

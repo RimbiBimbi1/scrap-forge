@@ -10,8 +10,8 @@ import 'package:scrap_forge/utils/string_multiliner.dart';
 import 'package:scrap_forge/widgets/product_strip_small.dart';
 
 class ProductPage extends StatefulWidget {
-  BuildContext context;
-  ProductPage({
+  final BuildContext context;
+  const ProductPage({
     super.key,
     required this.context,
   });

@@ -67,6 +67,7 @@ class _HomeState extends State<Home> {
       floatingActionButton: Container(
         color: Colors.transparent,
         child: Row(
+          mainAxisSize: MainAxisSize.min,
           mainAxisAlignment: MainAxisAlignment.end,
           children: [
             Padding(

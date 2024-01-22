@@ -6,6 +6,7 @@ import 'package:image_picker/image_picker.dart';
 import 'package:scrap_forge/db_entities/product.dart';
 import 'package:scrap_forge/isar_service.dart';
 import 'package:scrap_forge/utils/fetch_products.dart';
+import 'package:scrap_forge/utils/safe_calculator.dart';
 import 'package:scrap_forge/utils/string_multiliner.dart';
 import 'package:scrap_forge/widgets/custom_text_field.dart';
 
@@ -79,24 +80,34 @@ class _ProductEditorState extends State<ProductEditor> {
             (product.count != null) ? product.count.toString() : "";
         categoryController.text = product.category ?? "";
         if (product.dimensions != null) {
-          lengthController.text = (product.dimensions!.length != null)
-              ? product.dimensions!.length.toString()
-              : "";
+          lengthController.text = getInitialDimension(
+            product.dimensions?.length,
+            product.dimensions?.lengthDisplayUnit,
+          );
           lengthUnitController.text =
               "${product.dimensions!.lengthDisplayUnit?.abbr}";
-          widthController.text = (product.dimensions!.width != null)
-              ? product.dimensions!.width.toString()
-              : "";
+
+          widthController.text = getInitialDimension(
+            product.dimensions?.width,
+            product.dimensions?.widthDisplayUnit,
+          );
           widthUnitController.text =
               "${product.dimensions!.widthDisplayUnit?.abbr}";
-          heightController.text = (product.dimensions!.height != null)
-              ? product.dimensions!.height.toString()
-              : "";
+
+          heightController.text = getInitialDimension(
+            product.dimensions?.height,
+            product.dimensions?.heightDisplayUnit,
+          );
           heightUnitController.text =
               "${product.dimensions!.heightDisplayUnit?.abbr}";
-          areaController.text = (product.dimensions!.projectionArea != null)
-              ? product.dimensions!.projectionArea.toString()
-              : "";
+
+          areaController.text = getInitialDimension(
+            SafeCalculator.divide(
+              product.dimensions?.projectionArea,
+              product.dimensions?.areaDisplayUnit?.multiplier,
+            )?.toDouble(),
+            product.dimensions?.areaDisplayUnit,
+          );
           areaUnitController.text =
               "${product.dimensions!.areaDisplayUnit?.abbr}";
         }
@@ -135,6 +146,15 @@ class _ProductEditorState extends State<ProductEditor> {
     }
   }
 
+  String getInitialDimension(double? value, SizeUnit? unit) {
+    return (SafeCalculator.divide(
+              value,
+              unit?.multiplier,
+            ) ??
+            '')
+        .toString();
+  }
+
   int? asMaterialValueParse(String? value) {
     if (addAsMaterial) {
       if (value != null && value.isNotEmpty) {
@@ -145,17 +165,28 @@ class _ProductEditorState extends State<ProductEditor> {
     return null;
   }
 
+  num? textFieldValue(String? input) {
+    if (input == null || input.isEmpty) {
+      return null;
+    }
+    num? value = double.tryParse(input.replaceAll(RegExp(','), '.'));
+    if (value == null) {
+      return null;
+    }
+    return value;
+  }
+
   String? numberValidator(String? value) {
     if (value == null || value == "") {
       return null;
     }
-    RegExp digits = RegExp("^[0123456789]*[,.]?[0123456789]*");
+    RegExp digits = RegExp("^[0-9]*[,.]?[0-9]*");
     Match? match = digits.matchAsPrefix(value);
     if (match != null && match.group(0)!.length == value.length) {
       return null;
     }
 
-    return "To pole powinno zawierać liczbę, lub pozostać puste.";
+    return "Wpisz liczbę dodatnią, lub pozostaw pole puste.";
   }
 
   String? switchValidator(final value) {
@@ -271,6 +302,70 @@ class _ProductEditorState extends State<ProductEditor> {
     }
   }
 
+  void confirmEdit() {
+    if (_formKey.currentState != null) {
+      if (_formKey.currentState!.validate()) {
+        Product p = Product()
+          ..name = nameController.text
+          ..description = descriptionController.text
+          ..count = int.tryParse(countController.text)
+          ..photos = photos.map((bytes) => base64Encode(bytes)).toList()
+          ..category = categoryController.text
+          ..progress = addAsProject ? progress : null
+          ..addedTimestamp = DateTime.now().millisecondsSinceEpoch
+          ..lastModifiedTimestamp = DateTime.now().millisecondsSinceEpoch
+          //TO DO
+          // ..finishedTimestamp = 1
+          ..dimensions = Dimensions(
+            length: SafeCalculator.multiply(
+              textFieldValue(lengthController.text),
+              lengthUnit.multiplier,
+            )?.toDouble(),
+            lengthDisplayUnit: SizeUnit.fromString(lengthUnitController.text),
+            width: SafeCalculator.multiply(
+              textFieldValue(widthController.text),
+              widthUnit.multiplier,
+            )?.toDouble(),
+            widthDisplayUnit: SizeUnit.fromString(widthUnitController.text),
+            height: SafeCalculator.multiply(
+              textFieldValue(heightController.text),
+              heightUnit.multiplier,
+            )?.toDouble(),
+            heightDisplayUnit: SizeUnit.fromString(heightUnitController.text),
+            projectionArea: SafeCalculator.multiply(
+              SafeCalculator.multiply(
+                textFieldValue(areaController.text),
+                areaUnit.multiplier,
+              ),
+              areaUnit.multiplier,
+            )?.toDouble(),
+            areaDisplayUnit: SizeUnit.fromString(areaUnitController.text
+                .substring(0, areaUnitController.text.length - 1)),
+          )
+          ..consumed = asMaterialValueParse(consumedController.text)
+          ..available = asMaterialValueParse(availableController.text)
+          ..needed = asMaterialValueParse(neededController.text)
+          ..madeFrom.addAll(madeFrom)
+          ..usedIn.addAll(usedIn);
+
+        if (edit != null) {
+          p.id = edit!.id;
+          p.addedTimestamp = edit!.addedTimestamp;
+        }
+        db.saveProduct(p);
+
+        if (edit != null) {
+          Navigator.pop(context);
+        }
+        Navigator.pushReplacementNamed(
+          context,
+          "/product",
+          arguments: {'productData': p},
+        );
+      }
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     SystemChrome.setPreferredOrientations([
@@ -284,7 +379,7 @@ class _ProductEditorState extends State<ProductEditor> {
         title: Text(
             edit == null ? "Dodaj nowy produkt" : "Edytuj \"${edit?.name}\""),
         actions: [
-          IconButton(onPressed: () {}, icon: const Icon(Icons.settings))
+          IconButton(onPressed: confirmEdit, icon: const Icon(Icons.check))
         ],
         centerTitle: true,
       ),
@@ -298,7 +393,7 @@ class _ProductEditorState extends State<ProductEditor> {
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
                   CustomTextField(
-                    label: "Nazwa:",
+                    label: Text("Nazwa:"),
                     controller: nameController,
                     validator: (value) {
                       if (value == null || value.isEmpty || value == "") {
@@ -308,14 +403,14 @@ class _ProductEditorState extends State<ProductEditor> {
                     },
                   ),
                   CustomTextField(
-                    label: "Kategoria:",
+                    label: Text("Kategoria:"),
                     controller: categoryController,
                     validator: (value) {
                       return null;
                     },
                   ),
                   CustomTextField(
-                    label: "Opis:",
+                    label: Text("Opis:"),
                     controller: descriptionController,
                     validator: (value) {
                       return null;
@@ -517,7 +612,7 @@ class _ProductEditorState extends State<ProductEditor> {
                                 children: [
                                   Flexible(
                                     child: CustomTextField(
-                                      label: dimension['label'] as String,
+                                      label: Text(dimension['label'] as String),
                                       controller: dimension['controller']
                                           as TextEditingController,
                                       validator: numberValidator,
@@ -565,7 +660,7 @@ class _ProductEditorState extends State<ProductEditor> {
                         children: [
                           Flexible(
                             child: CustomTextField(
-                              label: "Powierzchnia rzutu:",
+                              label: Text("Powierzchnia rzutu:"),
                               controller: areaController,
                               validator: numberValidator,
                               type: TextInputType.number,
@@ -646,7 +741,7 @@ class _ProductEditorState extends State<ProductEditor> {
                           firstChild: Column(
                             children: [
                               CustomTextField(
-                                label: "Ilość:",
+                                label: Text("Ilość:"),
                                 controller: countController,
                                 validator: numberValidator,
                               ),
@@ -805,7 +900,7 @@ class _ProductEditorState extends State<ProductEditor> {
                               children: [
                                 Flexible(
                                   child: CustomTextField(
-                                    label: "Użyte:",
+                                    label: Text("Użyte:"),
                                     controller: consumedController,
                                     validator: addAsMaterial
                                         ? numberValidator
@@ -815,7 +910,7 @@ class _ProductEditorState extends State<ProductEditor> {
                                 ),
                                 Flexible(
                                   child: CustomTextField(
-                                    label: "Dostępne:",
+                                    label: Text("Dostępne:"),
                                     controller: availableController,
                                     validator: addAsMaterial
                                         ? numberValidator
@@ -825,7 +920,7 @@ class _ProductEditorState extends State<ProductEditor> {
                                 ),
                                 Flexible(
                                   child: CustomTextField(
-                                    label: "Potrzebne",
+                                    label: Text("Potrzebne"),
                                     controller: neededController,
                                     validator: addAsMaterial
                                         ? numberValidator
@@ -916,78 +1011,7 @@ class _ProductEditorState extends State<ProductEditor> {
                     ],
                   ),
                   ElevatedButton(
-                    onPressed: () {
-                      if (_formKey.currentState != null) {
-                        if (_formKey.currentState!.validate()) {
-                          Product p = Product()
-                            ..name = nameController.text
-                            ..description = descriptionController.text
-                            ..count = countController.text.isNotEmpty
-                                ? int.parse(countController.text)
-                                : null
-                            ..photos = photos
-                                .map((bytes) => base64Encode(bytes))
-                                .toList()
-                            ..category = categoryController.text
-                            ..progress = addAsProject ? progress : null
-                            ..addedTimestamp =
-                                DateTime.now().millisecondsSinceEpoch
-                            ..lastModifiedTimestamp =
-                                DateTime.now().millisecondsSinceEpoch
-                            //TO DO
-                            // ..finishedTimestamp = 1
-                            ..dimensions = Dimensions(
-                              length: (lengthController.text != "")
-                                  ? double.parse(lengthController.text
-                                      .replaceAll(RegExp(','), '.'))
-                                  : null,
-                              lengthDisplayUnit: SizeUnit.fromString(
-                                  lengthUnitController.text),
-                              width: (widthController.text != "")
-                                  ? double.parse(widthController.text
-                                      .replaceAll(RegExp(','), '.'))
-                                  : null,
-                              widthDisplayUnit:
-                                  SizeUnit.fromString(widthUnitController.text),
-                              height: (heightController.text != "")
-                                  ? double.parse(heightController.text
-                                      .replaceAll(RegExp(','), '.'))
-                                  : null,
-                              heightDisplayUnit: SizeUnit.fromString(
-                                  heightUnitController.text),
-                              projectionArea: (areaController.text != "")
-                                  ? double.parse(areaController.text
-                                      .replaceAll(RegExp(','), '.'))
-                                  : null,
-                              areaDisplayUnit: SizeUnit.fromString(
-                                  areaUnitController.text.substring(
-                                      0, areaUnitController.text.length - 1)),
-                            )
-                            ..consumed =
-                                asMaterialValueParse(consumedController.text)
-                            ..available =
-                                asMaterialValueParse(availableController.text)
-                            ..needed =
-                                asMaterialValueParse(neededController.text)
-                            ..madeFrom.addAll(madeFrom)
-                            ..usedIn.addAll(usedIn);
-                          if (edit != null) {
-                            p.id = edit!.id;
-                            p.addedTimestamp = edit!.addedTimestamp;
-                          }
-                          db.saveProduct(p);
-
-                          if (edit != null) {
-                            Navigator.pop(context);
-                          }
-                          Navigator.pushReplacementNamed(
-                            context,
-                            "/product",
-                            arguments: {'productData': p},
-                          );
-                        }
-                      }
-                    },
+                    onPressed: confirmEdit,
                     child: const Text("Zapisz"),
                   ),
                 ],
