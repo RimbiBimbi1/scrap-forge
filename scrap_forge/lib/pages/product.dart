@@ -1,5 +1,4 @@
 import 'dart:convert';
-
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:scrap_forge/db_entities/product.dart';
@@ -56,7 +55,6 @@ class _ProductPageState extends State<ProductPage> {
 
     if (product != null) {
       return Scaffold(
-        // backgroundColor: Colors.grey[900],
         appBar: AppBar(
           title: const Text("Strona produktu"),
           actions: [
@@ -80,7 +78,7 @@ class _ProductPageState extends State<ProductPage> {
                     if (product!.addedTimestamp != null)
                       Flexible(
                         child: Text(
-                          "Data dodania: ${DateFormatter.fromTimestamp(product!.addedTimestamp ?? 0)}",
+                          "Data rozpoczęcia: ${DateFormatter.fromTimestamp(product!.addedTimestamp ?? 0)}",
                           textScaleFactor: 0.75,
                           style:
                               TextStyle(color: theme.colorScheme.onBackground),

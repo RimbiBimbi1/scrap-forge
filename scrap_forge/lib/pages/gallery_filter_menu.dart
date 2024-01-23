@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:scrap_forge/db_entities/product.dart';
 import 'package:scrap_forge/utils/fetch_products.dart';
+import 'package:scrap_forge/utils/pick_date.dart';
 import 'package:scrap_forge/utils/safe_calculator.dart';
 import 'package:scrap_forge/widgets/custom_text_field.dart';
 import 'package:scrap_forge/widgets/input_reset_switch.dart';
@@ -54,6 +55,14 @@ class _GalleryFilterMenuState extends State<GalleryFilterMenu> {
   SizeUnit widthUnit = SizeUnit.millimeter;
   final heightUnitController = TextEditingController();
   SizeUnit heightUnit = SizeUnit.millimeter;
+
+  bool enableStartDate = false;
+  TextEditingController minStartDate = TextEditingController();
+  TextEditingController maxStartDate = TextEditingController();
+
+  bool enableFinishDate = false;
+  TextEditingController minFinishDate = TextEditingController();
+  TextEditingController maxFinishDate = TextEditingController();
 
   @override
   void initState() {
@@ -115,10 +124,33 @@ class _GalleryFilterMenuState extends State<GalleryFilterMenu> {
     heightUnit = (filter.minDimensions?.heightDisplayUnit ??
         filter.maxDimensions?.heightDisplayUnit ??
         SizeUnit.millimeter);
+
+    minStartDate.text = getInitialDateFilter(filter.minStartDate);
+    maxStartDate.text = getInitialDateFilter(filter.maxStartDate);
+    minFinishDate.text = getInitialDateFilter(filter.minFinishDate);
+    maxFinishDate.text = getInitialDateFilter(filter.maxFinishDate);
   }
 
-  String? minMaxValidator(TextEditingController minController,
-      TextEditingController maxController) {
+  String? minMaxDateValidator(
+    TextEditingController minController,
+    TextEditingController maxController,
+  ) {
+    if (minController.text.isEmpty && maxController.text.isEmpty) {
+      return null;
+    }
+    DateTime? minDate = DateTime.tryParse(minController.text);
+    DateTime? maxDate = DateTime.tryParse(maxController.text);
+
+    if (minDate != null && maxDate != null && minDate.isAfter(maxDate)) {
+      return "Minimalna data nie może być większa od maksymalnej.";
+    }
+    return null;
+  }
+
+  String? minMaxValidator(
+    TextEditingController minController,
+    TextEditingController maxController,
+  ) {
     if (minController.text.isEmpty && maxController.text.isEmpty) {
       return null;
     }
@@ -148,10 +180,24 @@ class _GalleryFilterMenuState extends State<GalleryFilterMenu> {
       return null;
     }
     num? value = double.tryParse(input.replaceAll(RegExp(','), '.'));
-    if (value == null) {
+
+    return value;
+  }
+
+  String getInitialDateFilter(DateTime? date) {
+    if (date == null) {
+      return '';
+    }
+    return date.toString().split(' ')[0];
+  }
+
+  DateTime? filterFieldDate(String? input) {
+    if (input == null || input.isEmpty) {
       return null;
     }
-    return value;
+    DateTime? date = DateTime.tryParse(input);
+
+    return date;
   }
 
   List<Widget> minMaxInputs({
@@ -253,7 +299,11 @@ class _GalleryFilterMenuState extends State<GalleryFilterMenu> {
                         lengthDisplayUnit: lengthUnit,
                         widthDisplayUnit: widthUnit,
                         heightDisplayUnit: heightUnit,
-                      ),
+                      )
+                      ..minStartDate = filterFieldDate(minStartDate.text)
+                      ..maxStartDate = filterFieldDate(maxStartDate.text)
+                      ..minFinishDate = filterFieldDate(minFinishDate.text)
+                      ..maxFinishDate = filterFieldDate(maxFinishDate.text),
                   );
                 }
               },
@@ -610,31 +660,38 @@ class _GalleryFilterMenuState extends State<GalleryFilterMenu> {
                                     .map((widget) => Flexible(child: widget))
                                     .toList(),
                                 Flexible(
-                                    child: DropdownMenu<SizeUnit>(
-                                  width: 100,
-                                  inputDecorationTheme: InputDecorationTheme(
-                                    contentPadding: const EdgeInsets.symmetric(
-                                        vertical: 22, horizontal: 10),
-                                    enabledBorder: OutlineInputBorder(
-                                      borderSide: BorderSide(
-                                          color: theme.colorScheme.outline,
-                                          width: 1),
-                                    ),
+                                    child: Padding(
+                                  padding: const EdgeInsets.symmetric(
+                                    vertical: 8,
+                                    horizontal: 4,
                                   ),
-                                  dropdownMenuEntries: const [
-                                    DropdownMenuEntry(
-                                        value: SizeUnit.millimeter,
-                                        label: "mm"),
-                                    DropdownMenuEntry(
-                                        value: SizeUnit.centimeter,
-                                        label: "cm"),
-                                    DropdownMenuEntry(
-                                        value: SizeUnit.meter, label: "m"),
-                                  ],
-                                  initialSelection: dim['unit'] as SizeUnit,
-                                  controller: dim['unitController']
-                                      as TextEditingController,
-                                  onSelected: dim['setUnit'] as ValueSetter,
+                                  child: DropdownMenu<SizeUnit>(
+                                    width: 100,
+                                    inputDecorationTheme: InputDecorationTheme(
+                                      contentPadding:
+                                          const EdgeInsets.symmetric(
+                                              vertical: 22, horizontal: 10),
+                                      enabledBorder: OutlineInputBorder(
+                                        borderSide: BorderSide(
+                                            color: theme.colorScheme.outline,
+                                            width: 1),
+                                      ),
+                                    ),
+                                    dropdownMenuEntries: const [
+                                      DropdownMenuEntry(
+                                          value: SizeUnit.millimeter,
+                                          label: "mm"),
+                                      DropdownMenuEntry(
+                                          value: SizeUnit.centimeter,
+                                          label: "cm"),
+                                      DropdownMenuEntry(
+                                          value: SizeUnit.meter, label: "m"),
+                                    ],
+                                    initialSelection: dim['unit'] as SizeUnit,
+                                    controller: dim['unitController']
+                                        as TextEditingController,
+                                    onSelected: dim['setUnit'] as ValueSetter,
+                                  ),
                                 ))
                               ],
                             ),
@@ -656,22 +713,158 @@ class _GalleryFilterMenuState extends State<GalleryFilterMenu> {
                       }).toList(),
                     ],
                   ),
-                  const SettingsSection(
-                      header: Text("Data dodania:"),
-                      children: [
-                        SettingsSection(
-                            header: Text("Wieksze niż:"), children: []),
-                        SettingsSection(
-                            header: Text("Mniejsze niż:"), children: []),
-                      ]),
-                  const SettingsSection(
-                      header: Text("Data ukończenia:"),
-                      children: [
-                        SettingsSection(
-                            header: Text("Wieksze niż:"), children: []),
-                        SettingsSection(
-                            header: Text("Mniejsze niż:"), children: []),
-                      ]),
+                  SettingsSection(
+                    header: InputResetSwitch(
+                      label: "Data rozpoczęcia",
+                      enabled: enableStartDate,
+                      onSwitched: (enable) {
+                        setState(() {
+                          enableStartDate = enable;
+                        });
+                        if (!enable) {
+                          minStartDate.text = '';
+                          maxStartDate.text = '';
+                        }
+                      },
+                    ),
+                    children: [
+                      Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Flexible(
+                            child: CustomTextField(
+                              onTap: () async {
+                                DateTime? date = await selectDate(context);
+
+                                if (date != null) {
+                                  minStartDate.text =
+                                      date.toString().split(" ")[0];
+                                  setState(() {
+                                    enableStartDate = true;
+                                  });
+                                }
+                              },
+                              readOnly: true,
+                              label: const Text("Od"),
+                              controller: minStartDate,
+                              validator: (value) => null,
+                              prefixIcon:
+                                  const Icon(Icons.calendar_today_outlined),
+                            ),
+                          ),
+                          Flexible(
+                            child: CustomTextField(
+                              onTap: () async {
+                                DateTime? date = await selectDate(context);
+
+                                if (date != null) {
+                                  maxStartDate.text =
+                                      date.toString().split(" ")[0];
+                                  setState(() {
+                                    enableStartDate = true;
+                                  });
+                                }
+                              },
+                              readOnly: true,
+                              label: const Text("Do"),
+                              controller: maxStartDate,
+                              validator: (value) => null,
+                              prefixIcon:
+                                  const Icon(Icons.calendar_today_outlined),
+                            ),
+                          ),
+                        ],
+                      ),
+                      Row(
+                        children: [
+                          Flexible(
+                            child: SharedErrorField(
+                              validator: (value) => minMaxDateValidator(
+                                minStartDate,
+                                maxStartDate,
+                              ),
+                            ),
+                          ),
+                        ],
+                      )
+                    ],
+                  ),
+                  SettingsSection(
+                    header: InputResetSwitch(
+                      label: "Data ukończenia",
+                      enabled: enableFinishDate,
+                      onSwitched: (enable) {
+                        setState(() {
+                          enableFinishDate = enable;
+                        });
+                        if (!enable) {
+                          minFinishDate.text = '';
+                          maxFinishDate.text = '';
+                        }
+                      },
+                    ),
+                    children: [
+                      Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Flexible(
+                            child: CustomTextField(
+                              onTap: () async {
+                                DateTime? date = await selectDate(context);
+
+                                if (date != null) {
+                                  minFinishDate.text =
+                                      date.toString().split(" ")[0];
+                                  setState(() {
+                                    enableFinishDate = true;
+                                  });
+                                }
+                              },
+                              readOnly: true,
+                              label: const Text("Od"),
+                              controller: minFinishDate,
+                              validator: (value) => null,
+                              prefixIcon:
+                                  const Icon(Icons.calendar_today_outlined),
+                            ),
+                          ),
+                          Flexible(
+                            child: CustomTextField(
+                              onTap: () async {
+                                DateTime? date = await selectDate(context);
+
+                                if (date != null) {
+                                  maxFinishDate.text =
+                                      date.toString().split(" ")[0];
+                                  setState(() {
+                                    enableFinishDate = true;
+                                  });
+                                }
+                              },
+                              readOnly: true,
+                              label: const Text("Do"),
+                              controller: maxFinishDate,
+                              validator: (value) => null,
+                              prefixIcon:
+                                  const Icon(Icons.calendar_today_outlined),
+                            ),
+                          ),
+                        ],
+                      ),
+                      Row(
+                        children: [
+                          Flexible(
+                            child: SharedErrorField(
+                              validator: (value) => minMaxDateValidator(
+                                minFinishDate,
+                                maxFinishDate,
+                              ),
+                            ),
+                          ),
+                        ],
+                      )
+                    ],
+                  ),
                 ],
               ),
             ),

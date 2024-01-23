@@ -5,6 +5,7 @@ import 'package:image_picker/image_picker.dart';
 import 'package:scrap_forge/db_entities/product.dart';
 import 'package:scrap_forge/isar_service.dart';
 import 'package:scrap_forge/utils/fetch_products.dart';
+import 'package:scrap_forge/utils/pick_date.dart';
 import 'package:scrap_forge/utils/safe_calculator.dart';
 import 'package:scrap_forge/utils/string_multiliner.dart';
 import 'package:scrap_forge/widgets/custom_text_field.dart';
@@ -54,6 +55,9 @@ class _ProductEditorState extends State<ProductEditor> {
   final consumedController = TextEditingController();
   final availableController = TextEditingController();
   final neededController = TextEditingController();
+
+  TextEditingController startDate = TextEditingController();
+  TextEditingController finishDate = TextEditingController();
 
   List<Uint8List> photos = List.empty();
   List<Product> madeFrom = List.empty();
@@ -141,6 +145,10 @@ class _ProductEditorState extends State<ProductEditor> {
               product.dimensions!.heightDisplayUnit ?? SizeUnit.millimeter;
           areaUnit = product.dimensions!.areaDisplayUnit ?? SizeUnit.centimeter;
         }
+
+        startDate.text = getInitialDate(product.addedTimestamp);
+        finishDate.text = getInitialDate(product.finishedTimestamp);
+
         edit = product;
       }
     }
@@ -153,6 +161,15 @@ class _ProductEditorState extends State<ProductEditor> {
             ) ??
             '')
         .toString();
+  }
+
+  String getInitialDate(int? timestamp) {
+    if (timestamp == null) {
+      return '';
+    }
+    return DateTime.fromMillisecondsSinceEpoch(timestamp)
+        .toString()
+        .split(' ')[0];
   }
 
   int? asMaterialValueParse(String? value) {
@@ -176,6 +193,14 @@ class _ProductEditorState extends State<ProductEditor> {
     return value;
   }
 
+  DateTime? textFieldDate(String? input) {
+    if (input == null || input.isEmpty) {
+      return null;
+    }
+    DateTime? date = DateTime.tryParse(input);
+    return date;
+  }
+
   String? numberValidator(String? value) {
     if (value == null || value == "") {
       return null;
@@ -187,6 +212,22 @@ class _ProductEditorState extends State<ProductEditor> {
     }
 
     return "Wpisz liczbę dodatnią, lub pozostaw pole puste.";
+  }
+
+  String? minMaxDateValidator(
+    TextEditingController minController,
+    TextEditingController maxController,
+  ) {
+    if (minController.text.isEmpty && maxController.text.isEmpty) {
+      return null;
+    }
+    DateTime? minDate = DateTime.tryParse(minController.text);
+    DateTime? maxDate = DateTime.tryParse(maxController.text);
+
+    if (minDate != null && maxDate != null && minDate.isAfter(maxDate)) {
+      return "Data zakończenia nie może być wcześniejsza od daty rozpoczęcia.";
+    }
+    return null;
   }
 
   String? switchValidator(final value) {
@@ -312,10 +353,13 @@ class _ProductEditorState extends State<ProductEditor> {
           ..photos = photos.map((bytes) => base64Encode(bytes)).toList()
           ..category = categoryController.text
           ..progress = addAsProject ? progress : null
-          ..addedTimestamp = DateTime.now().millisecondsSinceEpoch
+          ..addedTimestamp = addAsProject
+              ? textFieldDate(startDate.text)?.millisecondsSinceEpoch
+              : null
+          ..finishedTimestamp = addAsProject
+              ? textFieldDate(finishDate.text)?.millisecondsSinceEpoch
+              : null
           ..lastModifiedTimestamp = DateTime.now().millisecondsSinceEpoch
-          //TO DO
-          // ..finishedTimestamp = 1
           ..dimensions = Dimensions(
             length: SafeCalculator.multiply(
               textFieldValue(lengthController.text),
@@ -350,7 +394,6 @@ class _ProductEditorState extends State<ProductEditor> {
 
         if (edit != null) {
           p.id = edit!.id;
-          p.addedTimestamp = edit!.addedTimestamp;
         }
         db.saveProduct(p);
 
@@ -422,9 +465,12 @@ class _ProductEditorState extends State<ProductEditor> {
                     mainAxisAlignment: MainAxisAlignment.center,
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      const Text(
-                        "Zdjęcia:",
-                        textScaleFactor: 1.2,
+                      const Padding(
+                        padding: EdgeInsets.symmetric(vertical: 8),
+                        child: Text(
+                          "Zdjęcia:",
+                          textScaleFactor: 1.2,
+                        ),
                       ),
                       SizedBox(
                         height: 200,
@@ -625,33 +671,41 @@ class _ProductEditorState extends State<ProductEditor> {
                                       ],
                                     ),
                                   ),
-                                  DropdownMenu<SizeUnit>(
-                                    inputDecorationTheme: InputDecorationTheme(
-                                      contentPadding: const EdgeInsets.all(20),
-                                      enabledBorder: OutlineInputBorder(
-                                        borderSide: BorderSide(
-                                            color: theme.colorScheme.outline,
-                                            width: 1),
-                                      ),
+                                  Padding(
+                                    padding: const EdgeInsets.symmetric(
+                                      vertical: 8,
+                                      horizontal: 4,
                                     ),
-                                    dropdownMenuEntries: const [
-                                      DropdownMenuEntry(
-                                          value: SizeUnit.millimeter,
-                                          label: "mm"),
-                                      DropdownMenuEntry(
-                                          value: SizeUnit.centimeter,
-                                          label: "cm"),
-                                      DropdownMenuEntry(
-                                        value: SizeUnit.meter,
-                                        label: "m",
+                                    child: DropdownMenu<SizeUnit>(
+                                      inputDecorationTheme:
+                                          InputDecorationTheme(
+                                        contentPadding:
+                                            const EdgeInsets.all(20),
+                                        enabledBorder: OutlineInputBorder(
+                                          borderSide: BorderSide(
+                                              color: theme.colorScheme.outline,
+                                              width: 1),
+                                        ),
                                       ),
-                                    ],
-                                    initialSelection:
-                                        dimension['unit'] as SizeUnit,
-                                    controller: dimension['unitController']
-                                        as TextEditingController,
-                                    onSelected:
-                                        dimension['setUnit'] as ValueSetter,
+                                      dropdownMenuEntries: const [
+                                        DropdownMenuEntry(
+                                            value: SizeUnit.millimeter,
+                                            label: "mm"),
+                                        DropdownMenuEntry(
+                                            value: SizeUnit.centimeter,
+                                            label: "cm"),
+                                        DropdownMenuEntry(
+                                          value: SizeUnit.meter,
+                                          label: "m",
+                                        ),
+                                      ],
+                                      initialSelection:
+                                          dimension['unit'] as SizeUnit,
+                                      controller: dimension['unitController']
+                                          as TextEditingController,
+                                      onSelected:
+                                          dimension['setUnit'] as ValueSetter,
+                                    ),
                                   )
                                 ],
                               ))
@@ -666,7 +720,11 @@ class _ProductEditorState extends State<ProductEditor> {
                               type: TextInputType.number,
                             ),
                           ),
-                          SizedBox(
+                          Padding(
+                            padding: const EdgeInsets.symmetric(
+                              vertical: 8,
+                              horizontal: 4,
+                            ),
                             child: DropdownMenu<SizeUnit>(
                               inputDecorationTheme: InputDecorationTheme(
                                 contentPadding: const EdgeInsets.all(20),
@@ -745,37 +803,94 @@ class _ProductEditorState extends State<ProductEditor> {
                                 controller: countController,
                                 validator: numberValidator,
                               ),
-                              DropdownMenu<ProjectLifeCycle>(
-                                inputDecorationTheme: InputDecorationTheme(
-                                  contentPadding: const EdgeInsets.all(20),
-                                  enabledBorder: OutlineInputBorder(
-                                    borderSide: BorderSide(
-                                        color: theme.colorScheme.outline,
-                                        width: 1),
-                                  ),
+                              Padding(
+                                padding: const EdgeInsets.symmetric(
+                                  vertical: 8,
+                                  horizontal: 4,
                                 ),
-                                width: MediaQuery.of(context).size.width - 20,
-                                dropdownMenuEntries: const [
-                                  DropdownMenuEntry(
-                                      value: ProjectLifeCycle.finished,
-                                      label: "Ukończony"),
-                                  DropdownMenuEntry(
-                                      value: ProjectLifeCycle.inProgress,
-                                      label: "W trakcie realizacji"),
-                                  DropdownMenuEntry(
-                                      value: ProjectLifeCycle.planned,
-                                      label: "Planowany"),
-                                ],
-                                initialSelection:
-                                    progress ?? ProjectLifeCycle.inProgress,
-                                controller: progressController,
-                                onSelected: (value) {
-                                  if (value != null) {
-                                    setState(() {
-                                      progress = value;
-                                    });
+                                child: DropdownMenu<ProjectLifeCycle>(
+                                  inputDecorationTheme: InputDecorationTheme(
+                                    contentPadding: const EdgeInsets.all(20),
+                                    enabledBorder: OutlineInputBorder(
+                                      borderSide: BorderSide(
+                                          color: theme.colorScheme.outline,
+                                          width: 1),
+                                    ),
+                                  ),
+                                  width: MediaQuery.of(context).size.width - 28,
+                                  dropdownMenuEntries: const [
+                                    DropdownMenuEntry(
+                                        value: ProjectLifeCycle.finished,
+                                        label: "Ukończony"),
+                                    DropdownMenuEntry(
+                                        value: ProjectLifeCycle.inProgress,
+                                        label: "W trakcie realizacji"),
+                                    DropdownMenuEntry(
+                                        value: ProjectLifeCycle.planned,
+                                        label: "Planowany"),
+                                  ],
+                                  initialSelection:
+                                      progress ?? ProjectLifeCycle.inProgress,
+                                  controller: progressController,
+                                  onSelected: (value) {
+                                    if (value != null) {
+                                      setState(() {
+                                        progress = value;
+                                      });
+                                    }
+                                  },
+                                ),
+                              ),
+                              CustomTextField(
+                                onTap: () async {
+                                  DateTime? date = await selectDate(context);
+
+                                  if (date != null) {
+                                    startDate.text =
+                                        date.toString().split(" ")[0];
                                   }
                                 },
+                                readOnly: true,
+                                label: Text(
+                                    "Data rozpoczęcia${progress == ProjectLifeCycle.planned ? ' (planowana)' : ''}"),
+                                controller: startDate,
+                                validator: (value) => null,
+                                prefixIcon:
+                                    const Icon(Icons.calendar_today_outlined),
+                                suffixIcon: IconButton(
+                                  icon: const Icon(Icons.cancel_outlined),
+                                  onPressed: () {
+                                    startDate.text = '';
+                                    FocusScope.of(context).unfocus();
+                                  },
+                                ),
+                              ),
+                              CustomTextField(
+                                onTap: () async {
+                                  DateTime? date = await selectDate(context);
+
+                                  if (date != null) {
+                                    finishDate.text =
+                                        date.toString().split(" ")[0];
+                                  }
+                                },
+                                readOnly: true,
+                                label: Text(
+                                    "Data ukończenia${progress != ProjectLifeCycle.finished ? ' (planowana)' : ''}"),
+                                controller: finishDate,
+                                validator: (value) => minMaxDateValidator(
+                                  startDate,
+                                  finishDate,
+                                ),
+                                prefixIcon:
+                                    const Icon(Icons.calendar_today_outlined),
+                                suffixIcon: IconButton(
+                                  icon: const Icon(Icons.cancel_outlined),
+                                  onPressed: () {
+                                    finishDate.text = '';
+                                    FocusScope.of(context).unfocus();
+                                  },
+                                ),
                               ),
                               Row(
                                 mainAxisAlignment:

@@ -1,18 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:scrap_forge/db_entities/appSettings.dart';
 import 'package:scrap_forge/isar_service.dart';
-
 import 'package:scrap_forge/pages/home.dart';
 import 'package:scrap_forge/pages/loading.dart';
-
 import 'package:scrap_forge/pages/measurement_hub.dart';
 import 'package:scrap_forge/pages/product_editor.dart';
 import 'package:scrap_forge/pages/product_gallery.dart';
 import 'package:scrap_forge/pages/product.dart';
 import 'package:scrap_forge/pages/settings.dart';
 import 'package:scrap_forge/widgets/theme.dart';
-
-// ThemeManager themeManager = ThemeManager();
 
 Future<void> main() async {
   return runApp(const ScrapForgeApp());

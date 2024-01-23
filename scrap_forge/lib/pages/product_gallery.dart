@@ -81,8 +81,6 @@ class _ProductGalleryState extends State<ProductGallery> {
   }
 
   List<Widget> displayProducts() {
-    // return AnimatedCrossFade(firstChild: firstChild, secondChild: secondChild, crossFadeState: crossFadeState, duration: duration)
-
     return products
         .asMap()
         .map(
@@ -96,7 +94,6 @@ class _ProductGalleryState extends State<ProductGallery> {
                         child: ProductStrip(
                             product: p,
                             asMaterial: asMaterials,
-                            // onLongPress: () => onTileLongPress(index),
                             onPressed: () =>
                                 {updateSelected(index, !selected[index])}),
                       ),
@@ -344,7 +341,6 @@ class _ProductGalleryState extends State<ProductGallery> {
     });
     return Scaffold(
       persistentFooterAlignment: AlignmentDirectional.center,
-      // backgroundColor: Colors.grey[900],
       persistentFooterButtons: [
         AnimatedCrossFade(
           crossFadeState: selectionMode

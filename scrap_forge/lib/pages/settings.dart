@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:scrap_forge/db_entities/appSettings.dart';
-import 'package:scrap_forge/main.dart';
 import 'package:scrap_forge/widgets/settings_section.dart';
 import 'package:scrap_forge/widgets/theme_manager.dart';
 

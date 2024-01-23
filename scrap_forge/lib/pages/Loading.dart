@@ -11,10 +11,6 @@ class Loading extends StatelessWidget {
     return Container(
       color: const Color.fromARGB(180, 33, 33, 33),
       child: Center(
-        // child: SpinKitFadingCircle(
-        //   color: Colors.orange,
-        //   size: 100.0,
-        // ),
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [

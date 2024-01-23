@@ -28,6 +28,12 @@ class ProductFilter {
   Dimensions? minDimensions;
   Dimensions? maxDimensions;
 
+  DateTime? minStartDate;
+  DateTime? maxStartDate;
+
+  DateTime? minFinishDate;
+  DateTime? maxFinishDate;
+
   ProductFilter({
     this.nameHas = '',
     this.showProjects = false,
@@ -41,6 +47,12 @@ class ProductFilter {
     this.maxConsumed,
     this.maxAvailable,
     this.maxNeeded,
+    this.minDimensions,
+    this.maxDimensions,
+    this.minStartDate,
+    this.maxStartDate,
+    this.minFinishDate,
+    this.maxFinishDate,
   });
 
   static ProductFilter projects() {
