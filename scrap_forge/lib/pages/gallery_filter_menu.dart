@@ -339,9 +339,12 @@ class _GalleryFilterMenuState extends State<GalleryFilterMenu> {
                               color: theme.colorScheme.outline, width: 2),
                         ),
                       ),
-                      child: const Text(
+                      child: Text(
                         "Wyświetl projekty:",
-                        textScaleFactor: 1.2,
+                        style: TextStyle(
+                          color: theme.colorScheme.onBackground,
+                        ),
+                        textScaleFactor: 1.15,
                       ),
                     ),
                     children: [
@@ -405,7 +408,12 @@ class _GalleryFilterMenuState extends State<GalleryFilterMenu> {
                           return SwitchListTile(
                             activeColor: theme.colorScheme.primary,
                             contentPadding: const EdgeInsets.all(0),
-                            title: const Text("Wyświetl materiały:"),
+                            title: Text(
+                              "Wyświetl materiały:",
+                              style: TextStyle(
+                                color: theme.colorScheme.onBackground,
+                              ),
+                            ),
                             value: enableMaterials,
                             onChanged: (value) {
                               if (!value) {
@@ -548,8 +556,11 @@ class _GalleryFilterMenuState extends State<GalleryFilterMenu> {
                               color: theme.colorScheme.outline, width: 2),
                         ),
                       ),
-                      child: const Text(
+                      child: Text(
                         "Wymiary:",
+                        style: TextStyle(
+                          color: theme.colorScheme.onBackground,
+                        ),
                         textScaleFactor: 1.2,
                       ),
                     ),

@@ -1,3 +1,5 @@
+import 'dart:math';
+
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:image/image.dart' as imgLib;
@@ -120,13 +122,15 @@ class _FramingPageState extends State<FramingPage> {
           child: FutureBuilder(
             future: sheetCorners,
             builder: (context, snapshot) {
-              double displayW = MediaQuery.of(context).size.width * 0.95;
+              double maxDisplayW = MediaQuery.of(context).size.width * 0.90;
+              double maxDisplayH = MediaQuery.of(context).size.height * 0.80;
 
               if (snapshot.connectionState == ConnectionState.done) {
                 double imgW = image.width.toDouble();
                 double imgH = image.height.toDouble();
 
-                double displayH = imgH * (displayW / imgW);
+                double displayH = min(imgH * (maxDisplayW / imgW), maxDisplayH);
+                double displayW = imgW * (displayH / imgH);
 
                 List<Offset> corners = (snapshot.data as List<Offset>)
                     .map((e) => Offset(e.dx * displayW, e.dy * displayH))

@@ -107,6 +107,13 @@ class _HomeState extends State<Home> {
           padding: const EdgeInsets.all(8.0),
           child: ListView(
             children: [
+              Text(
+                'Ostatnio edytowane',
+                style: TextStyle(
+                  color: theme.colorScheme.onBackground,
+                ),
+                textScaleFactor: 1.2,
+              ),
               Column(
                 mainAxisAlignment: MainAxisAlignment.start,
                 crossAxisAlignment: CrossAxisAlignment.stretch,

@@ -26,8 +26,8 @@ class Product {
 
   Dimensions? dimensions;
 
-  int? addedTimestamp;
   int? lastModifiedTimestamp;
+  int? startedTimestamp;
   int? finishedTimestamp;
 
   int? consumed;

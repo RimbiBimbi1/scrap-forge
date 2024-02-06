@@ -75,10 +75,10 @@ class _ProductPageState extends State<ProductPage> {
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    if (product!.addedTimestamp != null)
+                    if (product!.startedTimestamp != null)
                       Flexible(
                         child: Text(
-                          "Data rozpoczęcia: ${DateFormatter.fromTimestamp(product!.addedTimestamp ?? 0)}",
+                          "Data rozpoczęcia: ${DateFormatter.fromTimestamp(product!.startedTimestamp ?? 0)}",
                           textScaleFactor: 0.75,
                           style:
                               TextStyle(color: theme.colorScheme.onBackground),

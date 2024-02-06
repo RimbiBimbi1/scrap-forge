@@ -9,6 +9,7 @@ import 'package:scrap_forge/pages/product_gallery.dart';
 import 'package:scrap_forge/pages/product.dart';
 import 'package:scrap_forge/pages/settings.dart';
 import 'package:scrap_forge/widgets/theme.dart';
+import 'package:flutter_localizations/flutter_localizations.dart';
 
 Future<void> main() async {
   return runApp(const ScrapForgeApp());
@@ -60,6 +61,13 @@ class _ScrapForgeAppState extends State<ScrapForgeApp> {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
+      localizationsDelegates: const [
+        GlobalMaterialLocalizations.delegate,
+        GlobalCupertinoLocalizations.delegate,
+        GlobalWidgetsLocalizations.delegate
+      ],
+      supportedLocales: const [Locale('pl'), Locale('en')],
+      // locale: const Locale('pl'),
       theme: lightTheme,
       darkTheme: darkTheme,
       themeMode: appSettings.darkMode ? ThemeMode.dark : ThemeMode.light,

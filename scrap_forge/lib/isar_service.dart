@@ -177,6 +177,31 @@ class IsarService {
                 ),
           ),
         )
+        .optional(
+          filter.minStartDate != null,
+          (q) => q.startedTimestampGreaterThan(
+            filter.minStartDate!.millisecondsSinceEpoch - 1,
+          ),
+        )
+        .optional(
+          filter.maxStartDate != null,
+          (q) => q.startedTimestampLessThan(
+            filter.maxStartDate!.millisecondsSinceEpoch + 1,
+          ),
+        )
+        .optional(
+          filter.minFinishDate != null,
+          //If the finishedTimestamp is null, then the project is probably still being worked on
+          (q) => q.finishedTimestampIsNull().or().finishedTimestampGreaterThan(
+                filter.minFinishDate!.millisecondsSinceEpoch - 1,
+              ),
+        )
+        .optional(
+          filter.maxFinishDate != null,
+          (q) => q.finishedTimestampIsNotNull().finishedTimestampLessThan(
+                filter.maxFinishDate!.millisecondsSinceEpoch + 1,
+              ),
+        )
         .findAllSync();
   }
 

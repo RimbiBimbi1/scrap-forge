@@ -145,7 +145,7 @@ class _FramingToolState extends State<FramingTool> {
           ),
         ),
         Container(
-          padding: const EdgeInsets.symmetric(vertical: 16),
+          padding: const EdgeInsets.symmetric(vertical: 8),
           color: theme.colorScheme.secondary,
           child: Row(
             mainAxisAlignment: MainAxisAlignment.center,

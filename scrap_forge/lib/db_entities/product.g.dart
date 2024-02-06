@@ -17,72 +17,72 @@ const ProductSchema = CollectionSchema(
   name: r'Product',
   id: -6222113721139403729,
   properties: {
-    r'addedTimestamp': PropertySchema(
-      id: 0,
-      name: r'addedTimestamp',
-      type: IsarType.long,
-    ),
     r'available': PropertySchema(
-      id: 1,
+      id: 0,
       name: r'available',
       type: IsarType.long,
     ),
     r'category': PropertySchema(
-      id: 2,
+      id: 1,
       name: r'category',
       type: IsarType.string,
     ),
     r'consumed': PropertySchema(
-      id: 3,
+      id: 2,
       name: r'consumed',
       type: IsarType.long,
     ),
     r'count': PropertySchema(
-      id: 4,
+      id: 3,
       name: r'count',
       type: IsarType.long,
     ),
     r'description': PropertySchema(
-      id: 5,
+      id: 4,
       name: r'description',
       type: IsarType.string,
     ),
     r'dimensions': PropertySchema(
-      id: 6,
+      id: 5,
       name: r'dimensions',
       type: IsarType.object,
       target: r'Dimensions',
     ),
     r'finishedTimestamp': PropertySchema(
-      id: 7,
+      id: 6,
       name: r'finishedTimestamp',
       type: IsarType.long,
     ),
     r'lastModifiedTimestamp': PropertySchema(
-      id: 8,
+      id: 7,
       name: r'lastModifiedTimestamp',
       type: IsarType.long,
     ),
     r'name': PropertySchema(
-      id: 9,
+      id: 8,
       name: r'name',
       type: IsarType.string,
     ),
     r'needed': PropertySchema(
-      id: 10,
+      id: 9,
       name: r'needed',
       type: IsarType.long,
     ),
     r'photos': PropertySchema(
-      id: 11,
+      id: 10,
       name: r'photos',
       type: IsarType.stringList,
     ),
     r'progress': PropertySchema(
-      id: 12,
+      id: 11,
       name: r'progress',
       type: IsarType.string,
       enumMap: _ProductprogressEnumValueMap,
+    ),
+    r'startedTimestamp': PropertySchema(
+      id: 12,
+      name: r'startedTimestamp',
+      type: IsarType.long,
     )
   },
   estimateSize: _productEstimateSize,
@@ -167,24 +167,24 @@ void _productSerialize(
   List<int> offsets,
   Map<Type, List<int>> allOffsets,
 ) {
-  writer.writeLong(offsets[0], object.addedTimestamp);
-  writer.writeLong(offsets[1], object.available);
-  writer.writeString(offsets[2], object.category);
-  writer.writeLong(offsets[3], object.consumed);
-  writer.writeLong(offsets[4], object.count);
-  writer.writeString(offsets[5], object.description);
+  writer.writeLong(offsets[0], object.available);
+  writer.writeString(offsets[1], object.category);
+  writer.writeLong(offsets[2], object.consumed);
+  writer.writeLong(offsets[3], object.count);
+  writer.writeString(offsets[4], object.description);
   writer.writeObject<Dimensions>(
-    offsets[6],
+    offsets[5],
     allOffsets,
     DimensionsSchema.serialize,
     object.dimensions,
   );
-  writer.writeLong(offsets[7], object.finishedTimestamp);
-  writer.writeLong(offsets[8], object.lastModifiedTimestamp);
-  writer.writeString(offsets[9], object.name);
-  writer.writeLong(offsets[10], object.needed);
-  writer.writeStringList(offsets[11], object.photos);
-  writer.writeString(offsets[12], object.progress?.name);
+  writer.writeLong(offsets[6], object.finishedTimestamp);
+  writer.writeLong(offsets[7], object.lastModifiedTimestamp);
+  writer.writeString(offsets[8], object.name);
+  writer.writeLong(offsets[9], object.needed);
+  writer.writeStringList(offsets[10], object.photos);
+  writer.writeString(offsets[11], object.progress?.name);
+  writer.writeLong(offsets[12], object.startedTimestamp);
 }
 
 Product _productDeserialize(
@@ -194,25 +194,25 @@ Product _productDeserialize(
   Map<Type, List<int>> allOffsets,
 ) {
   final object = Product();
-  object.addedTimestamp = reader.readLongOrNull(offsets[0]);
-  object.available = reader.readLongOrNull(offsets[1]);
-  object.category = reader.readStringOrNull(offsets[2]);
-  object.consumed = reader.readLongOrNull(offsets[3]);
-  object.count = reader.readLongOrNull(offsets[4]);
-  object.description = reader.readStringOrNull(offsets[5]);
+  object.available = reader.readLongOrNull(offsets[0]);
+  object.category = reader.readStringOrNull(offsets[1]);
+  object.consumed = reader.readLongOrNull(offsets[2]);
+  object.count = reader.readLongOrNull(offsets[3]);
+  object.description = reader.readStringOrNull(offsets[4]);
   object.dimensions = reader.readObjectOrNull<Dimensions>(
-    offsets[6],
+    offsets[5],
     DimensionsSchema.deserialize,
     allOffsets,
   );
-  object.finishedTimestamp = reader.readLongOrNull(offsets[7]);
+  object.finishedTimestamp = reader.readLongOrNull(offsets[6]);
   object.id = id;
-  object.lastModifiedTimestamp = reader.readLongOrNull(offsets[8]);
-  object.name = reader.readStringOrNull(offsets[9]);
-  object.needed = reader.readLongOrNull(offsets[10]);
-  object.photos = reader.readStringList(offsets[11]) ?? [];
+  object.lastModifiedTimestamp = reader.readLongOrNull(offsets[7]);
+  object.name = reader.readStringOrNull(offsets[8]);
+  object.needed = reader.readLongOrNull(offsets[9]);
+  object.photos = reader.readStringList(offsets[10]) ?? [];
   object.progress =
-      _ProductprogressValueEnumMap[reader.readStringOrNull(offsets[12])];
+      _ProductprogressValueEnumMap[reader.readStringOrNull(offsets[11])];
+  object.startedTimestamp = reader.readLongOrNull(offsets[12]);
   return object;
 }
 
@@ -226,34 +226,34 @@ P _productDeserializeProp<P>(
     case 0:
       return (reader.readLongOrNull(offset)) as P;
     case 1:
-      return (reader.readLongOrNull(offset)) as P;
-    case 2:
       return (reader.readStringOrNull(offset)) as P;
+    case 2:
+      return (reader.readLongOrNull(offset)) as P;
     case 3:
       return (reader.readLongOrNull(offset)) as P;
     case 4:
-      return (reader.readLongOrNull(offset)) as P;
-    case 5:
       return (reader.readStringOrNull(offset)) as P;
-    case 6:
+    case 5:
       return (reader.readObjectOrNull<Dimensions>(
         offset,
         DimensionsSchema.deserialize,
         allOffsets,
       )) as P;
+    case 6:
+      return (reader.readLongOrNull(offset)) as P;
     case 7:
       return (reader.readLongOrNull(offset)) as P;
     case 8:
-      return (reader.readLongOrNull(offset)) as P;
-    case 9:
       return (reader.readStringOrNull(offset)) as P;
-    case 10:
+    case 9:
       return (reader.readLongOrNull(offset)) as P;
-    case 11:
+    case 10:
       return (reader.readStringList(offset) ?? []) as P;
-    case 12:
+    case 11:
       return (_ProductprogressValueEnumMap[reader.readStringOrNull(offset)])
           as P;
+    case 12:
+      return (reader.readLongOrNull(offset)) as P;
     default:
       throw IsarError('Unknown property with id $propertyId');
   }
@@ -361,77 +361,6 @@ extension ProductQueryWhere on QueryBuilder<Product, Product, QWhereClause> {
 
 extension ProductQueryFilter
     on QueryBuilder<Product, Product, QFilterCondition> {
-  QueryBuilder<Product, Product, QAfterFilterCondition> addedTimestampIsNull() {
-    return QueryBuilder.apply(this, (query) {
-      return query.addFilterCondition(const FilterCondition.isNull(
-        property: r'addedTimestamp',
-      ));
-    });
-  }
-
-  QueryBuilder<Product, Product, QAfterFilterCondition>
-      addedTimestampIsNotNull() {
-    return QueryBuilder.apply(this, (query) {
-      return query.addFilterCondition(const FilterCondition.isNotNull(
-        property: r'addedTimestamp',
-      ));
-    });
-  }
-
-  QueryBuilder<Product, Product, QAfterFilterCondition> addedTimestampEqualTo(
-      int? value) {
-    return QueryBuilder.apply(this, (query) {
-      return query.addFilterCondition(FilterCondition.equalTo(
-        property: r'addedTimestamp',
-        value: value,
-      ));
-    });
-  }
-
-  QueryBuilder<Product, Product, QAfterFilterCondition>
-      addedTimestampGreaterThan(
-    int? value, {
-    bool include = false,
-  }) {
-    return QueryBuilder.apply(this, (query) {
-      return query.addFilterCondition(FilterCondition.greaterThan(
-        include: include,
-        property: r'addedTimestamp',
-        value: value,
-      ));
-    });
-  }
-
-  QueryBuilder<Product, Product, QAfterFilterCondition> addedTimestampLessThan(
-    int? value, {
-    bool include = false,
-  }) {
-    return QueryBuilder.apply(this, (query) {
-      return query.addFilterCondition(FilterCondition.lessThan(
-        include: include,
-        property: r'addedTimestamp',
-        value: value,
-      ));
-    });
-  }
-
-  QueryBuilder<Product, Product, QAfterFilterCondition> addedTimestampBetween(
-    int? lower,
-    int? upper, {
-    bool includeLower = true,
-    bool includeUpper = true,
-  }) {
-    return QueryBuilder.apply(this, (query) {
-      return query.addFilterCondition(FilterCondition.between(
-        property: r'addedTimestamp',
-        lower: lower,
-        includeLower: includeLower,
-        upper: upper,
-        includeUpper: includeUpper,
-      ));
-    });
-  }
-
   QueryBuilder<Product, Product, QAfterFilterCondition> availableIsNull() {
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(const FilterCondition.isNull(
@@ -1724,6 +1653,79 @@ extension ProductQueryFilter
       ));
     });
   }
+
+  QueryBuilder<Product, Product, QAfterFilterCondition>
+      startedTimestampIsNull() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(const FilterCondition.isNull(
+        property: r'startedTimestamp',
+      ));
+    });
+  }
+
+  QueryBuilder<Product, Product, QAfterFilterCondition>
+      startedTimestampIsNotNull() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(const FilterCondition.isNotNull(
+        property: r'startedTimestamp',
+      ));
+    });
+  }
+
+  QueryBuilder<Product, Product, QAfterFilterCondition> startedTimestampEqualTo(
+      int? value) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.equalTo(
+        property: r'startedTimestamp',
+        value: value,
+      ));
+    });
+  }
+
+  QueryBuilder<Product, Product, QAfterFilterCondition>
+      startedTimestampGreaterThan(
+    int? value, {
+    bool include = false,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.greaterThan(
+        include: include,
+        property: r'startedTimestamp',
+        value: value,
+      ));
+    });
+  }
+
+  QueryBuilder<Product, Product, QAfterFilterCondition>
+      startedTimestampLessThan(
+    int? value, {
+    bool include = false,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.lessThan(
+        include: include,
+        property: r'startedTimestamp',
+        value: value,
+      ));
+    });
+  }
+
+  QueryBuilder<Product, Product, QAfterFilterCondition> startedTimestampBetween(
+    int? lower,
+    int? upper, {
+    bool includeLower = true,
+    bool includeUpper = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.between(
+        property: r'startedTimestamp',
+        lower: lower,
+        includeLower: includeLower,
+        upper: upper,
+        includeUpper: includeUpper,
+      ));
+    });
+  }
 }
 
 extension ProductQueryObject
@@ -1853,18 +1855,6 @@ extension ProductQueryLinks
 }
 
 extension ProductQuerySortBy on QueryBuilder<Product, Product, QSortBy> {
-  QueryBuilder<Product, Product, QAfterSortBy> sortByAddedTimestamp() {
-    return QueryBuilder.apply(this, (query) {
-      return query.addSortBy(r'addedTimestamp', Sort.asc);
-    });
-  }
-
-  QueryBuilder<Product, Product, QAfterSortBy> sortByAddedTimestampDesc() {
-    return QueryBuilder.apply(this, (query) {
-      return query.addSortBy(r'addedTimestamp', Sort.desc);
-    });
-  }
-
   QueryBuilder<Product, Product, QAfterSortBy> sortByAvailable() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'available', Sort.asc);
@@ -1985,22 +1975,22 @@ extension ProductQuerySortBy on QueryBuilder<Product, Product, QSortBy> {
       return query.addSortBy(r'progress', Sort.desc);
     });
   }
+
+  QueryBuilder<Product, Product, QAfterSortBy> sortByStartedTimestamp() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'startedTimestamp', Sort.asc);
+    });
+  }
+
+  QueryBuilder<Product, Product, QAfterSortBy> sortByStartedTimestampDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'startedTimestamp', Sort.desc);
+    });
+  }
 }
 
 extension ProductQuerySortThenBy
     on QueryBuilder<Product, Product, QSortThenBy> {
-  QueryBuilder<Product, Product, QAfterSortBy> thenByAddedTimestamp() {
-    return QueryBuilder.apply(this, (query) {
-      return query.addSortBy(r'addedTimestamp', Sort.asc);
-    });
-  }
-
-  QueryBuilder<Product, Product, QAfterSortBy> thenByAddedTimestampDesc() {
-    return QueryBuilder.apply(this, (query) {
-      return query.addSortBy(r'addedTimestamp', Sort.desc);
-    });
-  }
-
   QueryBuilder<Product, Product, QAfterSortBy> thenByAvailable() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'available', Sort.asc);
@@ -2133,16 +2123,22 @@ extension ProductQuerySortThenBy
       return query.addSortBy(r'progress', Sort.desc);
     });
   }
+
+  QueryBuilder<Product, Product, QAfterSortBy> thenByStartedTimestamp() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'startedTimestamp', Sort.asc);
+    });
+  }
+
+  QueryBuilder<Product, Product, QAfterSortBy> thenByStartedTimestampDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'startedTimestamp', Sort.desc);
+    });
+  }
 }
 
 extension ProductQueryWhereDistinct
     on QueryBuilder<Product, Product, QDistinct> {
-  QueryBuilder<Product, Product, QDistinct> distinctByAddedTimestamp() {
-    return QueryBuilder.apply(this, (query) {
-      return query.addDistinctBy(r'addedTimestamp');
-    });
-  }
-
   QueryBuilder<Product, Product, QDistinct> distinctByAvailable() {
     return QueryBuilder.apply(this, (query) {
       return query.addDistinctBy(r'available');
@@ -2212,6 +2208,12 @@ extension ProductQueryWhereDistinct
       return query.addDistinctBy(r'progress', caseSensitive: caseSensitive);
     });
   }
+
+  QueryBuilder<Product, Product, QDistinct> distinctByStartedTimestamp() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addDistinctBy(r'startedTimestamp');
+    });
+  }
 }
 
 extension ProductQueryProperty
@@ -2219,12 +2221,6 @@ extension ProductQueryProperty
   QueryBuilder<Product, int, QQueryOperations> idProperty() {
     return QueryBuilder.apply(this, (query) {
       return query.addPropertyName(r'id');
-    });
-  }
-
-  QueryBuilder<Product, int?, QQueryOperations> addedTimestampProperty() {
-    return QueryBuilder.apply(this, (query) {
-      return query.addPropertyName(r'addedTimestamp');
     });
   }
 
@@ -2299,6 +2295,12 @@ extension ProductQueryProperty
       progressProperty() {
     return QueryBuilder.apply(this, (query) {
       return query.addPropertyName(r'progress');
+    });
+  }
+
+  QueryBuilder<Product, int?, QQueryOperations> startedTimestampProperty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addPropertyName(r'startedTimestamp');
     });
   }
 }

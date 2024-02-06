@@ -146,8 +146,10 @@ class _ProductEditorState extends State<ProductEditor> {
           areaUnit = product.dimensions!.areaDisplayUnit ?? SizeUnit.centimeter;
         }
 
-        startDate.text = getInitialDate(product.addedTimestamp);
-        finishDate.text = getInitialDate(product.finishedTimestamp);
+        startDate.text = getInitialDateString(
+            product.startedTimestamp ?? DateTime.now().millisecondsSinceEpoch);
+
+        finishDate.text = getInitialDateString(product.finishedTimestamp);
 
         edit = product;
       }
@@ -163,7 +165,7 @@ class _ProductEditorState extends State<ProductEditor> {
         .toString();
   }
 
-  String getInitialDate(int? timestamp) {
+  String getInitialDateString(int? timestamp) {
     if (timestamp == null) {
       return '';
     }
@@ -353,7 +355,7 @@ class _ProductEditorState extends State<ProductEditor> {
           ..photos = photos.map((bytes) => base64Encode(bytes)).toList()
           ..category = categoryController.text
           ..progress = addAsProject ? progress : null
-          ..addedTimestamp = addAsProject
+          ..startedTimestamp = addAsProject
               ? textFieldDate(startDate.text)?.millisecondsSinceEpoch
               : null
           ..finishedTimestamp = addAsProject

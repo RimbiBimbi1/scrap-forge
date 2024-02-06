@@ -107,9 +107,9 @@ class _ProductStripState extends State<ProductStrip> {
       mainAxisAlignment: MainAxisAlignment.end,
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        (widget.product.addedTimestamp != null)
+        (widget.product.startedTimestamp != null)
             ? Text(
-                "Dodano: ${DateTime.fromMillisecondsSinceEpoch(1000 * widget.product.addedTimestamp!).toString().substring(0, 10)}",
+                "Zaczęto: ${DateTime.fromMillisecondsSinceEpoch(1000 * widget.product.startedTimestamp!).toString().substring(0, 10)}",
                 maxLines: 1,
                 // style: textStyle,
               )
