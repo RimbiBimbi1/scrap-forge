@@ -331,6 +331,8 @@ class _ProductGalleryState extends State<ProductGallery> {
               baseFilter.sortby = value;
             });
           },
+          sortMaterials: baseFilter.showMaterials,
+          sortProjects: baseFilter.showProjects,
         );
       },
     );

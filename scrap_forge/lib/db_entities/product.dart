@@ -41,6 +41,41 @@ class Product {
   bool isProduct() {
     return (progress != null);
   }
+
+  double? get width => dimensions?.width;
+  double? get length => dimensions?.length;
+  double? get height => dimensions?.height;
+
+  double? get projectionArea => dimensions?.projectionArea;
+  double? get maxArea {
+    List<double> nonNullDims = [
+      dimensions?.width,
+      dimensions?.length,
+      dimensions?.height
+    ].whereType<double>().toList();
+
+    if (nonNullDims.length < 2) {
+      return null;
+    }
+
+    nonNullDims.sort((a, b) => (a - b).toInt());
+
+    return nonNullDims[0] * nonNullDims[1];
+  }
+
+  double? get volume {
+    List<double> nonNullDims = [
+      dimensions?.width,
+      dimensions?.length,
+      dimensions?.height
+    ].whereType<double>().toList();
+
+    if (nonNullDims.length == 3) {
+      return dimensions!.width! * dimensions!.length! * dimensions!.height!;
+    }
+
+    return null;
+  }
 }
 
 @embedded
