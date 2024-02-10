@@ -394,6 +394,158 @@ class _GalleryFilterMenuState extends State<GalleryFilterMenu> {
                         .toList(),
                   ),
                   SettingsSection(
+                    header: InputResetSwitch(
+                      label: "Data rozpoczęcia",
+                      enabled: enableStartDate,
+                      onSwitched: (enable) {
+                        setState(() {
+                          enableStartDate = enable;
+                        });
+                        if (!enable) {
+                          minStartDate.text = '';
+                          maxStartDate.text = '';
+                        }
+                      },
+                    ),
+                    children: [
+                      Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Flexible(
+                            child: CustomTextField(
+                              onTap: () async {
+                                DateTime? date = await selectDate(context);
+
+                                if (date != null) {
+                                  minStartDate.text =
+                                      date.toString().split(" ")[0];
+                                  setState(() {
+                                    enableStartDate = true;
+                                  });
+                                }
+                              },
+                              readOnly: true,
+                              label: const Text("Od"),
+                              controller: minStartDate,
+                              validator: (value) => null,
+                              prefixIcon:
+                                  const Icon(Icons.calendar_today_outlined),
+                            ),
+                          ),
+                          Flexible(
+                            child: CustomTextField(
+                              onTap: () async {
+                                DateTime? date = await selectDate(context);
+
+                                if (date != null) {
+                                  maxStartDate.text =
+                                      date.toString().split(" ")[0];
+                                  setState(() {
+                                    enableStartDate = true;
+                                  });
+                                }
+                              },
+                              readOnly: true,
+                              label: const Text("Do"),
+                              controller: maxStartDate,
+                              validator: (value) => null,
+                              prefixIcon:
+                                  const Icon(Icons.calendar_today_outlined),
+                            ),
+                          ),
+                        ],
+                      ),
+                      Row(
+                        children: [
+                          Flexible(
+                            child: SharedErrorField(
+                              validator: (value) => minMaxDateValidator(
+                                minStartDate,
+                                maxStartDate,
+                              ),
+                            ),
+                          ),
+                        ],
+                      )
+                    ],
+                  ),
+                  SettingsSection(
+                    header: InputResetSwitch(
+                      label: "Data ukończenia",
+                      enabled: enableFinishDate,
+                      onSwitched: (enable) {
+                        setState(() {
+                          enableFinishDate = enable;
+                        });
+                        if (!enable) {
+                          minFinishDate.text = '';
+                          maxFinishDate.text = '';
+                        }
+                      },
+                    ),
+                    children: [
+                      Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Flexible(
+                            child: CustomTextField(
+                              onTap: () async {
+                                DateTime? date = await selectDate(context);
+
+                                if (date != null) {
+                                  minFinishDate.text =
+                                      date.toString().split(" ")[0];
+                                  setState(() {
+                                    enableFinishDate = true;
+                                  });
+                                }
+                              },
+                              readOnly: true,
+                              label: const Text("Od"),
+                              controller: minFinishDate,
+                              validator: (value) => null,
+                              prefixIcon:
+                                  const Icon(Icons.calendar_today_outlined),
+                            ),
+                          ),
+                          Flexible(
+                            child: CustomTextField(
+                              onTap: () async {
+                                DateTime? date = await selectDate(context);
+
+                                if (date != null) {
+                                  maxFinishDate.text =
+                                      date.toString().split(" ")[0];
+                                  setState(() {
+                                    enableFinishDate = true;
+                                  });
+                                }
+                              },
+                              readOnly: true,
+                              label: const Text("Do"),
+                              controller: maxFinishDate,
+                              validator: (value) => null,
+                              prefixIcon:
+                                  const Icon(Icons.calendar_today_outlined),
+                            ),
+                          ),
+                        ],
+                      ),
+                      Row(
+                        children: [
+                          Flexible(
+                            child: SharedErrorField(
+                              validator: (value) => minMaxDateValidator(
+                                minFinishDate,
+                                maxFinishDate,
+                              ),
+                            ),
+                          ),
+                        ],
+                      )
+                    ],
+                  ),
+                  SettingsSection(
                     header: Container(
                       padding: const EdgeInsets.symmetric(vertical: 10),
                       decoration: BoxDecoration(
@@ -722,158 +874,6 @@ class _GalleryFilterMenuState extends State<GalleryFilterMenu> {
                           ],
                         );
                       }).toList(),
-                    ],
-                  ),
-                  SettingsSection(
-                    header: InputResetSwitch(
-                      label: "Data rozpoczęcia",
-                      enabled: enableStartDate,
-                      onSwitched: (enable) {
-                        setState(() {
-                          enableStartDate = enable;
-                        });
-                        if (!enable) {
-                          minStartDate.text = '';
-                          maxStartDate.text = '';
-                        }
-                      },
-                    ),
-                    children: [
-                      Row(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          Flexible(
-                            child: CustomTextField(
-                              onTap: () async {
-                                DateTime? date = await selectDate(context);
-
-                                if (date != null) {
-                                  minStartDate.text =
-                                      date.toString().split(" ")[0];
-                                  setState(() {
-                                    enableStartDate = true;
-                                  });
-                                }
-                              },
-                              readOnly: true,
-                              label: const Text("Od"),
-                              controller: minStartDate,
-                              validator: (value) => null,
-                              prefixIcon:
-                                  const Icon(Icons.calendar_today_outlined),
-                            ),
-                          ),
-                          Flexible(
-                            child: CustomTextField(
-                              onTap: () async {
-                                DateTime? date = await selectDate(context);
-
-                                if (date != null) {
-                                  maxStartDate.text =
-                                      date.toString().split(" ")[0];
-                                  setState(() {
-                                    enableStartDate = true;
-                                  });
-                                }
-                              },
-                              readOnly: true,
-                              label: const Text("Do"),
-                              controller: maxStartDate,
-                              validator: (value) => null,
-                              prefixIcon:
-                                  const Icon(Icons.calendar_today_outlined),
-                            ),
-                          ),
-                        ],
-                      ),
-                      Row(
-                        children: [
-                          Flexible(
-                            child: SharedErrorField(
-                              validator: (value) => minMaxDateValidator(
-                                minStartDate,
-                                maxStartDate,
-                              ),
-                            ),
-                          ),
-                        ],
-                      )
-                    ],
-                  ),
-                  SettingsSection(
-                    header: InputResetSwitch(
-                      label: "Data ukończenia",
-                      enabled: enableFinishDate,
-                      onSwitched: (enable) {
-                        setState(() {
-                          enableFinishDate = enable;
-                        });
-                        if (!enable) {
-                          minFinishDate.text = '';
-                          maxFinishDate.text = '';
-                        }
-                      },
-                    ),
-                    children: [
-                      Row(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          Flexible(
-                            child: CustomTextField(
-                              onTap: () async {
-                                DateTime? date = await selectDate(context);
-
-                                if (date != null) {
-                                  minFinishDate.text =
-                                      date.toString().split(" ")[0];
-                                  setState(() {
-                                    enableFinishDate = true;
-                                  });
-                                }
-                              },
-                              readOnly: true,
-                              label: const Text("Od"),
-                              controller: minFinishDate,
-                              validator: (value) => null,
-                              prefixIcon:
-                                  const Icon(Icons.calendar_today_outlined),
-                            ),
-                          ),
-                          Flexible(
-                            child: CustomTextField(
-                              onTap: () async {
-                                DateTime? date = await selectDate(context);
-
-                                if (date != null) {
-                                  maxFinishDate.text =
-                                      date.toString().split(" ")[0];
-                                  setState(() {
-                                    enableFinishDate = true;
-                                  });
-                                }
-                              },
-                              readOnly: true,
-                              label: const Text("Do"),
-                              controller: maxFinishDate,
-                              validator: (value) => null,
-                              prefixIcon:
-                                  const Icon(Icons.calendar_today_outlined),
-                            ),
-                          ),
-                        ],
-                      ),
-                      Row(
-                        children: [
-                          Flexible(
-                            child: SharedErrorField(
-                              validator: (value) => minMaxDateValidator(
-                                minFinishDate,
-                                maxFinishDate,
-                              ),
-                            ),
-                          ),
-                        ],
-                      )
                     ],
                   ),
                 ],

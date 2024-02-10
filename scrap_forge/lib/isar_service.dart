@@ -67,7 +67,6 @@ class IsarService {
 
   Future<List<Product>> getProducts(ProductFilter filter) async {
     final isar = await db;
-
     return isar.products
         .filter()
         .nameContains(filter.nameHas, caseSensitive: false)
@@ -202,6 +201,20 @@ class IsarService {
                 filter.maxFinishDate!.millisecondsSinceEpoch + 1,
               ),
         )
+        .optional(
+          filter.sortby == 'lastModifiedTimestamp',
+          (q) => q.sortByLastModifiedTimestampDesc(),
+        )
+        .optional(
+          filter.sortby == 'startedTimestamp',
+          (q) => q.thenByStartedTimestampDesc(),
+        )
+        .optional(
+          filter.sortby == 'finishedTimestamp',
+          (q) => q.thenByFinishedTimestampDesc(),
+        )
+        .optional(filter.sortby == '', (q) => q)
+        .optional(filter.sortby == '', (q) => q)
         .findAllSync();
   }
 

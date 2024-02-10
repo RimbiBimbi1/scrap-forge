@@ -8,6 +8,7 @@ import 'package:scrap_forge/pages/gallery_filter_menu.dart';
 import 'package:scrap_forge/utils/fetch_products.dart';
 import 'package:scrap_forge/utils/product_list_comparator.dart';
 import 'package:scrap_forge/widgets/product_strip.dart';
+import 'package:scrap_forge/widgets/sort_dialog.dart';
 
 enum SelectionOptions { delete() }
 
@@ -319,6 +320,22 @@ class _ProductGalleryState extends State<ProductGallery> {
     );
   }
 
+  Future<void> _displaySortDialog() async {
+    return showDialog<void>(
+      context: context,
+      builder: (context) {
+        return SortDialog(
+          sortBy: baseFilter.sortby,
+          onClose: (value) {
+            setState(() {
+              baseFilter.sortby = value;
+            });
+          },
+        );
+      },
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     SystemChrome.setPreferredOrientations([
@@ -402,6 +419,10 @@ class _ProductGalleryState extends State<ProductGallery> {
       appBar: AppBar(
         title: const Text("Produkty"),
         actions: [
+          IconButton(
+            onPressed: _displaySortDialog,
+            icon: const Icon(Icons.sort_rounded),
+          ),
           IconButton(
             onPressed: () {
               Navigator.of(context).push(

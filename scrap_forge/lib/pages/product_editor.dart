@@ -870,7 +870,6 @@ class _ProductEditorState extends State<ProductEditor> {
                               CustomTextField(
                                 onTap: () async {
                                   DateTime? date = await selectDate(context);
-
                                   if (date != null) {
                                     finishDate.text =
                                         date.toString().split(" ")[0];
