@@ -67,7 +67,11 @@ class IsarService {
 
   Future<List<Product>> getProducts(ProductFilter filter) async {
     final isar = await db;
-    return isar.products
+
+    print(filter.sortOrder);
+    print(filter.sortby);
+
+    QueryBuilder<Product, Product, QAfterFilterCondition> query = isar.products
         .filter()
         .nameContains(filter.nameHas, caseSensitive: false)
         // .optional(filter.ca, (q) => null)
@@ -200,31 +204,15 @@ class IsarService {
           (q) => q.finishedTimestampIsNotNull().finishedTimestampLessThan(
                 filter.maxFinishDate!.millisecondsSinceEpoch + 1,
               ),
-        )
-        .optional(
-          filter.sortby == 'lastModifiedTimestamp',
-          (q) => q.sortByLastModifiedTimestampDesc(),
-        )
-        .optional(
-          filter.sortby == 'startedTimestamp',
-          (q) => q.thenByStartedTimestampDesc(),
-        )
-        .optional(
-          filter.sortby == 'finishedTimestamp',
-          (q) => q.thenByFinishedTimestampDesc(),
-        )
-        .optional(filter.sortby == 'count', (q) => q.thenByCountDesc())
-        .optional(filter.sortby == 'consumed', (q) => q.thenByConsumedDesc())
-        .optional(filter.sortby == 'available', (q) => q.thenByAvailableDesc())
-        .optional(filter.sortby == 'needed', (q) => q.thenByNeededDesc())
-        .optional(filter.sortby == 'width', (q) => q.thenByWidthDesc())
-        .optional(filter.sortby == 'length', (q) => q.thenByHeightDesc())
-        .optional(filter.sortby == 'height', (q) => q.thenByLengthDesc())
-        .optional(filter.sortby == 'projectionArea',
-            (q) => q.thenByProjectionAreaDesc())
-        .optional(filter.sortby == 'maxArea', (q) => q.thenByMaxAreaDesc())
-        .optional(filter.sortby == 'volume', (q) => q.thenByVolumeDesc())
-        .findAllSync();
+        );
+
+    // ignore: invalid_use_of_protected_member
+    query = QueryBuilder.apply(
+        query,
+        (query) => query.addSortBy(
+            filter.sortby, filter.sortOrder ? Sort.asc : Sort.desc));
+
+    return query.findAllSync();
   }
 
   Stream<List<Product>> listenToProducts() async* {

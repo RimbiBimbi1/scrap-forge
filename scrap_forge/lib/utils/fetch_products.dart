@@ -35,27 +35,30 @@ class ProductFilter {
   DateTime? maxFinishDate;
 
   String sortby;
+  bool sortOrder;
 
-  ProductFilter(
-      {this.nameHas = '',
-      this.showProjects = false,
-      this.showFinished = false,
-      this.showInProgress = false,
-      this.showPlanned = false,
-      this.showMaterials = false,
-      this.minConsumed,
-      this.minAvailable,
-      this.minNeeded,
-      this.maxConsumed,
-      this.maxAvailable,
-      this.maxNeeded,
-      this.minDimensions,
-      this.maxDimensions,
-      this.minStartDate,
-      this.maxStartDate,
-      this.minFinishDate,
-      this.maxFinishDate,
-      this.sortby = 'lastModifiedTimestamp'});
+  ProductFilter({
+    this.nameHas = '',
+    this.showProjects = false,
+    this.showFinished = false,
+    this.showInProgress = false,
+    this.showPlanned = false,
+    this.showMaterials = false,
+    this.minConsumed,
+    this.minAvailable,
+    this.minNeeded,
+    this.maxConsumed,
+    this.maxAvailable,
+    this.maxNeeded,
+    this.minDimensions,
+    this.maxDimensions,
+    this.minStartDate,
+    this.maxStartDate,
+    this.minFinishDate,
+    this.maxFinishDate,
+    this.sortby = 'lastModifiedTimestamp',
+    this.sortOrder = false,
+  });
 
   static ProductFilter projects() {
     return ProductFilter(showProjects: true);

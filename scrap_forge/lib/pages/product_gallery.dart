@@ -34,6 +34,21 @@ class _ProductGalleryState extends State<ProductGallery> {
   void initState() {
     super.initState();
     getArguments();
+
+    db.listenToProducts().listen(
+      (event) async {
+        List<Product> result = await getProducts(baseFilter);
+
+        if (mounted &&
+            !ProductListComparator.compareByLastModifiedTimestamps(
+                products, result)) {
+          setState(() {
+            this.products = result;
+            this.selected = List.filled(result.length, false);
+          });
+        }
+      },
+    );
   }
 
   Future<void> getArguments() async {
@@ -328,7 +343,7 @@ class _ProductGalleryState extends State<ProductGallery> {
           sortBy: baseFilter.sortby,
           onClose: (value) {
             setState(() {
-              baseFilter.sortby = value;
+              onFilterUpdate(baseFilter..sortby = value);
             });
           },
           sortMaterials: baseFilter.showMaterials,
@@ -346,18 +361,6 @@ class _ProductGalleryState extends State<ProductGallery> {
     ]);
     ThemeData theme = Theme.of(context);
 
-    db.listenToProducts().listen((event) async {
-      List<Product> result = await getProducts(baseFilter);
-
-      if (mounted &&
-          !ProductListComparator.compareByLastModifiedTimestamps(
-              products, result)) {
-        setState(() {
-          this.products = result;
-          this.selected = List.filled(result.length, false);
-        });
-      }
-    });
     return Scaffold(
       persistentFooterAlignment: AlignmentDirectional.center,
       persistentFooterButtons: [

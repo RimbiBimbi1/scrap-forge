@@ -36,10 +36,10 @@ class _SortDialogState extends State<SortDialog> {
         child: ListView(
           // mainAxisSize: MainAxisSize.min,
           children: [
-            {'label': 'Szerokości', 'value': 'width'},
-            {'label': 'Długości', 'value': 'length'},
-            {'label': 'Wysokości', 'value': 'height'},
-            {'label': 'Powierzchni rzutu', 'value': 'projectionArea'},
+            {'label': 'Szerokości', 'value': 'widthmm'},
+            {'label': 'Długości', 'value': 'lengthmm'},
+            {'label': 'Wysokości', 'value': 'heightmm'},
+            {'label': 'Powierzchni rzutu', 'value': 'projectionAreamm'},
             {'label': 'Maksymalnej powierzchni', 'value': 'maxArea'},
             {'label': 'Objętości', 'value': 'volume'},
 

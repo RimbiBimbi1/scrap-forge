@@ -84,12 +84,6 @@ class _ProductStripState extends State<ProductStrip> {
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
                 Text(DimensionFormatter.toLxWxH(widget.product.dimensions)),
-                // if (widget.product.dimensions?.length != null)
-                //   Text("Długość: ${widget.product.dimensions?.length}mm"),
-                // if (widget.product.dimensions?.width != null)
-                //   Text("Szerokość: ${widget.product.dimensions?.width}mm"),
-                // if (widget.product.dimensions?.height != null)
-                //   Text("Wysokość: ${widget.product.dimensions?.height}mm"),
                 const Divider(),
                 Text("Wykorzystane: ${widget.product.consumed ?? 0}"),
                 Text("Na stanie: ${widget.product.available ?? 0}"),

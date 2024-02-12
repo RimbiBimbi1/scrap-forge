@@ -1,3 +1,4 @@
+import 'package:flutter/material.dart';
 import 'package:isar/isar.dart';
 
 part 'product.g.dart';
@@ -42,12 +43,12 @@ class Product {
     return (progress != null);
   }
 
-  double? get width => dimensions?.width;
-  double? get length => dimensions?.length;
-  double? get height => dimensions?.height;
+  double get lengthmm => dimensions?.length ?? 0;
+  double get widthmm => dimensions?.width ?? 0;
+  double get heightmm => dimensions?.height ?? 0;
 
-  double? get projectionArea => dimensions?.projectionArea;
-  double? get maxArea {
+  double get projectionAreamm => dimensions?.projectionArea ?? 0;
+  double get maxArea {
     List<double> nonNullDims = [
       dimensions?.width,
       dimensions?.length,
@@ -55,7 +56,7 @@ class Product {
     ].whereType<double>().toList();
 
     if (nonNullDims.length < 2) {
-      return null;
+      return 0;
     }
 
     nonNullDims.sort((a, b) => (a - b).toInt());
@@ -63,7 +64,7 @@ class Product {
     return nonNullDims[0] * nonNullDims[1];
   }
 
-  double? get volume {
+  double get volume {
     List<double> nonNullDims = [
       dimensions?.width,
       dimensions?.length,
@@ -71,10 +72,15 @@ class Product {
     ].whereType<double>().toList();
 
     if (nonNullDims.length == 3) {
-      return dimensions!.width! * dimensions!.length! * dimensions!.height!;
+      return dimensions!.width! /
+          100 *
+          dimensions!.length! /
+          100 *
+          dimensions!.height! /
+          100;
     }
 
-    return null;
+    return 0;
   }
 }
 

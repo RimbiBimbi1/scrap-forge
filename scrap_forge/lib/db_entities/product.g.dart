@@ -53,9 +53,9 @@ const ProductSchema = CollectionSchema(
       name: r'finishedTimestamp',
       type: IsarType.long,
     ),
-    r'height': PropertySchema(
+    r'heightmm': PropertySchema(
       id: 7,
-      name: r'height',
+      name: r'heightmm',
       type: IsarType.double,
     ),
     r'lastModifiedTimestamp': PropertySchema(
@@ -63,9 +63,9 @@ const ProductSchema = CollectionSchema(
       name: r'lastModifiedTimestamp',
       type: IsarType.long,
     ),
-    r'length': PropertySchema(
+    r'lengthmm': PropertySchema(
       id: 9,
-      name: r'length',
+      name: r'lengthmm',
       type: IsarType.double,
     ),
     r'maxArea': PropertySchema(
@@ -94,9 +94,9 @@ const ProductSchema = CollectionSchema(
       type: IsarType.string,
       enumMap: _ProductprogressEnumValueMap,
     ),
-    r'projectionArea': PropertySchema(
+    r'projectionAreamm': PropertySchema(
       id: 15,
-      name: r'projectionArea',
+      name: r'projectionAreamm',
       type: IsarType.double,
     ),
     r'startedTimestamp': PropertySchema(
@@ -109,9 +109,9 @@ const ProductSchema = CollectionSchema(
       name: r'volume',
       type: IsarType.double,
     ),
-    r'width': PropertySchema(
+    r'widthmm': PropertySchema(
       id: 18,
-      name: r'width',
+      name: r'widthmm',
       type: IsarType.double,
     )
   },
@@ -209,18 +209,18 @@ void _productSerialize(
     object.dimensions,
   );
   writer.writeLong(offsets[6], object.finishedTimestamp);
-  writer.writeDouble(offsets[7], object.height);
+  writer.writeDouble(offsets[7], object.heightmm);
   writer.writeLong(offsets[8], object.lastModifiedTimestamp);
-  writer.writeDouble(offsets[9], object.length);
+  writer.writeDouble(offsets[9], object.lengthmm);
   writer.writeDouble(offsets[10], object.maxArea);
   writer.writeString(offsets[11], object.name);
   writer.writeLong(offsets[12], object.needed);
   writer.writeStringList(offsets[13], object.photos);
   writer.writeString(offsets[14], object.progress?.name);
-  writer.writeDouble(offsets[15], object.projectionArea);
+  writer.writeDouble(offsets[15], object.projectionAreamm);
   writer.writeLong(offsets[16], object.startedTimestamp);
   writer.writeDouble(offsets[17], object.volume);
-  writer.writeDouble(offsets[18], object.width);
+  writer.writeDouble(offsets[18], object.widthmm);
 }
 
 Product _productDeserialize(
@@ -278,13 +278,13 @@ P _productDeserializeProp<P>(
     case 6:
       return (reader.readLongOrNull(offset)) as P;
     case 7:
-      return (reader.readDoubleOrNull(offset)) as P;
+      return (reader.readDouble(offset)) as P;
     case 8:
       return (reader.readLongOrNull(offset)) as P;
     case 9:
-      return (reader.readDoubleOrNull(offset)) as P;
+      return (reader.readDouble(offset)) as P;
     case 10:
-      return (reader.readDoubleOrNull(offset)) as P;
+      return (reader.readDouble(offset)) as P;
     case 11:
       return (reader.readStringOrNull(offset)) as P;
     case 12:
@@ -295,13 +295,13 @@ P _productDeserializeProp<P>(
       return (_ProductprogressValueEnumMap[reader.readStringOrNull(offset)])
           as P;
     case 15:
-      return (reader.readDoubleOrNull(offset)) as P;
+      return (reader.readDouble(offset)) as P;
     case 16:
       return (reader.readLongOrNull(offset)) as P;
     case 17:
-      return (reader.readDoubleOrNull(offset)) as P;
+      return (reader.readDouble(offset)) as P;
     case 18:
-      return (reader.readDoubleOrNull(offset)) as P;
+      return (reader.readDouble(offset)) as P;
     default:
       throw IsarError('Unknown property with id $propertyId');
   }
@@ -999,75 +999,59 @@ extension ProductQueryFilter
     });
   }
 
-  QueryBuilder<Product, Product, QAfterFilterCondition> heightIsNull() {
-    return QueryBuilder.apply(this, (query) {
-      return query.addFilterCondition(const FilterCondition.isNull(
-        property: r'height',
-      ));
-    });
-  }
-
-  QueryBuilder<Product, Product, QAfterFilterCondition> heightIsNotNull() {
-    return QueryBuilder.apply(this, (query) {
-      return query.addFilterCondition(const FilterCondition.isNotNull(
-        property: r'height',
-      ));
-    });
-  }
-
-  QueryBuilder<Product, Product, QAfterFilterCondition> heightEqualTo(
-    double? value, {
+  QueryBuilder<Product, Product, QAfterFilterCondition> heightmmEqualTo(
+    double value, {
     double epsilon = Query.epsilon,
   }) {
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(FilterCondition.equalTo(
-        property: r'height',
+        property: r'heightmm',
         value: value,
         epsilon: epsilon,
       ));
     });
   }
 
-  QueryBuilder<Product, Product, QAfterFilterCondition> heightGreaterThan(
-    double? value, {
+  QueryBuilder<Product, Product, QAfterFilterCondition> heightmmGreaterThan(
+    double value, {
     bool include = false,
     double epsilon = Query.epsilon,
   }) {
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(FilterCondition.greaterThan(
         include: include,
-        property: r'height',
+        property: r'heightmm',
         value: value,
         epsilon: epsilon,
       ));
     });
   }
 
-  QueryBuilder<Product, Product, QAfterFilterCondition> heightLessThan(
-    double? value, {
+  QueryBuilder<Product, Product, QAfterFilterCondition> heightmmLessThan(
+    double value, {
     bool include = false,
     double epsilon = Query.epsilon,
   }) {
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(FilterCondition.lessThan(
         include: include,
-        property: r'height',
+        property: r'heightmm',
         value: value,
         epsilon: epsilon,
       ));
     });
   }
 
-  QueryBuilder<Product, Product, QAfterFilterCondition> heightBetween(
-    double? lower,
-    double? upper, {
+  QueryBuilder<Product, Product, QAfterFilterCondition> heightmmBetween(
+    double lower,
+    double upper, {
     bool includeLower = true,
     bool includeUpper = true,
     double epsilon = Query.epsilon,
   }) {
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(FilterCondition.between(
-        property: r'height',
+        property: r'heightmm',
         lower: lower,
         includeLower: includeLower,
         upper: upper,
@@ -1203,75 +1187,59 @@ extension ProductQueryFilter
     });
   }
 
-  QueryBuilder<Product, Product, QAfterFilterCondition> lengthIsNull() {
-    return QueryBuilder.apply(this, (query) {
-      return query.addFilterCondition(const FilterCondition.isNull(
-        property: r'length',
-      ));
-    });
-  }
-
-  QueryBuilder<Product, Product, QAfterFilterCondition> lengthIsNotNull() {
-    return QueryBuilder.apply(this, (query) {
-      return query.addFilterCondition(const FilterCondition.isNotNull(
-        property: r'length',
-      ));
-    });
-  }
-
-  QueryBuilder<Product, Product, QAfterFilterCondition> lengthEqualTo(
-    double? value, {
+  QueryBuilder<Product, Product, QAfterFilterCondition> lengthmmEqualTo(
+    double value, {
     double epsilon = Query.epsilon,
   }) {
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(FilterCondition.equalTo(
-        property: r'length',
+        property: r'lengthmm',
         value: value,
         epsilon: epsilon,
       ));
     });
   }
 
-  QueryBuilder<Product, Product, QAfterFilterCondition> lengthGreaterThan(
-    double? value, {
+  QueryBuilder<Product, Product, QAfterFilterCondition> lengthmmGreaterThan(
+    double value, {
     bool include = false,
     double epsilon = Query.epsilon,
   }) {
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(FilterCondition.greaterThan(
         include: include,
-        property: r'length',
+        property: r'lengthmm',
         value: value,
         epsilon: epsilon,
       ));
     });
   }
 
-  QueryBuilder<Product, Product, QAfterFilterCondition> lengthLessThan(
-    double? value, {
+  QueryBuilder<Product, Product, QAfterFilterCondition> lengthmmLessThan(
+    double value, {
     bool include = false,
     double epsilon = Query.epsilon,
   }) {
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(FilterCondition.lessThan(
         include: include,
-        property: r'length',
+        property: r'lengthmm',
         value: value,
         epsilon: epsilon,
       ));
     });
   }
 
-  QueryBuilder<Product, Product, QAfterFilterCondition> lengthBetween(
-    double? lower,
-    double? upper, {
+  QueryBuilder<Product, Product, QAfterFilterCondition> lengthmmBetween(
+    double lower,
+    double upper, {
     bool includeLower = true,
     bool includeUpper = true,
     double epsilon = Query.epsilon,
   }) {
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(FilterCondition.between(
-        property: r'length',
+        property: r'lengthmm',
         lower: lower,
         includeLower: includeLower,
         upper: upper,
@@ -1281,24 +1249,8 @@ extension ProductQueryFilter
     });
   }
 
-  QueryBuilder<Product, Product, QAfterFilterCondition> maxAreaIsNull() {
-    return QueryBuilder.apply(this, (query) {
-      return query.addFilterCondition(const FilterCondition.isNull(
-        property: r'maxArea',
-      ));
-    });
-  }
-
-  QueryBuilder<Product, Product, QAfterFilterCondition> maxAreaIsNotNull() {
-    return QueryBuilder.apply(this, (query) {
-      return query.addFilterCondition(const FilterCondition.isNotNull(
-        property: r'maxArea',
-      ));
-    });
-  }
-
   QueryBuilder<Product, Product, QAfterFilterCondition> maxAreaEqualTo(
-    double? value, {
+    double value, {
     double epsilon = Query.epsilon,
   }) {
     return QueryBuilder.apply(this, (query) {
@@ -1311,7 +1263,7 @@ extension ProductQueryFilter
   }
 
   QueryBuilder<Product, Product, QAfterFilterCondition> maxAreaGreaterThan(
-    double? value, {
+    double value, {
     bool include = false,
     double epsilon = Query.epsilon,
   }) {
@@ -1326,7 +1278,7 @@ extension ProductQueryFilter
   }
 
   QueryBuilder<Product, Product, QAfterFilterCondition> maxAreaLessThan(
-    double? value, {
+    double value, {
     bool include = false,
     double epsilon = Query.epsilon,
   }) {
@@ -1341,8 +1293,8 @@ extension ProductQueryFilter
   }
 
   QueryBuilder<Product, Product, QAfterFilterCondition> maxAreaBetween(
-    double? lower,
-    double? upper, {
+    double lower,
+    double upper, {
     bool includeLower = true,
     bool includeUpper = true,
     double epsilon = Query.epsilon,
@@ -1936,30 +1888,13 @@ extension ProductQueryFilter
     });
   }
 
-  QueryBuilder<Product, Product, QAfterFilterCondition> projectionAreaIsNull() {
-    return QueryBuilder.apply(this, (query) {
-      return query.addFilterCondition(const FilterCondition.isNull(
-        property: r'projectionArea',
-      ));
-    });
-  }
-
-  QueryBuilder<Product, Product, QAfterFilterCondition>
-      projectionAreaIsNotNull() {
-    return QueryBuilder.apply(this, (query) {
-      return query.addFilterCondition(const FilterCondition.isNotNull(
-        property: r'projectionArea',
-      ));
-    });
-  }
-
-  QueryBuilder<Product, Product, QAfterFilterCondition> projectionAreaEqualTo(
-    double? value, {
+  QueryBuilder<Product, Product, QAfterFilterCondition> projectionAreammEqualTo(
+    double value, {
     double epsilon = Query.epsilon,
   }) {
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(FilterCondition.equalTo(
-        property: r'projectionArea',
+        property: r'projectionAreamm',
         value: value,
         epsilon: epsilon,
       ));
@@ -1967,46 +1902,47 @@ extension ProductQueryFilter
   }
 
   QueryBuilder<Product, Product, QAfterFilterCondition>
-      projectionAreaGreaterThan(
-    double? value, {
+      projectionAreammGreaterThan(
+    double value, {
     bool include = false,
     double epsilon = Query.epsilon,
   }) {
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(FilterCondition.greaterThan(
         include: include,
-        property: r'projectionArea',
+        property: r'projectionAreamm',
         value: value,
         epsilon: epsilon,
       ));
     });
   }
 
-  QueryBuilder<Product, Product, QAfterFilterCondition> projectionAreaLessThan(
-    double? value, {
+  QueryBuilder<Product, Product, QAfterFilterCondition>
+      projectionAreammLessThan(
+    double value, {
     bool include = false,
     double epsilon = Query.epsilon,
   }) {
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(FilterCondition.lessThan(
         include: include,
-        property: r'projectionArea',
+        property: r'projectionAreamm',
         value: value,
         epsilon: epsilon,
       ));
     });
   }
 
-  QueryBuilder<Product, Product, QAfterFilterCondition> projectionAreaBetween(
-    double? lower,
-    double? upper, {
+  QueryBuilder<Product, Product, QAfterFilterCondition> projectionAreammBetween(
+    double lower,
+    double upper, {
     bool includeLower = true,
     bool includeUpper = true,
     double epsilon = Query.epsilon,
   }) {
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(FilterCondition.between(
-        property: r'projectionArea',
+        property: r'projectionAreamm',
         lower: lower,
         includeLower: includeLower,
         upper: upper,
@@ -2089,24 +2025,8 @@ extension ProductQueryFilter
     });
   }
 
-  QueryBuilder<Product, Product, QAfterFilterCondition> volumeIsNull() {
-    return QueryBuilder.apply(this, (query) {
-      return query.addFilterCondition(const FilterCondition.isNull(
-        property: r'volume',
-      ));
-    });
-  }
-
-  QueryBuilder<Product, Product, QAfterFilterCondition> volumeIsNotNull() {
-    return QueryBuilder.apply(this, (query) {
-      return query.addFilterCondition(const FilterCondition.isNotNull(
-        property: r'volume',
-      ));
-    });
-  }
-
   QueryBuilder<Product, Product, QAfterFilterCondition> volumeEqualTo(
-    double? value, {
+    double value, {
     double epsilon = Query.epsilon,
   }) {
     return QueryBuilder.apply(this, (query) {
@@ -2119,7 +2039,7 @@ extension ProductQueryFilter
   }
 
   QueryBuilder<Product, Product, QAfterFilterCondition> volumeGreaterThan(
-    double? value, {
+    double value, {
     bool include = false,
     double epsilon = Query.epsilon,
   }) {
@@ -2134,7 +2054,7 @@ extension ProductQueryFilter
   }
 
   QueryBuilder<Product, Product, QAfterFilterCondition> volumeLessThan(
-    double? value, {
+    double value, {
     bool include = false,
     double epsilon = Query.epsilon,
   }) {
@@ -2149,8 +2069,8 @@ extension ProductQueryFilter
   }
 
   QueryBuilder<Product, Product, QAfterFilterCondition> volumeBetween(
-    double? lower,
-    double? upper, {
+    double lower,
+    double upper, {
     bool includeLower = true,
     bool includeUpper = true,
     double epsilon = Query.epsilon,
@@ -2167,75 +2087,59 @@ extension ProductQueryFilter
     });
   }
 
-  QueryBuilder<Product, Product, QAfterFilterCondition> widthIsNull() {
-    return QueryBuilder.apply(this, (query) {
-      return query.addFilterCondition(const FilterCondition.isNull(
-        property: r'width',
-      ));
-    });
-  }
-
-  QueryBuilder<Product, Product, QAfterFilterCondition> widthIsNotNull() {
-    return QueryBuilder.apply(this, (query) {
-      return query.addFilterCondition(const FilterCondition.isNotNull(
-        property: r'width',
-      ));
-    });
-  }
-
-  QueryBuilder<Product, Product, QAfterFilterCondition> widthEqualTo(
-    double? value, {
+  QueryBuilder<Product, Product, QAfterFilterCondition> widthmmEqualTo(
+    double value, {
     double epsilon = Query.epsilon,
   }) {
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(FilterCondition.equalTo(
-        property: r'width',
+        property: r'widthmm',
         value: value,
         epsilon: epsilon,
       ));
     });
   }
 
-  QueryBuilder<Product, Product, QAfterFilterCondition> widthGreaterThan(
-    double? value, {
+  QueryBuilder<Product, Product, QAfterFilterCondition> widthmmGreaterThan(
+    double value, {
     bool include = false,
     double epsilon = Query.epsilon,
   }) {
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(FilterCondition.greaterThan(
         include: include,
-        property: r'width',
+        property: r'widthmm',
         value: value,
         epsilon: epsilon,
       ));
     });
   }
 
-  QueryBuilder<Product, Product, QAfterFilterCondition> widthLessThan(
-    double? value, {
+  QueryBuilder<Product, Product, QAfterFilterCondition> widthmmLessThan(
+    double value, {
     bool include = false,
     double epsilon = Query.epsilon,
   }) {
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(FilterCondition.lessThan(
         include: include,
-        property: r'width',
+        property: r'widthmm',
         value: value,
         epsilon: epsilon,
       ));
     });
   }
 
-  QueryBuilder<Product, Product, QAfterFilterCondition> widthBetween(
-    double? lower,
-    double? upper, {
+  QueryBuilder<Product, Product, QAfterFilterCondition> widthmmBetween(
+    double lower,
+    double upper, {
     bool includeLower = true,
     bool includeUpper = true,
     double epsilon = Query.epsilon,
   }) {
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(FilterCondition.between(
-        property: r'width',
+        property: r'widthmm',
         lower: lower,
         includeLower: includeLower,
         upper: upper,
@@ -2445,15 +2349,15 @@ extension ProductQuerySortBy on QueryBuilder<Product, Product, QSortBy> {
     });
   }
 
-  QueryBuilder<Product, Product, QAfterSortBy> sortByHeight() {
+  QueryBuilder<Product, Product, QAfterSortBy> sortByHeightmm() {
     return QueryBuilder.apply(this, (query) {
-      return query.addSortBy(r'height', Sort.asc);
+      return query.addSortBy(r'heightmm', Sort.asc);
     });
   }
 
-  QueryBuilder<Product, Product, QAfterSortBy> sortByHeightDesc() {
+  QueryBuilder<Product, Product, QAfterSortBy> sortByHeightmmDesc() {
     return QueryBuilder.apply(this, (query) {
-      return query.addSortBy(r'height', Sort.desc);
+      return query.addSortBy(r'heightmm', Sort.desc);
     });
   }
 
@@ -2470,15 +2374,15 @@ extension ProductQuerySortBy on QueryBuilder<Product, Product, QSortBy> {
     });
   }
 
-  QueryBuilder<Product, Product, QAfterSortBy> sortByLength() {
+  QueryBuilder<Product, Product, QAfterSortBy> sortByLengthmm() {
     return QueryBuilder.apply(this, (query) {
-      return query.addSortBy(r'length', Sort.asc);
+      return query.addSortBy(r'lengthmm', Sort.asc);
     });
   }
 
-  QueryBuilder<Product, Product, QAfterSortBy> sortByLengthDesc() {
+  QueryBuilder<Product, Product, QAfterSortBy> sortByLengthmmDesc() {
     return QueryBuilder.apply(this, (query) {
-      return query.addSortBy(r'length', Sort.desc);
+      return query.addSortBy(r'lengthmm', Sort.desc);
     });
   }
 
@@ -2530,15 +2434,15 @@ extension ProductQuerySortBy on QueryBuilder<Product, Product, QSortBy> {
     });
   }
 
-  QueryBuilder<Product, Product, QAfterSortBy> sortByProjectionArea() {
+  QueryBuilder<Product, Product, QAfterSortBy> sortByProjectionAreamm() {
     return QueryBuilder.apply(this, (query) {
-      return query.addSortBy(r'projectionArea', Sort.asc);
+      return query.addSortBy(r'projectionAreamm', Sort.asc);
     });
   }
 
-  QueryBuilder<Product, Product, QAfterSortBy> sortByProjectionAreaDesc() {
+  QueryBuilder<Product, Product, QAfterSortBy> sortByProjectionAreammDesc() {
     return QueryBuilder.apply(this, (query) {
-      return query.addSortBy(r'projectionArea', Sort.desc);
+      return query.addSortBy(r'projectionAreamm', Sort.desc);
     });
   }
 
@@ -2566,15 +2470,15 @@ extension ProductQuerySortBy on QueryBuilder<Product, Product, QSortBy> {
     });
   }
 
-  QueryBuilder<Product, Product, QAfterSortBy> sortByWidth() {
+  QueryBuilder<Product, Product, QAfterSortBy> sortByWidthmm() {
     return QueryBuilder.apply(this, (query) {
-      return query.addSortBy(r'width', Sort.asc);
+      return query.addSortBy(r'widthmm', Sort.asc);
     });
   }
 
-  QueryBuilder<Product, Product, QAfterSortBy> sortByWidthDesc() {
+  QueryBuilder<Product, Product, QAfterSortBy> sortByWidthmmDesc() {
     return QueryBuilder.apply(this, (query) {
-      return query.addSortBy(r'width', Sort.desc);
+      return query.addSortBy(r'widthmm', Sort.desc);
     });
   }
 }
@@ -2653,15 +2557,15 @@ extension ProductQuerySortThenBy
     });
   }
 
-  QueryBuilder<Product, Product, QAfterSortBy> thenByHeight() {
+  QueryBuilder<Product, Product, QAfterSortBy> thenByHeightmm() {
     return QueryBuilder.apply(this, (query) {
-      return query.addSortBy(r'height', Sort.asc);
+      return query.addSortBy(r'heightmm', Sort.asc);
     });
   }
 
-  QueryBuilder<Product, Product, QAfterSortBy> thenByHeightDesc() {
+  QueryBuilder<Product, Product, QAfterSortBy> thenByHeightmmDesc() {
     return QueryBuilder.apply(this, (query) {
-      return query.addSortBy(r'height', Sort.desc);
+      return query.addSortBy(r'heightmm', Sort.desc);
     });
   }
 
@@ -2690,15 +2594,15 @@ extension ProductQuerySortThenBy
     });
   }
 
-  QueryBuilder<Product, Product, QAfterSortBy> thenByLength() {
+  QueryBuilder<Product, Product, QAfterSortBy> thenByLengthmm() {
     return QueryBuilder.apply(this, (query) {
-      return query.addSortBy(r'length', Sort.asc);
+      return query.addSortBy(r'lengthmm', Sort.asc);
     });
   }
 
-  QueryBuilder<Product, Product, QAfterSortBy> thenByLengthDesc() {
+  QueryBuilder<Product, Product, QAfterSortBy> thenByLengthmmDesc() {
     return QueryBuilder.apply(this, (query) {
-      return query.addSortBy(r'length', Sort.desc);
+      return query.addSortBy(r'lengthmm', Sort.desc);
     });
   }
 
@@ -2750,15 +2654,15 @@ extension ProductQuerySortThenBy
     });
   }
 
-  QueryBuilder<Product, Product, QAfterSortBy> thenByProjectionArea() {
+  QueryBuilder<Product, Product, QAfterSortBy> thenByProjectionAreamm() {
     return QueryBuilder.apply(this, (query) {
-      return query.addSortBy(r'projectionArea', Sort.asc);
+      return query.addSortBy(r'projectionAreamm', Sort.asc);
     });
   }
 
-  QueryBuilder<Product, Product, QAfterSortBy> thenByProjectionAreaDesc() {
+  QueryBuilder<Product, Product, QAfterSortBy> thenByProjectionAreammDesc() {
     return QueryBuilder.apply(this, (query) {
-      return query.addSortBy(r'projectionArea', Sort.desc);
+      return query.addSortBy(r'projectionAreamm', Sort.desc);
     });
   }
 
@@ -2786,15 +2690,15 @@ extension ProductQuerySortThenBy
     });
   }
 
-  QueryBuilder<Product, Product, QAfterSortBy> thenByWidth() {
+  QueryBuilder<Product, Product, QAfterSortBy> thenByWidthmm() {
     return QueryBuilder.apply(this, (query) {
-      return query.addSortBy(r'width', Sort.asc);
+      return query.addSortBy(r'widthmm', Sort.asc);
     });
   }
 
-  QueryBuilder<Product, Product, QAfterSortBy> thenByWidthDesc() {
+  QueryBuilder<Product, Product, QAfterSortBy> thenByWidthmmDesc() {
     return QueryBuilder.apply(this, (query) {
-      return query.addSortBy(r'width', Sort.desc);
+      return query.addSortBy(r'widthmm', Sort.desc);
     });
   }
 }
@@ -2839,9 +2743,9 @@ extension ProductQueryWhereDistinct
     });
   }
 
-  QueryBuilder<Product, Product, QDistinct> distinctByHeight() {
+  QueryBuilder<Product, Product, QDistinct> distinctByHeightmm() {
     return QueryBuilder.apply(this, (query) {
-      return query.addDistinctBy(r'height');
+      return query.addDistinctBy(r'heightmm');
     });
   }
 
@@ -2851,9 +2755,9 @@ extension ProductQueryWhereDistinct
     });
   }
 
-  QueryBuilder<Product, Product, QDistinct> distinctByLength() {
+  QueryBuilder<Product, Product, QDistinct> distinctByLengthmm() {
     return QueryBuilder.apply(this, (query) {
-      return query.addDistinctBy(r'length');
+      return query.addDistinctBy(r'lengthmm');
     });
   }
 
@@ -2889,9 +2793,9 @@ extension ProductQueryWhereDistinct
     });
   }
 
-  QueryBuilder<Product, Product, QDistinct> distinctByProjectionArea() {
+  QueryBuilder<Product, Product, QDistinct> distinctByProjectionAreamm() {
     return QueryBuilder.apply(this, (query) {
-      return query.addDistinctBy(r'projectionArea');
+      return query.addDistinctBy(r'projectionAreamm');
     });
   }
 
@@ -2907,9 +2811,9 @@ extension ProductQueryWhereDistinct
     });
   }
 
-  QueryBuilder<Product, Product, QDistinct> distinctByWidth() {
+  QueryBuilder<Product, Product, QDistinct> distinctByWidthmm() {
     return QueryBuilder.apply(this, (query) {
-      return query.addDistinctBy(r'width');
+      return query.addDistinctBy(r'widthmm');
     });
   }
 }
@@ -2964,9 +2868,9 @@ extension ProductQueryProperty
     });
   }
 
-  QueryBuilder<Product, double?, QQueryOperations> heightProperty() {
+  QueryBuilder<Product, double, QQueryOperations> heightmmProperty() {
     return QueryBuilder.apply(this, (query) {
-      return query.addPropertyName(r'height');
+      return query.addPropertyName(r'heightmm');
     });
   }
 
@@ -2977,13 +2881,13 @@ extension ProductQueryProperty
     });
   }
 
-  QueryBuilder<Product, double?, QQueryOperations> lengthProperty() {
+  QueryBuilder<Product, double, QQueryOperations> lengthmmProperty() {
     return QueryBuilder.apply(this, (query) {
-      return query.addPropertyName(r'length');
+      return query.addPropertyName(r'lengthmm');
     });
   }
 
-  QueryBuilder<Product, double?, QQueryOperations> maxAreaProperty() {
+  QueryBuilder<Product, double, QQueryOperations> maxAreaProperty() {
     return QueryBuilder.apply(this, (query) {
       return query.addPropertyName(r'maxArea');
     });
@@ -3014,9 +2918,9 @@ extension ProductQueryProperty
     });
   }
 
-  QueryBuilder<Product, double?, QQueryOperations> projectionAreaProperty() {
+  QueryBuilder<Product, double, QQueryOperations> projectionAreammProperty() {
     return QueryBuilder.apply(this, (query) {
-      return query.addPropertyName(r'projectionArea');
+      return query.addPropertyName(r'projectionAreamm');
     });
   }
 
@@ -3026,15 +2930,15 @@ extension ProductQueryProperty
     });
   }
 
-  QueryBuilder<Product, double?, QQueryOperations> volumeProperty() {
+  QueryBuilder<Product, double, QQueryOperations> volumeProperty() {
     return QueryBuilder.apply(this, (query) {
       return query.addPropertyName(r'volume');
     });
   }
 
-  QueryBuilder<Product, double?, QQueryOperations> widthProperty() {
+  QueryBuilder<Product, double, QQueryOperations> widthmmProperty() {
     return QueryBuilder.apply(this, (query) {
-      return query.addPropertyName(r'width');
+      return query.addPropertyName(r'widthmm');
     });
   }
 }
