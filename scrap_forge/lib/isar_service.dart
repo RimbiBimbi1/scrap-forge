@@ -68,40 +68,34 @@ class IsarService {
   Future<List<Product>> getProducts(ProductFilter filter) async {
     final isar = await db;
 
-    print(filter.sortOrder);
-    print(filter.sortby);
+    print(filter.sortDesc);
+    print(filter.sortBy);
 
     QueryBuilder<Product, Product, QAfterFilterCondition> query = isar.products
         .filter()
         .nameContains(filter.nameHas, caseSensitive: false)
         // .optional(filter.ca, (q) => null)
         // .categoryContains('', caseSensitive: false)
-        .group(
-          (q) => q
-              .optional(
-                filter.showFinished,
-                (q) => q.progressEqualTo(ProjectLifeCycle.finished),
-              )
-              .or()
-              .optional(
-                filter.showInProgress,
-                (q) => q.progressEqualTo(ProjectLifeCycle.inProgress),
-              )
-              .or()
-              .optional(
-                filter.showPlanned,
-                (q) => q.progressEqualTo(ProjectLifeCycle.planned),
-              )
-              .or()
-              .optional(
-                filter.showMaterials,
-                (q) => q.group(
-                  (q) => q
-                      .consumedIsNotNull()
-                      .availableIsNotNull()
-                      .neededIsNotNull(),
-                ),
-              ),
+        .group((q) => q
+            .optional(
+              filter.showFinished,
+              (q) => q.progressEqualTo(ProjectLifeCycle.finished),
+            )
+            .or()
+            .optional(
+              filter.showInProgress,
+              (q) => q.progressEqualTo(ProjectLifeCycle.inProgress),
+            )
+            .or()
+            .optional(
+              filter.showPlanned,
+              (q) => q.progressEqualTo(ProjectLifeCycle.planned),
+            ))
+        .optional(
+          filter.showMaterials,
+          (q) => q.group(
+            (q) => q.consumedIsNotNull().availableIsNotNull().neededIsNotNull(),
+          ),
         )
         .optional(
           !filter.showProjects,
@@ -208,9 +202,12 @@ class IsarService {
 
     // ignore: invalid_use_of_protected_member
     query = QueryBuilder.apply(
-        query,
-        (query) => query.addSortBy(
-            filter.sortby, filter.sortOrder ? Sort.asc : Sort.desc));
+      query,
+      (query) => query
+          .addFilterCondition(
+              FilterCondition.isNotNull(property: filter.sortBy))
+          .addSortBy(filter.sortBy, filter.sortDesc ? Sort.asc : Sort.desc),
+    );
 
     return query.findAllSync();
   }

@@ -340,7 +340,7 @@ class _GalleryFilterMenuState extends State<GalleryFilterMenu> {
                         ),
                       ),
                       child: Text(
-                        "Wyświetl projekty:",
+                        "Wyświetl tylko projekty:",
                         style: TextStyle(
                           color: theme.colorScheme.onBackground,
                         ),
@@ -561,7 +561,7 @@ class _GalleryFilterMenuState extends State<GalleryFilterMenu> {
                             activeColor: theme.colorScheme.primary,
                             contentPadding: const EdgeInsets.all(0),
                             title: Text(
-                              "Wyświetl materiały:",
+                              "Wyświetl tylko materiały:",
                               style: TextStyle(
                                 color: theme.colorScheme.onBackground,
                               ),

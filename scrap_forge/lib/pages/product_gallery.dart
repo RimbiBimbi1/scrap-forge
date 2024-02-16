@@ -340,10 +340,15 @@ class _ProductGalleryState extends State<ProductGallery> {
       context: context,
       builder: (context) {
         return SortDialog(
-          sortBy: baseFilter.sortby,
-          onClose: (value) {
+          initSortBy: baseFilter.sortBy,
+          initSortDesc: baseFilter.sortDesc,
+          setSort: (sortBy, sortDesc) {
             setState(() {
-              onFilterUpdate(baseFilter..sortby = value);
+              onFilterUpdate(
+                baseFilter
+                  ..sortBy = sortBy
+                  ..sortDesc = sortDesc,
+              );
             });
           },
           sortMaterials: baseFilter.showMaterials,

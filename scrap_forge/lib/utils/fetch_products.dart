@@ -34,8 +34,8 @@ class ProductFilter {
   DateTime? minFinishDate;
   DateTime? maxFinishDate;
 
-  String sortby;
-  bool sortOrder;
+  String sortBy;
+  bool sortDesc;
 
   ProductFilter({
     this.nameHas = '',
@@ -56,8 +56,8 @@ class ProductFilter {
     this.maxStartDate,
     this.minFinishDate,
     this.maxFinishDate,
-    this.sortby = 'lastModifiedTimestamp',
-    this.sortOrder = false,
+    this.sortBy = 'lastModifiedTimestamp',
+    this.sortDesc = false,
   });
 
   static ProductFilter projects() {

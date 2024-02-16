@@ -1,14 +1,16 @@
 import 'package:flutter/material.dart';
 
 class SortDialog extends StatefulWidget {
-  final String sortBy;
-  final void Function(String value) onClose;
+  final String initSortBy;
+  final bool initSortDesc;
+  final void Function(String sortBy, bool sortDesc) setSort;
   final bool sortProjects;
   final bool sortMaterials;
   const SortDialog({
     super.key,
-    required this.sortBy,
-    required this.onClose,
+    required this.initSortBy,
+    required this.initSortDesc,
+    required this.setSort,
     required this.sortProjects,
     required this.sortMaterials,
   });
@@ -19,25 +21,61 @@ class SortDialog extends StatefulWidget {
 
 class _SortDialogState extends State<SortDialog> {
   String sortBy = 'lastModifiedTimestamp';
+  bool sortDesc = true;
 
   @override
   void initState() {
     super.initState();
-    this.sortBy = widget.sortBy;
+    this.sortBy = widget.initSortBy;
+    this.sortDesc = widget.initSortDesc;
   }
 
   @override
   Widget build(BuildContext context) {
     return AlertDialog(
-      title: const Text("Sortuj według:"),
+      title: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          const Text("Sortuj:"),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: [
+              const Text(
+                "malejąco",
+                textScaleFactor: 0.8,
+              ),
+              Flexible(
+                fit: FlexFit.loose,
+                child: Switch(
+                    activeColor: Theme.of(context).colorScheme.primary,
+                    value: sortDesc,
+                    onChanged: (value) {
+                      setState(() {
+                        sortDesc = value;
+                      });
+                    }),
+              ),
+              const Text(
+                "rosnąco",
+                textScaleFactor: 0.8,
+              ),
+            ],
+          ),
+          const Text(
+            "według:",
+            textScaleFactor: 0.8,
+          ),
+        ],
+      ),
       titlePadding: const EdgeInsets.fromLTRB(24, 24, 24, 8),
       content: Scrollbar(
         thumbVisibility: true,
         child: ListView(
           // mainAxisSize: MainAxisSize.min,
           children: [
-            {'label': 'Szerokości', 'value': 'widthmm'},
             {'label': 'Długości', 'value': 'lengthmm'},
+            {'label': 'Szerokości', 'value': 'widthmm'},
             {'label': 'Wysokości', 'value': 'heightmm'},
             {'label': 'Powierzchni rzutu', 'value': 'projectionAreamm'},
             {'label': 'Maksymalnej powierzchni', 'value': 'maxArea'},
@@ -81,7 +119,7 @@ class _SortDialogState extends State<SortDialog> {
                     onChanged: (val) => {},
                   ),
                   minLeadingWidth: 0,
-                  contentPadding: EdgeInsets.fromLTRB(0, 0, 16, 0),
+                  contentPadding: const EdgeInsets.fromLTRB(0, 0, 16, 0),
                 ),
               )
               .toList(),
@@ -108,7 +146,7 @@ class _SortDialogState extends State<SortDialog> {
               flex: 4,
               child: ElevatedButton(
                 onPressed: () {
-                  widget.onClose(sortBy);
+                  widget.setSort(sortBy, sortDesc);
                   Navigator.of(context).pop();
                 },
                 child: const Text("Sortuj"),
