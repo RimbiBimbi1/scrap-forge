@@ -278,13 +278,13 @@ P _productDeserializeProp<P>(
     case 6:
       return (reader.readLongOrNull(offset)) as P;
     case 7:
-      return (reader.readDouble(offset)) as P;
+      return (reader.readDoubleOrNull(offset)) as P;
     case 8:
       return (reader.readLongOrNull(offset)) as P;
     case 9:
-      return (reader.readDouble(offset)) as P;
+      return (reader.readDoubleOrNull(offset)) as P;
     case 10:
-      return (reader.readDouble(offset)) as P;
+      return (reader.readDoubleOrNull(offset)) as P;
     case 11:
       return (reader.readStringOrNull(offset)) as P;
     case 12:
@@ -295,13 +295,13 @@ P _productDeserializeProp<P>(
       return (_ProductprogressValueEnumMap[reader.readStringOrNull(offset)])
           as P;
     case 15:
-      return (reader.readDouble(offset)) as P;
+      return (reader.readDoubleOrNull(offset)) as P;
     case 16:
       return (reader.readLongOrNull(offset)) as P;
     case 17:
-      return (reader.readDouble(offset)) as P;
+      return (reader.readDoubleOrNull(offset)) as P;
     case 18:
-      return (reader.readDouble(offset)) as P;
+      return (reader.readDoubleOrNull(offset)) as P;
     default:
       throw IsarError('Unknown property with id $propertyId');
   }
@@ -999,8 +999,24 @@ extension ProductQueryFilter
     });
   }
 
+  QueryBuilder<Product, Product, QAfterFilterCondition> heightmmIsNull() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(const FilterCondition.isNull(
+        property: r'heightmm',
+      ));
+    });
+  }
+
+  QueryBuilder<Product, Product, QAfterFilterCondition> heightmmIsNotNull() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(const FilterCondition.isNotNull(
+        property: r'heightmm',
+      ));
+    });
+  }
+
   QueryBuilder<Product, Product, QAfterFilterCondition> heightmmEqualTo(
-    double value, {
+    double? value, {
     double epsilon = Query.epsilon,
   }) {
     return QueryBuilder.apply(this, (query) {
@@ -1013,7 +1029,7 @@ extension ProductQueryFilter
   }
 
   QueryBuilder<Product, Product, QAfterFilterCondition> heightmmGreaterThan(
-    double value, {
+    double? value, {
     bool include = false,
     double epsilon = Query.epsilon,
   }) {
@@ -1028,7 +1044,7 @@ extension ProductQueryFilter
   }
 
   QueryBuilder<Product, Product, QAfterFilterCondition> heightmmLessThan(
-    double value, {
+    double? value, {
     bool include = false,
     double epsilon = Query.epsilon,
   }) {
@@ -1043,8 +1059,8 @@ extension ProductQueryFilter
   }
 
   QueryBuilder<Product, Product, QAfterFilterCondition> heightmmBetween(
-    double lower,
-    double upper, {
+    double? lower,
+    double? upper, {
     bool includeLower = true,
     bool includeUpper = true,
     double epsilon = Query.epsilon,
@@ -1187,8 +1203,24 @@ extension ProductQueryFilter
     });
   }
 
+  QueryBuilder<Product, Product, QAfterFilterCondition> lengthmmIsNull() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(const FilterCondition.isNull(
+        property: r'lengthmm',
+      ));
+    });
+  }
+
+  QueryBuilder<Product, Product, QAfterFilterCondition> lengthmmIsNotNull() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(const FilterCondition.isNotNull(
+        property: r'lengthmm',
+      ));
+    });
+  }
+
   QueryBuilder<Product, Product, QAfterFilterCondition> lengthmmEqualTo(
-    double value, {
+    double? value, {
     double epsilon = Query.epsilon,
   }) {
     return QueryBuilder.apply(this, (query) {
@@ -1201,7 +1233,7 @@ extension ProductQueryFilter
   }
 
   QueryBuilder<Product, Product, QAfterFilterCondition> lengthmmGreaterThan(
-    double value, {
+    double? value, {
     bool include = false,
     double epsilon = Query.epsilon,
   }) {
@@ -1216,7 +1248,7 @@ extension ProductQueryFilter
   }
 
   QueryBuilder<Product, Product, QAfterFilterCondition> lengthmmLessThan(
-    double value, {
+    double? value, {
     bool include = false,
     double epsilon = Query.epsilon,
   }) {
@@ -1231,8 +1263,8 @@ extension ProductQueryFilter
   }
 
   QueryBuilder<Product, Product, QAfterFilterCondition> lengthmmBetween(
-    double lower,
-    double upper, {
+    double? lower,
+    double? upper, {
     bool includeLower = true,
     bool includeUpper = true,
     double epsilon = Query.epsilon,
@@ -1249,8 +1281,24 @@ extension ProductQueryFilter
     });
   }
 
+  QueryBuilder<Product, Product, QAfterFilterCondition> maxAreaIsNull() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(const FilterCondition.isNull(
+        property: r'maxArea',
+      ));
+    });
+  }
+
+  QueryBuilder<Product, Product, QAfterFilterCondition> maxAreaIsNotNull() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(const FilterCondition.isNotNull(
+        property: r'maxArea',
+      ));
+    });
+  }
+
   QueryBuilder<Product, Product, QAfterFilterCondition> maxAreaEqualTo(
-    double value, {
+    double? value, {
     double epsilon = Query.epsilon,
   }) {
     return QueryBuilder.apply(this, (query) {
@@ -1263,7 +1311,7 @@ extension ProductQueryFilter
   }
 
   QueryBuilder<Product, Product, QAfterFilterCondition> maxAreaGreaterThan(
-    double value, {
+    double? value, {
     bool include = false,
     double epsilon = Query.epsilon,
   }) {
@@ -1278,7 +1326,7 @@ extension ProductQueryFilter
   }
 
   QueryBuilder<Product, Product, QAfterFilterCondition> maxAreaLessThan(
-    double value, {
+    double? value, {
     bool include = false,
     double epsilon = Query.epsilon,
   }) {
@@ -1293,8 +1341,8 @@ extension ProductQueryFilter
   }
 
   QueryBuilder<Product, Product, QAfterFilterCondition> maxAreaBetween(
-    double lower,
-    double upper, {
+    double? lower,
+    double? upper, {
     bool includeLower = true,
     bool includeUpper = true,
     double epsilon = Query.epsilon,
@@ -1888,8 +1936,26 @@ extension ProductQueryFilter
     });
   }
 
+  QueryBuilder<Product, Product, QAfterFilterCondition>
+      projectionAreammIsNull() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(const FilterCondition.isNull(
+        property: r'projectionAreamm',
+      ));
+    });
+  }
+
+  QueryBuilder<Product, Product, QAfterFilterCondition>
+      projectionAreammIsNotNull() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(const FilterCondition.isNotNull(
+        property: r'projectionAreamm',
+      ));
+    });
+  }
+
   QueryBuilder<Product, Product, QAfterFilterCondition> projectionAreammEqualTo(
-    double value, {
+    double? value, {
     double epsilon = Query.epsilon,
   }) {
     return QueryBuilder.apply(this, (query) {
@@ -1903,7 +1969,7 @@ extension ProductQueryFilter
 
   QueryBuilder<Product, Product, QAfterFilterCondition>
       projectionAreammGreaterThan(
-    double value, {
+    double? value, {
     bool include = false,
     double epsilon = Query.epsilon,
   }) {
@@ -1919,7 +1985,7 @@ extension ProductQueryFilter
 
   QueryBuilder<Product, Product, QAfterFilterCondition>
       projectionAreammLessThan(
-    double value, {
+    double? value, {
     bool include = false,
     double epsilon = Query.epsilon,
   }) {
@@ -1934,8 +2000,8 @@ extension ProductQueryFilter
   }
 
   QueryBuilder<Product, Product, QAfterFilterCondition> projectionAreammBetween(
-    double lower,
-    double upper, {
+    double? lower,
+    double? upper, {
     bool includeLower = true,
     bool includeUpper = true,
     double epsilon = Query.epsilon,
@@ -2025,8 +2091,24 @@ extension ProductQueryFilter
     });
   }
 
+  QueryBuilder<Product, Product, QAfterFilterCondition> volumeIsNull() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(const FilterCondition.isNull(
+        property: r'volume',
+      ));
+    });
+  }
+
+  QueryBuilder<Product, Product, QAfterFilterCondition> volumeIsNotNull() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(const FilterCondition.isNotNull(
+        property: r'volume',
+      ));
+    });
+  }
+
   QueryBuilder<Product, Product, QAfterFilterCondition> volumeEqualTo(
-    double value, {
+    double? value, {
     double epsilon = Query.epsilon,
   }) {
     return QueryBuilder.apply(this, (query) {
@@ -2039,7 +2121,7 @@ extension ProductQueryFilter
   }
 
   QueryBuilder<Product, Product, QAfterFilterCondition> volumeGreaterThan(
-    double value, {
+    double? value, {
     bool include = false,
     double epsilon = Query.epsilon,
   }) {
@@ -2054,7 +2136,7 @@ extension ProductQueryFilter
   }
 
   QueryBuilder<Product, Product, QAfterFilterCondition> volumeLessThan(
-    double value, {
+    double? value, {
     bool include = false,
     double epsilon = Query.epsilon,
   }) {
@@ -2069,8 +2151,8 @@ extension ProductQueryFilter
   }
 
   QueryBuilder<Product, Product, QAfterFilterCondition> volumeBetween(
-    double lower,
-    double upper, {
+    double? lower,
+    double? upper, {
     bool includeLower = true,
     bool includeUpper = true,
     double epsilon = Query.epsilon,
@@ -2087,8 +2169,24 @@ extension ProductQueryFilter
     });
   }
 
+  QueryBuilder<Product, Product, QAfterFilterCondition> widthmmIsNull() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(const FilterCondition.isNull(
+        property: r'widthmm',
+      ));
+    });
+  }
+
+  QueryBuilder<Product, Product, QAfterFilterCondition> widthmmIsNotNull() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(const FilterCondition.isNotNull(
+        property: r'widthmm',
+      ));
+    });
+  }
+
   QueryBuilder<Product, Product, QAfterFilterCondition> widthmmEqualTo(
-    double value, {
+    double? value, {
     double epsilon = Query.epsilon,
   }) {
     return QueryBuilder.apply(this, (query) {
@@ -2101,7 +2199,7 @@ extension ProductQueryFilter
   }
 
   QueryBuilder<Product, Product, QAfterFilterCondition> widthmmGreaterThan(
-    double value, {
+    double? value, {
     bool include = false,
     double epsilon = Query.epsilon,
   }) {
@@ -2116,7 +2214,7 @@ extension ProductQueryFilter
   }
 
   QueryBuilder<Product, Product, QAfterFilterCondition> widthmmLessThan(
-    double value, {
+    double? value, {
     bool include = false,
     double epsilon = Query.epsilon,
   }) {
@@ -2131,8 +2229,8 @@ extension ProductQueryFilter
   }
 
   QueryBuilder<Product, Product, QAfterFilterCondition> widthmmBetween(
-    double lower,
-    double upper, {
+    double? lower,
+    double? upper, {
     bool includeLower = true,
     bool includeUpper = true,
     double epsilon = Query.epsilon,
@@ -2868,7 +2966,7 @@ extension ProductQueryProperty
     });
   }
 
-  QueryBuilder<Product, double, QQueryOperations> heightmmProperty() {
+  QueryBuilder<Product, double?, QQueryOperations> heightmmProperty() {
     return QueryBuilder.apply(this, (query) {
       return query.addPropertyName(r'heightmm');
     });
@@ -2881,13 +2979,13 @@ extension ProductQueryProperty
     });
   }
 
-  QueryBuilder<Product, double, QQueryOperations> lengthmmProperty() {
+  QueryBuilder<Product, double?, QQueryOperations> lengthmmProperty() {
     return QueryBuilder.apply(this, (query) {
       return query.addPropertyName(r'lengthmm');
     });
   }
 
-  QueryBuilder<Product, double, QQueryOperations> maxAreaProperty() {
+  QueryBuilder<Product, double?, QQueryOperations> maxAreaProperty() {
     return QueryBuilder.apply(this, (query) {
       return query.addPropertyName(r'maxArea');
     });
@@ -2918,7 +3016,7 @@ extension ProductQueryProperty
     });
   }
 
-  QueryBuilder<Product, double, QQueryOperations> projectionAreammProperty() {
+  QueryBuilder<Product, double?, QQueryOperations> projectionAreammProperty() {
     return QueryBuilder.apply(this, (query) {
       return query.addPropertyName(r'projectionAreamm');
     });
@@ -2930,13 +3028,13 @@ extension ProductQueryProperty
     });
   }
 
-  QueryBuilder<Product, double, QQueryOperations> volumeProperty() {
+  QueryBuilder<Product, double?, QQueryOperations> volumeProperty() {
     return QueryBuilder.apply(this, (query) {
       return query.addPropertyName(r'volume');
     });
   }
 
-  QueryBuilder<Product, double, QQueryOperations> widthmmProperty() {
+  QueryBuilder<Product, double?, QQueryOperations> widthmmProperty() {
     return QueryBuilder.apply(this, (query) {
       return query.addPropertyName(r'widthmm');
     });

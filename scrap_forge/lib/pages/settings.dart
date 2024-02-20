@@ -1,7 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:scrap_forge/db_entities/appSettings.dart';
+import 'package:scrap_forge/db_entities/product.dart';
+import 'package:scrap_forge/utils/theme_manager.dart';
+import 'package:scrap_forge/widgets/dialogs/custom_formats.dart';
+import 'package:scrap_forge/widgets/dialogs/default_format_selection.dart';
+import 'package:scrap_forge/widgets/dialogs/measurement_quality_menu.dart';
 import 'package:scrap_forge/widgets/settings_section.dart';
-import 'package:scrap_forge/widgets/theme_manager.dart';
 
 class Settings extends StatefulWidget {
   final AppSettings appSettings;
@@ -22,11 +26,64 @@ class Settings extends StatefulWidget {
 class _SettingsState extends State<Settings> {
   bool themeIsDark = ThemeManager.themeIsDark();
   AppSettings appSettings = AppSettings();
+  final defaultSizeUnitController = TextEditingController();
+  SheetFormat tempFormat = SheetFormat.a4;
 
   @override
   void initState() {
     super.initState();
-    this.appSettings = widget.appSettings;
+    appSettings = widget.appSettings;
+    tempFormat = widget.appSettings.defaultSheetFormat;
+  }
+
+  Future<void> _displayCustomFormatsMenu() async {
+    return showDialog<void>(
+      context: context,
+      builder: (context) {
+        return CustomFormats(
+          customFormats: appSettings.customSheetFormats,
+          setFormats: (formatList) {
+            setState(() {
+              appSettings = appSettings..customSheetFormats = formatList;
+            });
+          },
+        );
+      },
+    );
+  }
+
+  Future<void> _displayDefaultFormatMenu() async {
+    return showDialog<void>(
+      context: context,
+      builder: (context) {
+        return DefaultFormatMenu(
+          formatOptions: [
+            SheetFormat.a3,
+            SheetFormat.a4,
+            SheetFormat.a5,
+            ...appSettings.customSheetFormats
+          ],
+          currentFormat: appSettings.defaultSheetFormat,
+          setFormat: (value) {
+            setState(() {
+              appSettings = appSettings..defaultSheetFormat = value;
+            });
+          },
+        );
+      },
+    );
+  }
+
+  Future<void> _displayMeasurementQualityMenu({quality, setQuality}) async {
+    return showDialog<void>(
+      context: context,
+      builder: (context) {
+        return MeasurementQualityMenu(
+          currentQuality: quality,
+          setQuality: setQuality,
+        );
+      },
+    );
   }
 
   @override
@@ -46,7 +103,7 @@ class _SettingsState extends State<Settings> {
           icon: const Icon(Icons.arrow_back),
         ),
         title: const Text("Ustawienia"),
-        actions: [IconButton(onPressed: () {}, icon: const Icon(Icons.menu))],
+        actions: const [],
         centerTitle: true,
       ),
       body: SafeArea(
@@ -65,7 +122,7 @@ class _SettingsState extends State<Settings> {
                       AppSettings settings = widget.appSettings..darkMode = val;
                       // settings.darkMode = val;
                       setState(() {
-                        this.appSettings = settings;
+                        appSettings = settings;
                         widget.updateSettings(settings);
                       });
                       ThemeManager.toggleTheme(val);
@@ -76,97 +133,168 @@ class _SettingsState extends State<Settings> {
               SettingsSection(
                 header: const Text('Narzędzie pomiarowe'),
                 children: [
-                  Row(
-                    crossAxisAlignment: CrossAxisAlignment.center,
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      SizedBox(
-                          width: width * 0.4,
-                          child: const Text("Dokładność odszukiwania kartki")),
-                      DropdownMenu<MeasurementToolQuality>(
-                        inputDecorationTheme: InputDecorationTheme(
-                          contentPadding: const EdgeInsets.all(20),
-                          enabledBorder: OutlineInputBorder(
-                            borderSide: BorderSide(
-                                color: theme.colorScheme.outline, width: 1),
-                          ),
-                        ),
-                        initialSelection: appSettings.framingQuality,
-                        dropdownMenuEntries: MeasurementToolQuality.values
-                            .map(
-                              (q) =>
-                                  DropdownMenuEntry(value: q, label: q.label),
-                            )
-                            .toList(),
-                        onSelected: (quality) {
-                          if (quality != null &&
-                              appSettings.framingQuality != quality) {
-                            setState(() {
-                              appSettings = appSettings
-                                ..framingQuality = quality;
-                            });
-                          }
-                        },
-                      )
-                    ],
-                  ),
-                  Row(
-                    crossAxisAlignment: CrossAxisAlignment.center,
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      SizedBox(
-                          width: width * 0.4,
-                          child:
-                              const Text("Dokładność odszukiwania przedmiotu")),
-                      DropdownMenu<MeasurementToolQuality>(
-                        inputDecorationTheme: InputDecorationTheme(
-                          contentPadding: const EdgeInsets.all(20),
-                          enabledBorder: OutlineInputBorder(
-                            borderSide: BorderSide(
-                                color: theme.colorScheme.outline, width: 1),
-                          ),
-                        ),
-                        initialSelection: appSettings.boundingQuality,
-                        dropdownMenuEntries: MeasurementToolQuality.values
-                            .map(
-                              (q) =>
-                                  DropdownMenuEntry(value: q, label: q.label),
-                            )
-                            .toList(),
-                        onSelected: (quality) {
-                          if (quality != null &&
-                              appSettings.boundingQuality != quality) {
-                            setState(() {
-                              appSettings = appSettings
-                                ..boundingQuality = quality;
-                            });
-                          }
-                        },
-                      )
-                    ],
-                  ),
                   TextButton(
-                    onPressed: () {},
-                    child: const Row(
+                    onPressed: () => _displayMeasurementQualityMenu(
+                      quality: appSettings.framingQuality,
+                      setQuality: (value) {
+                        setState(() {
+                          appSettings = appSettings..framingQuality = value;
+                        });
+                      },
+                    ),
+                    style: ButtonStyle(
+                      foregroundColor: MaterialStatePropertyAll(
+                        theme.colorScheme.onSecondary,
+                      ),
+                    ),
+                    child: Row(
                       crossAxisAlignment: CrossAxisAlignment.center,
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
-                        Text("Własne formaty tła:"),
-                        Icon(Icons.arrow_right),
+                        Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            const Text("Dokładność poszukiwania podkładu:"),
+                            Text(
+                              appSettings.framingQuality.label,
+                              textScaleFactor: 0.9,
+                              style: TextStyle(
+                                  color: theme.colorScheme.onSecondary),
+                            ),
+                          ],
+                        ),
+                        const Icon(Icons.arrow_right),
                       ],
                     ),
                   ),
                   TextButton(
-                    onPressed: () {},
+                    onPressed: () => _displayMeasurementQualityMenu(
+                      quality: appSettings.boundingQuality,
+                      setQuality: (value) {
+                        setState(() {
+                          appSettings = appSettings..boundingQuality = value;
+                        });
+                      },
+                    ),
+                    style: ButtonStyle(
+                      foregroundColor: MaterialStatePropertyAll(
+                        theme.colorScheme.onSecondary,
+                      ),
+                    ),
+                    child: Row(
+                      crossAxisAlignment: CrossAxisAlignment.center,
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            const Text("Dokładność poszukiwania przedmiotu:"),
+                            Text(
+                              appSettings.boundingQuality.label,
+                              textScaleFactor: 0.9,
+                              style: TextStyle(
+                                  color: theme.colorScheme.onSecondary),
+                            ),
+                          ],
+                        ),
+                        const Icon(Icons.arrow_right),
+                      ],
+                    ),
+                  ),
+                  TextButton(
+                    onPressed: _displayDefaultFormatMenu,
+                    style: ButtonStyle(
+                      foregroundColor: MaterialStatePropertyAll(
+                        theme.colorScheme.onSecondary,
+                      ),
+                    ),
+                    child: Row(
+                      crossAxisAlignment: CrossAxisAlignment.center,
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            const Text("Domyślny format podkładu:"),
+                            Text(
+                              appSettings.defaultSheetFormat.name,
+                              textScaleFactor: 0.9,
+                              style: TextStyle(
+                                color: theme.colorScheme.onTertiary,
+                              ),
+                            ),
+                          ],
+                        ),
+                        const Icon(Icons.arrow_right),
+                      ],
+                    ),
+                  ),
+                  TextButton(
+                    onPressed: _displayCustomFormatsMenu,
+                    style: ButtonStyle(
+                      foregroundColor: MaterialStatePropertyAll(
+                        theme.colorScheme.onSecondary,
+                      ),
+                    ),
                     child: const Row(
                       crossAxisAlignment: CrossAxisAlignment.center,
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
-                        Text("Domyślny format tła:"),
+                        Text("Własne formaty podkładu:"),
                         Icon(Icons.arrow_right),
                       ],
                     ),
                   ),
+                ],
+              ),
+              SettingsSection(
+                header: const Text('Edytor produktów'),
+                children: [
+                  Padding(
+                    padding: const EdgeInsets.symmetric(
+                      vertical: 4,
+                      horizontal: 8,
+                    ),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        SizedBox(
+                          width: width * 0.4,
+                          child: const Text("Domyślna jednostka długości"),
+                        ),
+                        Flexible(
+                          child: DropdownMenu<SizeUnit>(
+                              inputDecorationTheme: InputDecorationTheme(
+                                contentPadding: const EdgeInsets.all(20),
+                                enabledBorder: OutlineInputBorder(
+                                  borderSide: BorderSide(
+                                      color: theme.colorScheme.outline,
+                                      width: 1),
+                                ),
+                              ),
+                              dropdownMenuEntries: const [
+                                DropdownMenuEntry(
+                                    value: SizeUnit.millimeter, label: "mm"),
+                                DropdownMenuEntry(
+                                    value: SizeUnit.centimeter, label: "cm"),
+                                DropdownMenuEntry(
+                                  value: SizeUnit.meter,
+                                  label: "m",
+                                ),
+                              ],
+                              initialSelection: appSettings.defaultSizeUnit,
+                              controller: defaultSizeUnitController,
+                              onSelected: (value) {
+                                setState(() {
+                                  appSettings = appSettings
+                                    ..defaultSizeUnit =
+                                        value ?? SizeUnit.millimeter;
+                                });
+                              }),
+                        )
+                      ],
+                    ),
+                  )
                 ],
               ),
             ],

@@ -252,7 +252,11 @@ class _ProductPageState extends State<ProductPage> {
                           textScaleFactor: 1.1,
                         ),
                         ...product!.madeFrom.map(
-                            (material) => ProductStripSmall(product: material))
+                          (material) => Padding(
+                            padding: const EdgeInsets.all(4.0),
+                            child: ProductStripSmall(product: material),
+                          ),
+                        )
                       ],
                     ),
                   ),
@@ -266,8 +270,12 @@ class _ProductPageState extends State<ProductPage> {
                           "Wykorzystany jako materiał przy produkcji: ",
                           textScaleFactor: 1.1,
                         ),
-                        ...product!.usedIn
-                            .map((p) => ProductStripSmall(product: p))
+                        ...product!.usedIn.map(
+                          (p) => Padding(
+                            padding: const EdgeInsets.all(4.0),
+                            child: ProductStripSmall(product: p),
+                          ),
+                        )
                       ],
                     ),
                   ),

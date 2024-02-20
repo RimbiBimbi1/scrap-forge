@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:scrap_forge/db_entities/appSettings.dart';
+import 'package:scrap_forge/db_entities/app_settings.dart';
 import 'package:scrap_forge/isar_service.dart';
 import 'package:scrap_forge/pages/home.dart';
 import 'package:scrap_forge/pages/loading.dart';
@@ -8,7 +8,7 @@ import 'package:scrap_forge/pages/product_editor.dart';
 import 'package:scrap_forge/pages/product_gallery.dart';
 import 'package:scrap_forge/pages/product.dart';
 import 'package:scrap_forge/pages/settings.dart';
-import 'package:scrap_forge/widgets/theme.dart';
+import 'package:scrap_forge/utils/theme.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 
 Future<void> main() async {
@@ -74,9 +74,13 @@ class _ScrapForgeAppState extends State<ScrapForgeApp> {
       initialRoute: '/home',
       routes: {
         '/home': (context) => const Home(),
-        '/editProduct': (context) => ProductEditor(context: context),
+        '/editProduct': (context) => ProductEditor(
+              context: context,
+              defaultSizeUnit: appSettings.defaultSizeUnit,
+            ),
         '/product': (context) => ProductPage(context: context),
         '/measure': (context) => MeasurementHub(
+              sheetFormat: appSettings.defaultSheetFormat,
               framingQuality: appSettings.framingQuality,
               boundingQuality: appSettings.boundingQuality,
             ),

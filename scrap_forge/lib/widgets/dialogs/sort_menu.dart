@@ -1,12 +1,12 @@
 import 'package:flutter/material.dart';
 
-class SortDialog extends StatefulWidget {
+class SortMenu extends StatefulWidget {
   final String initSortBy;
   final bool initSortDesc;
   final void Function(String sortBy, bool sortDesc) setSort;
   final bool sortProjects;
   final bool sortMaterials;
-  const SortDialog({
+  const SortMenu({
     super.key,
     required this.initSortBy,
     required this.initSortDesc,
@@ -16,10 +16,10 @@ class SortDialog extends StatefulWidget {
   });
 
   @override
-  State<SortDialog> createState() => _SortDialogState();
+  State<SortMenu> createState() => _SortMenuState();
 }
 
-class _SortDialogState extends State<SortDialog> {
+class _SortMenuState extends State<SortMenu> {
   String sortBy = 'lastModifiedTimestamp';
   bool sortDesc = true;
 
@@ -72,7 +72,7 @@ class _SortDialogState extends State<SortDialog> {
       content: Scrollbar(
         thumbVisibility: true,
         child: ListView(
-          // mainAxisSize: MainAxisSize.min,
+          shrinkWrap: true,
           children: [
             {'label': 'Długości', 'value': 'lengthmm'},
             {'label': 'Szerokości', 'value': 'widthmm'},
@@ -80,7 +80,6 @@ class _SortDialogState extends State<SortDialog> {
             {'label': 'Powierzchni rzutu', 'value': 'projectionAreamm'},
             {'label': 'Maksymalnej powierzchni', 'value': 'maxArea'},
             {'label': 'Objętości', 'value': 'volume'},
-
             {
               'label': 'Daty ostatniej modyfikacji',
               'value': 'lastModifiedTimestamp'
@@ -102,8 +101,6 @@ class _SortDialogState extends State<SortDialog> {
                     {'label': 'Ilości brakujących sztuk', 'value': 'needed'},
                   ]
                 : [],
-
-            // {'label': '', 'value': ''},
           ]
               .map(
                 (e) => ListTile(
@@ -111,12 +108,14 @@ class _SortDialogState extends State<SortDialog> {
                     sortBy = e['value'] as String;
                   }),
                   title: Text(e['label'] as String),
-                  leading: Radio(
-                    fillColor: MaterialStateColor.resolveWith(
-                        (states) => Theme.of(context).colorScheme.primary),
-                    value: e['value'] as String,
-                    groupValue: sortBy,
-                    onChanged: (val) => {},
+                  leading: IgnorePointer(
+                    child: Radio(
+                      fillColor: MaterialStateColor.resolveWith(
+                          (states) => Theme.of(context).colorScheme.primary),
+                      value: e['value'] as String,
+                      groupValue: sortBy,
+                      onChanged: (val) => {},
+                    ),
                   ),
                   minLeadingWidth: 0,
                   contentPadding: const EdgeInsets.fromLTRB(0, 0, 16, 0),

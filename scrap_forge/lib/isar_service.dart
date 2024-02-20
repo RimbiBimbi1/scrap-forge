@@ -1,6 +1,6 @@
 import 'package:isar/isar.dart';
 import 'package:path_provider/path_provider.dart';
-import 'package:scrap_forge/db_entities/appSettings.dart';
+import 'package:scrap_forge/db_entities/app_settings.dart';
 import 'package:scrap_forge/db_entities/product.dart';
 import 'package:scrap_forge/utils/fetch_products.dart';
 
@@ -68,14 +68,9 @@ class IsarService {
   Future<List<Product>> getProducts(ProductFilter filter) async {
     final isar = await db;
 
-    print(filter.sortDesc);
-    print(filter.sortBy);
-
     QueryBuilder<Product, Product, QAfterFilterCondition> query = isar.products
         .filter()
         .nameContains(filter.nameHas, caseSensitive: false)
-        // .optional(filter.ca, (q) => null)
-        // .categoryContains('', caseSensitive: false)
         .group((q) => q
             .optional(
               filter.showFinished,

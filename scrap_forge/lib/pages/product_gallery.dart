@@ -8,7 +8,7 @@ import 'package:scrap_forge/pages/gallery_filter_menu.dart';
 import 'package:scrap_forge/utils/fetch_products.dart';
 import 'package:scrap_forge/utils/product_list_comparator.dart';
 import 'package:scrap_forge/widgets/product_strip.dart';
-import 'package:scrap_forge/widgets/sort_dialog.dart';
+import 'package:scrap_forge/widgets/dialogs/sort_menu.dart';
 
 enum SelectionOptions { delete() }
 
@@ -339,7 +339,7 @@ class _ProductGalleryState extends State<ProductGallery> {
     return showDialog<void>(
       context: context,
       builder: (context) {
-        return SortDialog(
+        return SortMenu(
           initSortBy: baseFilter.sortBy,
           initSortDesc: baseFilter.sortDesc,
           setSort: (sortBy, sortDesc) {

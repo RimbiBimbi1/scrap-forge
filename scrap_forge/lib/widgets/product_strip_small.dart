@@ -79,8 +79,8 @@ class _ProductStripSmallState extends State<ProductStripSmall> {
               child: (thumbnail != null)
                   ? thumbnail
                   : SvgPicture.asset(
-                      'assets/image-placeholder.svg',
-                      fit: BoxFit.fill,
+                      'assets/images/anvil_placeholder.svg',
+                      fit: BoxFit.fitWidth,
                     ),
             ),
             Padding(

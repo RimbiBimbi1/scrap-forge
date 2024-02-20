@@ -3,7 +3,7 @@ import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:image/image.dart' as imgLib;
-import 'package:scrap_forge/db_entities/appSettings.dart';
+import 'package:scrap_forge/db_entities/app_settings.dart';
 import 'package:scrap_forge/measure_tool/corner_scanner.dart';
 import 'package:scrap_forge/measure_tool/framing_tool.dart';
 import 'package:scrap_forge/measure_tool/image_processor.dart';

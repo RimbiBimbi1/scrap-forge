@@ -1,6 +1,6 @@
 // GENERATED CODE - DO NOT MODIFY BY HAND
 
-part of 'appSettings.dart';
+part of 'app_settings.dart';
 
 // **************************************************************************
 // IsarCollectionGenerator
@@ -40,8 +40,14 @@ const AppSettingsSchema = CollectionSchema(
       type: IsarType.object,
       target: r'SheetFormat',
     ),
-    r'framingQuality': PropertySchema(
+    r'defaultSizeUnit': PropertySchema(
       id: 4,
+      name: r'defaultSizeUnit',
+      type: IsarType.int,
+      enumMap: _AppSettingsdefaultSizeUnitEnumValueMap,
+    ),
+    r'framingQuality': PropertySchema(
+      id: 5,
       name: r'framingQuality',
       type: IsarType.byte,
       enumMap: _AppSettingsframingQualityEnumValueMap,
@@ -101,7 +107,8 @@ void _appSettingsSerialize(
     SheetFormatSchema.serialize,
     object.defaultSheetFormat,
   );
-  writer.writeByte(offsets[4], object.framingQuality.index);
+  writer.writeInt(offsets[4], object.defaultSizeUnit.multiplier);
+  writer.writeByte(offsets[5], object.framingQuality.index);
 }
 
 AppSettings _appSettingsDeserialize(
@@ -128,8 +135,11 @@ AppSettings _appSettingsDeserialize(
         allOffsets,
       ) ??
       SheetFormat();
+  object.defaultSizeUnit = _AppSettingsdefaultSizeUnitValueEnumMap[
+          reader.readIntOrNull(offsets[4])] ??
+      SizeUnit.millimeter;
   object.framingQuality = _AppSettingsframingQualityValueEnumMap[
-          reader.readByteOrNull(offsets[4])] ??
+          reader.readByteOrNull(offsets[5])] ??
       MeasurementToolQuality.veryLow;
   object.id = id;
   return object;
@@ -164,6 +174,10 @@ P _appSettingsDeserializeProp<P>(
           ) ??
           SheetFormat()) as P;
     case 4:
+      return (_AppSettingsdefaultSizeUnitValueEnumMap[
+              reader.readIntOrNull(offset)] ??
+          SizeUnit.millimeter) as P;
+    case 5:
       return (_AppSettingsframingQualityValueEnumMap[
               reader.readByteOrNull(offset)] ??
           MeasurementToolQuality.veryLow) as P;
@@ -185,6 +199,18 @@ const _AppSettingsboundingQualityValueEnumMap = {
   2: MeasurementToolQuality.medium,
   3: MeasurementToolQuality.high,
   4: MeasurementToolQuality.veryHigh,
+};
+const _AppSettingsdefaultSizeUnitEnumValueMap = {
+  'millimeter': 1,
+  'centimeter': 10,
+  'decimeter': 100,
+  'meter': 1000,
+};
+const _AppSettingsdefaultSizeUnitValueEnumMap = {
+  1: SizeUnit.millimeter,
+  10: SizeUnit.centimeter,
+  100: SizeUnit.decimeter,
+  1000: SizeUnit.meter,
 };
 const _AppSettingsframingQualityEnumValueMap = {
   'veryLow': 0,
@@ -450,6 +476,62 @@ extension AppSettingsQueryFilter
   }
 
   QueryBuilder<AppSettings, AppSettings, QAfterFilterCondition>
+      defaultSizeUnitEqualTo(SizeUnit value) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.equalTo(
+        property: r'defaultSizeUnit',
+        value: value,
+      ));
+    });
+  }
+
+  QueryBuilder<AppSettings, AppSettings, QAfterFilterCondition>
+      defaultSizeUnitGreaterThan(
+    SizeUnit value, {
+    bool include = false,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.greaterThan(
+        include: include,
+        property: r'defaultSizeUnit',
+        value: value,
+      ));
+    });
+  }
+
+  QueryBuilder<AppSettings, AppSettings, QAfterFilterCondition>
+      defaultSizeUnitLessThan(
+    SizeUnit value, {
+    bool include = false,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.lessThan(
+        include: include,
+        property: r'defaultSizeUnit',
+        value: value,
+      ));
+    });
+  }
+
+  QueryBuilder<AppSettings, AppSettings, QAfterFilterCondition>
+      defaultSizeUnitBetween(
+    SizeUnit lower,
+    SizeUnit upper, {
+    bool includeLower = true,
+    bool includeUpper = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.between(
+        property: r'defaultSizeUnit',
+        lower: lower,
+        includeLower: includeLower,
+        upper: upper,
+        includeUpper: includeUpper,
+      ));
+    });
+  }
+
+  QueryBuilder<AppSettings, AppSettings, QAfterFilterCondition>
       framingQualityEqualTo(MeasurementToolQuality value) {
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(FilterCondition.equalTo(
@@ -606,6 +688,19 @@ extension AppSettingsQuerySortBy
     });
   }
 
+  QueryBuilder<AppSettings, AppSettings, QAfterSortBy> sortByDefaultSizeUnit() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'defaultSizeUnit', Sort.asc);
+    });
+  }
+
+  QueryBuilder<AppSettings, AppSettings, QAfterSortBy>
+      sortByDefaultSizeUnitDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'defaultSizeUnit', Sort.desc);
+    });
+  }
+
   QueryBuilder<AppSettings, AppSettings, QAfterSortBy> sortByFramingQuality() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'framingQuality', Sort.asc);
@@ -644,6 +739,19 @@ extension AppSettingsQuerySortThenBy
   QueryBuilder<AppSettings, AppSettings, QAfterSortBy> thenByDarkModeDesc() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'darkMode', Sort.desc);
+    });
+  }
+
+  QueryBuilder<AppSettings, AppSettings, QAfterSortBy> thenByDefaultSizeUnit() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'defaultSizeUnit', Sort.asc);
+    });
+  }
+
+  QueryBuilder<AppSettings, AppSettings, QAfterSortBy>
+      thenByDefaultSizeUnitDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'defaultSizeUnit', Sort.desc);
     });
   }
 
@@ -688,6 +796,13 @@ extension AppSettingsQueryWhereDistinct
     });
   }
 
+  QueryBuilder<AppSettings, AppSettings, QDistinct>
+      distinctByDefaultSizeUnit() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addDistinctBy(r'defaultSizeUnit');
+    });
+  }
+
   QueryBuilder<AppSettings, AppSettings, QDistinct> distinctByFramingQuality() {
     return QueryBuilder.apply(this, (query) {
       return query.addDistinctBy(r'framingQuality');
@@ -727,6 +842,13 @@ extension AppSettingsQueryProperty
       defaultSheetFormatProperty() {
     return QueryBuilder.apply(this, (query) {
       return query.addPropertyName(r'defaultSheetFormat');
+    });
+  }
+
+  QueryBuilder<AppSettings, SizeUnit, QQueryOperations>
+      defaultSizeUnitProperty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addPropertyName(r'defaultSizeUnit');
     });
   }
 

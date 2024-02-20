@@ -1,6 +1,7 @@
 import 'package:isar/isar.dart';
+import 'package:scrap_forge/db_entities/product.dart';
 
-part 'appSettings.g.dart';
+part 'app_settings.g.dart';
 
 @collection
 class AppSettings {
@@ -13,6 +14,9 @@ class AppSettings {
 
   @Enumerated(EnumType.ordinal)
   MeasurementToolQuality boundingQuality = MeasurementToolQuality.medium;
+
+  @Enumerated(EnumType.value, 'multiplier')
+  SizeUnit defaultSizeUnit = SizeUnit.millimeter;
 
   List<SheetFormat> customSheetFormats = List.empty();
   SheetFormat defaultSheetFormat = SheetFormat.a4;

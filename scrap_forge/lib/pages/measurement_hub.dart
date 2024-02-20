@@ -2,16 +2,18 @@ import 'dart:typed_data';
 
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
-import 'package:scrap_forge/db_entities/appSettings.dart';
+import 'package:scrap_forge/db_entities/app_settings.dart';
 import 'package:scrap_forge/pages/framing.dart';
 
 class MeasurementHub extends StatefulWidget {
   final MeasurementToolQuality framingQuality;
   final MeasurementToolQuality boundingQuality;
+  final SheetFormat sheetFormat;
   const MeasurementHub({
     super.key,
     this.framingQuality = MeasurementToolQuality.medium,
     this.boundingQuality = MeasurementToolQuality.medium,
+    this.sheetFormat = SheetFormat.a4,
   });
 
   @override
@@ -35,6 +37,12 @@ Future<Uint8List> pickImage({bool fromCamera = true}) async {
 class _MeasurementHubState extends State<MeasurementHub> {
   bool chooseFormat = false;
   SheetFormat sheetFormat = SheetFormat.a4;
+
+  @override
+  void initState() {
+    super.initState();
+    sheetFormat = widget.sheetFormat;
+  }
 
   @override
   Widget build(BuildContext context) {

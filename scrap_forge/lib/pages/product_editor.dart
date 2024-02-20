@@ -13,7 +13,9 @@ import 'package:scrap_forge/widgets/shared_input_error.dart';
 
 class ProductEditor extends StatefulWidget {
   final BuildContext context;
-  const ProductEditor({super.key, required this.context});
+  final SizeUnit defaultSizeUnit;
+  const ProductEditor(
+      {super.key, required this.context, required this.defaultSizeUnit});
 
   @override
   State<ProductEditor> createState() => _ProductEditorState();
@@ -66,6 +68,12 @@ class _ProductEditorState extends State<ProductEditor> {
   @override
   void initState() {
     super.initState();
+
+    lengthUnit = widget.defaultSizeUnit;
+    widthUnit = widget.defaultSizeUnit;
+    heightUnit = widget.defaultSizeUnit;
+    areaUnit = widget.defaultSizeUnit;
+
     final arguments = (ModalRoute.of(widget.context)?.settings.arguments ??
         <String, dynamic>{}) as Map;
     if (arguments.isNotEmpty) {
@@ -138,12 +146,13 @@ class _ProductEditorState extends State<ProductEditor> {
 
         if (product.dimensions != null) {
           lengthUnit =
-              product.dimensions!.lengthDisplayUnit ?? SizeUnit.millimeter;
+              product.dimensions!.lengthDisplayUnit ?? widget.defaultSizeUnit;
           widthUnit =
-              product.dimensions!.widthDisplayUnit ?? SizeUnit.millimeter;
+              product.dimensions!.widthDisplayUnit ?? widget.defaultSizeUnit;
           heightUnit =
-              product.dimensions!.heightDisplayUnit ?? SizeUnit.millimeter;
-          areaUnit = product.dimensions!.areaDisplayUnit ?? SizeUnit.centimeter;
+              product.dimensions!.heightDisplayUnit ?? widget.defaultSizeUnit;
+          areaUnit =
+              product.dimensions!.areaDisplayUnit ?? widget.defaultSizeUnit;
         }
 
         startDate.text = getInitialDateString(
