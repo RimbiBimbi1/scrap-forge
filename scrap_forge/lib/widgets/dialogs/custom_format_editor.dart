@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:scrap_forge/db_entities/appSettings.dart';
+import 'package:scrap_forge/db_entities/app_settings.dart';
 import 'package:scrap_forge/widgets/custom_text_field.dart';
 
 class CustomFormatEditor extends StatefulWidget {

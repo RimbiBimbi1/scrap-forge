@@ -1,6 +1,6 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
-import 'package:scrap_forge/db_entities/appSettings.dart';
+import 'package:scrap_forge/db_entities/app_settings.dart';
 
 class MeasurementQualityMenu extends StatefulWidget {
   final MeasurementToolQuality currentQuality;
