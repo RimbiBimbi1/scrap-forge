@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:scrap_forge/db_entities/app_settings.dart';
 
-class DefaultFormatMenu extends StatefulWidget {
+class FormatSelectionMenu extends StatefulWidget {
   final Map<String, SheetFormat> formatOptions;
   final SheetFormat currentFormat;
   final ValueSetter<SheetFormat> setFormat;
-  const DefaultFormatMenu({
+  const FormatSelectionMenu({
     super.key,
     required this.formatOptions,
     required this.currentFormat,
@@ -13,10 +13,10 @@ class DefaultFormatMenu extends StatefulWidget {
   });
 
   @override
-  State<DefaultFormatMenu> createState() => _DefaultFormatMenuState();
+  State<FormatSelectionMenu> createState() => _FormatSelectionMenuState();
 }
 
-class _DefaultFormatMenuState extends State<DefaultFormatMenu> {
+class _FormatSelectionMenuState extends State<FormatSelectionMenu> {
   SheetFormat selectedFormat = SheetFormat.a4;
 
   @override

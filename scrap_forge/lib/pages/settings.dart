@@ -3,7 +3,7 @@ import 'package:scrap_forge/db_entities/app_settings.dart';
 import 'package:scrap_forge/db_entities/product.dart';
 import 'package:scrap_forge/utils/theme_manager.dart';
 import 'package:scrap_forge/widgets/dialogs/custom_formats.dart';
-import 'package:scrap_forge/widgets/dialogs/default_format_selection.dart';
+import 'package:scrap_forge/widgets/dialogs/format_selection_menu.dart';
 import 'package:scrap_forge/widgets/dialogs/measurement_quality_menu.dart';
 import 'package:scrap_forge/widgets/settings_section.dart';
 
@@ -77,7 +77,7 @@ class _SettingsState extends State<Settings> {
     return showDialog<void>(
       context: context,
       builder: (context) {
-        return DefaultFormatMenu(
+        return FormatSelectionMenu(
           formatOptions: Map.fromEntries(
             [...baseFormats.entries, ...customFormats.entries],
           ),
