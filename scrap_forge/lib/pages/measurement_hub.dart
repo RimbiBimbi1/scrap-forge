@@ -4,16 +4,19 @@ import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:scrap_forge/db_entities/app_settings.dart';
 import 'package:scrap_forge/pages/framing.dart';
+import 'package:scrap_forge/widgets/dialogs/format_selection_menu.dart';
 
 class MeasurementHub extends StatefulWidget {
   final MeasurementToolQuality framingQuality;
   final MeasurementToolQuality boundingQuality;
   final SheetFormat sheetFormat;
+  final Map<String, SheetFormat> availableSheetFormats;
   const MeasurementHub({
     super.key,
     this.framingQuality = MeasurementToolQuality.medium,
     this.boundingQuality = MeasurementToolQuality.medium,
     this.sheetFormat = SheetFormat.a4,
+    required this.availableSheetFormats,
   });
 
   @override
@@ -35,13 +38,29 @@ Future<Uint8List> pickImage({bool fromCamera = true}) async {
 }
 
 class _MeasurementHubState extends State<MeasurementHub> {
-  bool chooseFormat = false;
   SheetFormat sheetFormat = SheetFormat.a4;
 
   @override
   void initState() {
     super.initState();
     sheetFormat = widget.sheetFormat;
+  }
+
+  Future<void> _displayFormatMenu() async {
+    return showDialog<void>(
+      context: context,
+      builder: (context) {
+        return FormatSelectionMenu(
+          formatOptions: widget.availableSheetFormats,
+          currentFormat: sheetFormat,
+          setFormat: (value) {
+            setState(() {
+              sheetFormat = value;
+            });
+          },
+        );
+      },
+    );
   }
 
   @override
@@ -54,41 +73,10 @@ class _MeasurementHubState extends State<MeasurementHub> {
     return Scaffold(
       // backgroundColor: Colors.grey[900],
       appBar: AppBar(
-        title: AnimatedCrossFade(
-          layoutBuilder: ((topChild, topChildKey, bottomChild, bottomChildKey) {
-            return Stack(
-              alignment: Alignment.center,
-              children: <Widget>[
-                Positioned(key: bottomChildKey, top: 0, child: bottomChild),
-                Positioned(key: topChildKey, child: topChild),
-              ],
-            );
-          }),
-          firstChild: const Text("Wybierz zdjęcie"),
-          secondChild: Row(
-            children: [SheetFormat.a5, SheetFormat.a4, SheetFormat.a3]
-                .map((f) => TextButton(
-                      onPressed: () => setState(() {
-                        chooseFormat = false;
-                        sheetFormat = f;
-                      }),
-                      child: Text(
-                        f.name,
-                        style: const TextStyle(color: Colors.white),
-                      ),
-                    ))
-                .toList(),
-          ),
-          crossFadeState: chooseFormat
-              ? CrossFadeState.showSecond
-              : CrossFadeState.showFirst,
-          duration: const Duration(milliseconds: 200),
-        ),
+        title: const Text("Wybierz zdjęcie"),
         actions: [
           TextButton(
-              onPressed: () => setState(() {
-                    chooseFormat = !chooseFormat;
-                  }),
+              onPressed: _displayFormatMenu,
               child: Text(
                 sheetFormat.name,
                 style: const TextStyle(color: Colors.white),
@@ -123,6 +111,8 @@ class _MeasurementHubState extends State<MeasurementHub> {
                             builder: (context) => FramingPage(
                                 picked: picked,
                                 sheetFormat: sheetFormat,
+                                availableSheetFormats:
+                                    widget.availableSheetFormats,
                                 framingQuality: widget.framingQuality,
                                 boundingQuality: widget.boundingQuality,
                                 onBoundingBoxConfirmed:
@@ -162,6 +152,8 @@ class _MeasurementHubState extends State<MeasurementHub> {
                             builder: (context) => FramingPage(
                               picked: picked,
                               sheetFormat: sheetFormat,
+                              availableSheetFormats:
+                                  widget.availableSheetFormats,
                               framingQuality: widget.framingQuality,
                               boundingQuality: widget.boundingQuality,
                               onBoundingBoxConfirmed:

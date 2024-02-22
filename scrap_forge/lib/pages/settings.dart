@@ -10,13 +10,11 @@ import 'package:scrap_forge/widgets/settings_section.dart';
 class Settings extends StatefulWidget {
   final AppSettings appSettings;
   final ValueSetter<AppSettings> updateSettings;
-  final ValueSetter<AppSettings> saveSettings;
 
   const Settings({
     super.key,
     required this.appSettings,
     required this.updateSettings,
-    required this.saveSettings,
   });
 
   @override
@@ -25,25 +23,22 @@ class Settings extends StatefulWidget {
 
 class _SettingsState extends State<Settings> {
   bool themeIsDark = ThemeManager.themeIsDark();
-  AppSettings appSettings = AppSettings();
   final defaultSizeUnitController = TextEditingController();
-  SheetFormat tempFormat = SheetFormat.a4;
   Map<String, SheetFormat> customFormats = {};
-  Map<String, SheetFormat> baseFormats = {};
+  final Map<String, SheetFormat> baseFormats = {
+    "A3": SheetFormat.a3,
+    "A4": SheetFormat.a4,
+    "A5": SheetFormat.a5,
+  };
 
   @override
   void initState() {
     super.initState();
-    appSettings = widget.appSettings;
-    tempFormat = widget.appSettings.defaultSheetFormat;
-    customFormats = [...widget.appSettings.customSheetFormats]
-        .asMap()
-        .map((key, value) => MapEntry(value.name, value));
-    baseFormats = [
-      SheetFormat.a3,
-      SheetFormat.a4,
-      SheetFormat.a5,
-    ].asMap().map((key, value) => MapEntry(value.name, value));
+    customFormats = formatsAsMap([...widget.appSettings.customSheetFormats]);
+  }
+
+  Map<String, SheetFormat> formatsAsMap(List<SheetFormat> formatList) {
+    return formatList.asMap().map((key, value) => MapEntry(value.name, value));
   }
 
   Future<void> _displayCustomFormatsMenu() async {
@@ -54,18 +49,18 @@ class _SettingsState extends State<Settings> {
           baseFormats: baseFormats,
           customFormats: customFormats,
           setFormats: (editedFormats) {
-            SheetFormat format = appSettings.defaultSheetFormat;
-            if (!baseFormats.containsKey(appSettings.defaultSheetFormat.name) &&
-                !editedFormats.containsKey(
-                  appSettings.defaultSheetFormat.name,
-                )) {
+            SheetFormat format = widget.appSettings.defaultSheetFormat;
+            if (!baseFormats.containsKey(format.name) &&
+                !editedFormats.containsKey(format.name)) {
               format = SheetFormat.a4;
             }
+            widget.updateSettings(
+              widget.appSettings
+                ..customSheetFormats = editedFormats.values.toList()
+                ..defaultSheetFormat = format,
+            );
             setState(() {
               customFormats = editedFormats;
-              appSettings = appSettings
-                ..customSheetFormats = editedFormats.values.toList()
-                ..defaultSheetFormat = format;
             });
           },
         );
@@ -78,16 +73,15 @@ class _SettingsState extends State<Settings> {
       context: context,
       builder: (context) {
         return FormatSelectionMenu(
-          formatOptions: Map.fromEntries(
-            [...baseFormats.entries, ...customFormats.entries],
-          ),
-          currentFormat: appSettings.defaultSheetFormat,
-          setFormat: (value) {
-            setState(() {
-              appSettings = appSettings..defaultSheetFormat = value;
+            formatOptions: Map.fromEntries(
+              [...baseFormats.entries, ...customFormats.entries],
+            ),
+            currentFormat: widget.appSettings.defaultSheetFormat,
+            setFormat: (value) {
+              widget.updateSettings(
+                widget.appSettings..defaultSheetFormat = value,
+              );
             });
-          },
-        );
       },
     );
   }
@@ -114,8 +108,6 @@ class _SettingsState extends State<Settings> {
       appBar: AppBar(
         leading: IconButton(
           onPressed: () {
-            widget.updateSettings(appSettings);
-            widget.saveSettings(appSettings);
             Navigator.of(context).pop();
           },
           icon: const Icon(Icons.arrow_back),
@@ -135,15 +127,11 @@ class _SettingsState extends State<Settings> {
                   SwitchListTile(
                     title: const Text('Ciemny motyw'),
                     activeColor: Colors.red,
-                    value: appSettings.darkMode,
+                    value: widget.appSettings.darkMode,
                     onChanged: (val) {
                       AppSettings settings = widget.appSettings..darkMode = val;
-                      // settings.darkMode = val;
-                      setState(() {
-                        appSettings = settings;
-                        widget.updateSettings(settings);
-                      });
-                      ThemeManager.toggleTheme(val);
+
+                      widget.updateSettings(settings);
                     },
                   ),
                 ],
@@ -153,11 +141,11 @@ class _SettingsState extends State<Settings> {
                 children: [
                   TextButton(
                     onPressed: () => _displayMeasurementQualityMenu(
-                      quality: appSettings.framingQuality,
+                      quality: widget.appSettings.framingQuality,
                       setQuality: (value) {
-                        setState(() {
-                          appSettings = appSettings..framingQuality = value;
-                        });
+                        widget.updateSettings(
+                          widget.appSettings..framingQuality = value,
+                        );
                       },
                     ),
                     style: ButtonStyle(
@@ -174,7 +162,7 @@ class _SettingsState extends State<Settings> {
                           children: [
                             const Text("Dokładność poszukiwania podkładu:"),
                             Text(
-                              appSettings.framingQuality.label,
+                              widget.appSettings.framingQuality.label,
                               textScaleFactor: 0.9,
                               style: TextStyle(
                                   color: theme.colorScheme.onSecondary),
@@ -187,11 +175,10 @@ class _SettingsState extends State<Settings> {
                   ),
                   TextButton(
                     onPressed: () => _displayMeasurementQualityMenu(
-                      quality: appSettings.boundingQuality,
+                      quality: widget.appSettings.boundingQuality,
                       setQuality: (value) {
-                        setState(() {
-                          appSettings = appSettings..boundingQuality = value;
-                        });
+                        widget.updateSettings(
+                            widget.appSettings..boundingQuality = value);
                       },
                     ),
                     style: ButtonStyle(
@@ -208,7 +195,7 @@ class _SettingsState extends State<Settings> {
                           children: [
                             const Text("Dokładność poszukiwania przedmiotu:"),
                             Text(
-                              appSettings.boundingQuality.label,
+                              widget.appSettings.boundingQuality.label,
                               textScaleFactor: 0.9,
                               style: TextStyle(
                                   color: theme.colorScheme.onSecondary),
@@ -235,7 +222,7 @@ class _SettingsState extends State<Settings> {
                           children: [
                             const Text("Domyślny format podkładu:"),
                             Text(
-                              appSettings.defaultSheetFormat.name,
+                              widget.appSettings.defaultSheetFormat.name,
                               textScaleFactor: 0.9,
                               style: TextStyle(
                                 color: theme.colorScheme.onTertiary,
@@ -300,14 +287,15 @@ class _SettingsState extends State<Settings> {
                                   label: "m",
                                 ),
                               ],
-                              initialSelection: appSettings.defaultSizeUnit,
+                              initialSelection:
+                                  widget.appSettings.defaultSizeUnit,
                               controller: defaultSizeUnitController,
                               onSelected: (value) {
-                                setState(() {
-                                  appSettings = appSettings
+                                widget.updateSettings(
+                                  widget.appSettings
                                     ..defaultSizeUnit =
-                                        value ?? SizeUnit.millimeter;
-                                });
+                                        value ?? SizeUnit.millimeter,
+                                );
                               }),
                         )
                       ],

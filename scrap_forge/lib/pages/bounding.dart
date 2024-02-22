@@ -10,11 +10,14 @@ import 'package:scrap_forge/measure_tool/bounding_tool.dart';
 import 'package:scrap_forge/measure_tool/image_processor.dart';
 import 'package:scrap_forge/measure_tool/triangle_texturer.dart';
 import 'package:scrap_forge/pages/loading.dart';
+import 'package:scrap_forge/widgets/dialogs/format_selection_menu.dart';
 
 class BoundingPage extends StatefulWidget {
   final Uint8List picked;
   final List<Offset> corners;
   final SheetFormat sheetFormat;
+  final Map<String, SheetFormat> availableSheetFormats;
+
   final MeasurementToolQuality boundingQuality;
   final Function(List<double>)? onBoundingBoxConfirmed;
 
@@ -25,6 +28,7 @@ class BoundingPage extends StatefulWidget {
     this.sheetFormat = SheetFormat.a4,
     this.boundingQuality = MeasurementToolQuality.medium,
     this.onBoundingBoxConfirmed,
+    required this.availableSheetFormats,
   });
 
   @override
@@ -58,7 +62,8 @@ class _BoundingPageState extends State<BoundingPage> {
     boundingData = isolateTask(detectSheetIsolated, [
       imgLib.decodeJpg(widget.picked) ?? imgLib.Image.empty(),
       widget.corners,
-      widget.boundingQuality
+      widget.sheetFormat,
+      widget.boundingQuality,
     ]);
   }
 
@@ -69,45 +74,17 @@ class _BoundingPageState extends State<BoundingPage> {
     return Scaffold(
       // backgroundColor: Colors.grey[900],
       appBar: AppBar(
-        title: AnimatedCrossFade(
-          layoutBuilder: ((topChild, topChildKey, bottomChild, bottomChildKey) {
-            return Stack(
-              alignment: Alignment.center,
-              children: <Widget>[
-                Positioned(key: bottomChildKey, top: 0, child: bottomChild),
-                Positioned(key: topChildKey, child: topChild),
-              ],
-            );
-          }),
-          firstChild: const Text("Obramuj przedmiot"),
-          secondChild: Row(
-            children: [SheetFormat.a5, SheetFormat.a4, SheetFormat.a3]
-                .map((f) => TextButton(
-                      onPressed: () => setState(() {
-                        chooseFormat = false;
-                        sheetFormat = f;
-                      }),
-                      child: Text(
-                        f.name,
-                        style: const TextStyle(color: Colors.white),
-                      ),
-                    ))
-                .toList(),
-          ),
-          crossFadeState: chooseFormat
-              ? CrossFadeState.showSecond
-              : CrossFadeState.showFirst,
-          duration: const Duration(milliseconds: 200),
-        ),
+        title: const Text("Obramuj przedmiot"),
         actions: [
-          TextButton(
-              onPressed: () => setState(() {
-                    chooseFormat = !chooseFormat;
-                  }),
+          AspectRatio(
+            aspectRatio: 1,
+            child: Center(
               child: Text(
                 sheetFormat.name,
                 style: const TextStyle(color: Colors.white),
-              ))
+              ),
+            ),
+          )
         ],
         centerTitle: true,
       ),
@@ -117,8 +94,8 @@ class _BoundingPageState extends State<BoundingPage> {
           child: FutureBuilder(
             future: boundingData,
             builder: (context, snapshot) {
-              double maxDisplayW = MediaQuery.of(context).size.width * 0.90;
-              double maxDisplayH = MediaQuery.of(context).size.height * 0.80;
+              double maxDisplayW = MediaQuery.of(context).size.width * 0.85;
+              double maxDisplayH = MediaQuery.of(context).size.height * 0.75;
 
               if (snapshot.connectionState == ConnectionState.done) {
                 List<dynamic> result = snapshot.data;
@@ -178,18 +155,19 @@ Future isolateTask(
 List<Offset> detectSheetIsolated(List<dynamic> args) {
   SendPort resultPort = args[0];
 
-  imgLib.Image sheet = texture(args[1], args[2]);
-  List<dynamic> result = detectBoundingBox(sheet, args[3]);
+  imgLib.Image sheet = texture(args[1], args[2], args[3]);
+  List<dynamic> result = detectBoundingBox(sheet, args[4]);
   List<Offset> corners = result[0] as List<Offset>;
   int projectionAreaPixels = result[1] as int;
 
   Isolate.exit(resultPort, [sheet, corners, projectionAreaPixels]);
 }
 
-imgLib.Image texture(imgLib.Image photo, List<Offset> sheetCorners) {
+imgLib.Image texture(
+    imgLib.Image photo, List<Offset> sheetCorners, SheetFormat format) {
   // phase = 'sheetConfirmed';
-  const sheetWpx = 420;
-  const sheetHpx = 594;
+  int sheetWpx = 420;
+  int sheetHpx = (420 * (format.height / format.width)).round();
   double imgW = photo.width.toDouble();
   double imgH = photo.height.toDouble();
 

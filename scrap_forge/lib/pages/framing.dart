@@ -11,6 +11,7 @@ import 'package:scrap_forge/pages/Loading.dart';
 import 'dart:isolate';
 
 import 'package:scrap_forge/pages/bounding.dart';
+import 'package:scrap_forge/widgets/dialogs/format_selection_menu.dart';
 
 class FramingPage extends StatefulWidget {
   final Uint8List picked;
@@ -18,6 +19,7 @@ class FramingPage extends StatefulWidget {
   final Function(List<double>)? onBoundingBoxConfirmed;
   final MeasurementToolQuality framingQuality;
   final MeasurementToolQuality boundingQuality;
+  final Map<String, SheetFormat> availableSheetFormats;
   const FramingPage({
     super.key,
     required this.picked,
@@ -25,6 +27,7 @@ class FramingPage extends StatefulWidget {
     this.onBoundingBoxConfirmed,
     this.framingQuality = MeasurementToolQuality.medium,
     this.boundingQuality = MeasurementToolQuality.medium,
+    required this.availableSheetFormats,
   });
 
   @override
@@ -39,6 +42,19 @@ class _FramingPageState extends State<FramingPage> {
   SheetFormat sheetFormat = SheetFormat.a4;
 
   Future<dynamic>? sheetCorners;
+
+  @override
+  void initState() {
+    super.initState();
+
+    sheetFormat = widget.sheetFormat;
+    displayed = widget.picked;
+
+    image = imgLib.decodeJpg(widget.picked) ?? imgLib.Image.empty();
+
+    sheetCorners = isolateTask(
+        detectSheetIsolated, [widget.picked, widget.framingQuality]);
+  }
 
   Widget displayImage(double w, double h) {
     return Center(
@@ -55,17 +71,21 @@ class _FramingPageState extends State<FramingPage> {
     );
   }
 
-  @override
-  void initState() {
-    super.initState();
-
-    sheetFormat = widget.sheetFormat;
-    displayed = widget.picked;
-
-    image = imgLib.decodeJpg(widget.picked) ?? imgLib.Image.empty();
-
-    sheetCorners = isolateTask(
-        detectSheetIsolated, [widget.picked, widget.framingQuality]);
+  Future<void> _displayFormatMenu() async {
+    return showDialog<void>(
+      context: context,
+      builder: (context) {
+        return FormatSelectionMenu(
+          formatOptions: widget.availableSheetFormats,
+          currentFormat: sheetFormat,
+          setFormat: (value) {
+            setState(() {
+              sheetFormat = value;
+            });
+          },
+        );
+      },
+    );
   }
 
   @override
@@ -75,41 +95,10 @@ class _FramingPageState extends State<FramingPage> {
     return Scaffold(
       // backgroundColor: Colors.grey[900],
       appBar: AppBar(
-        title: AnimatedCrossFade(
-          layoutBuilder: ((topChild, topChildKey, bottomChild, bottomChildKey) {
-            return Stack(
-              alignment: Alignment.center,
-              children: <Widget>[
-                Positioned(key: bottomChildKey, top: 0, child: bottomChild),
-                Positioned(key: topChildKey, child: topChild),
-              ],
-            );
-          }),
-          firstChild: const Text("Zaznacz rogi kartki"),
-          secondChild: Row(
-            children: [SheetFormat.a5, SheetFormat.a4, SheetFormat.a3]
-                .map((f) => TextButton(
-                      onPressed: () => setState(() {
-                        chooseFormat = false;
-                        sheetFormat = f;
-                      }),
-                      child: Text(
-                        f.name,
-                        style: const TextStyle(color: Colors.white),
-                      ),
-                    ))
-                .toList(),
-          ),
-          crossFadeState: chooseFormat
-              ? CrossFadeState.showSecond
-              : CrossFadeState.showFirst,
-          duration: const Duration(milliseconds: 200),
-        ),
+        title: const Text("Zaznacz rogi kartki"),
         actions: [
           TextButton(
-              onPressed: () => setState(() {
-                    chooseFormat = !chooseFormat;
-                  }),
+              onPressed: _displayFormatMenu,
               child: Text(
                 sheetFormat.name,
                 style: const TextStyle(color: Colors.white),
@@ -149,6 +138,8 @@ class _FramingPageState extends State<FramingPage> {
                                       Offset(e.dx / displayW, e.dy / displayH))
                                   .toList(),
                               sheetFormat: sheetFormat,
+                              availableSheetFormats:
+                                  widget.availableSheetFormats,
                               boundingQuality: widget.boundingQuality,
                               onBoundingBoxConfirmed:
                                   widget.onBoundingBoxConfirmed,

@@ -62,6 +62,15 @@ class _CustomFormatsState extends State<CustomFormats> {
     );
   }
 
+  void removeFormat(format) {
+    Map<String, SheetFormat> temp = Map.from(formats);
+    temp.removeWhere((key, value) => format == value);
+    setState(() {
+      formats = temp;
+      widget.setFormats(temp);
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     return AlertDialog(
@@ -87,16 +96,7 @@ class _CustomFormatsState extends State<CustomFormats> {
                           mainAxisSize: MainAxisSize.min,
                           children: [
                             IconButton(
-                              onPressed: () {
-                                Map<String, SheetFormat> temp =
-                                    Map.from(formats);
-                                temp.removeWhere(
-                                    (key, value) => format == value);
-                                setState(() {
-                                  formats = temp;
-                                  widget.setFormats(temp);
-                                });
-                              },
+                              onPressed: () => removeFormat(format),
                               icon: Icon(
                                 Icons.remove_circle_outline,
                                 color: Theme.of(context).colorScheme.primary,

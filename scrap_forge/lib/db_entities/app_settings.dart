@@ -43,8 +43,8 @@ enum MeasurementToolQuality {
 @embedded
 class SheetFormat {
   final String name;
-  final double width;
-  final double height;
+  final int width;
+  final int height;
 
   const SheetFormat({
     this.name = '',
@@ -63,7 +63,7 @@ class SheetFormat {
     return (name.isNotEmpty) ? name : "$width x $height";
   }
 
-  static double compareDimensions(SheetFormat f1, SheetFormat f2) {
+  static int compareDimensions(SheetFormat f1, SheetFormat f2) {
     bool heightEqual = max(f2.height, f2.width) == max(f1.height, f1.width);
     bool widthEqual = min(f2.height, f2.width) == min(f1.height, f1.width);
 

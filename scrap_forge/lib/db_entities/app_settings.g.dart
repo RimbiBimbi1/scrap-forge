@@ -874,7 +874,7 @@ const SheetFormatSchema = Schema(
     r'height': PropertySchema(
       id: 0,
       name: r'height',
-      type: IsarType.double,
+      type: IsarType.long,
     ),
     r'name': PropertySchema(
       id: 1,
@@ -884,7 +884,7 @@ const SheetFormatSchema = Schema(
     r'width': PropertySchema(
       id: 2,
       name: r'width',
-      type: IsarType.double,
+      type: IsarType.long,
     )
   },
   estimateSize: _sheetFormatEstimateSize,
@@ -909,9 +909,9 @@ void _sheetFormatSerialize(
   List<int> offsets,
   Map<Type, List<int>> allOffsets,
 ) {
-  writer.writeDouble(offsets[0], object.height);
+  writer.writeLong(offsets[0], object.height);
   writer.writeString(offsets[1], object.name);
-  writer.writeDouble(offsets[2], object.width);
+  writer.writeLong(offsets[2], object.width);
 }
 
 SheetFormat _sheetFormatDeserialize(
@@ -921,9 +921,9 @@ SheetFormat _sheetFormatDeserialize(
   Map<Type, List<int>> allOffsets,
 ) {
   final object = SheetFormat(
-    height: reader.readDoubleOrNull(offsets[0]) ?? 297,
+    height: reader.readLongOrNull(offsets[0]) ?? 297,
     name: reader.readStringOrNull(offsets[1]) ?? '',
-    width: reader.readDoubleOrNull(offsets[2]) ?? 210,
+    width: reader.readLongOrNull(offsets[2]) ?? 210,
   );
   return object;
 }
@@ -936,11 +936,11 @@ P _sheetFormatDeserializeProp<P>(
 ) {
   switch (propertyId) {
     case 0:
-      return (reader.readDoubleOrNull(offset) ?? 297) as P;
+      return (reader.readLongOrNull(offset) ?? 297) as P;
     case 1:
       return (reader.readStringOrNull(offset) ?? '') as P;
     case 2:
-      return (reader.readDoubleOrNull(offset) ?? 210) as P;
+      return (reader.readLongOrNull(offset) ?? 210) as P;
     default:
       throw IsarError('Unknown property with id $propertyId');
   }
@@ -949,55 +949,47 @@ P _sheetFormatDeserializeProp<P>(
 extension SheetFormatQueryFilter
     on QueryBuilder<SheetFormat, SheetFormat, QFilterCondition> {
   QueryBuilder<SheetFormat, SheetFormat, QAfterFilterCondition> heightEqualTo(
-    double value, {
-    double epsilon = Query.epsilon,
-  }) {
+      int value) {
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(FilterCondition.equalTo(
         property: r'height',
         value: value,
-        epsilon: epsilon,
       ));
     });
   }
 
   QueryBuilder<SheetFormat, SheetFormat, QAfterFilterCondition>
       heightGreaterThan(
-    double value, {
+    int value, {
     bool include = false,
-    double epsilon = Query.epsilon,
   }) {
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(FilterCondition.greaterThan(
         include: include,
         property: r'height',
         value: value,
-        epsilon: epsilon,
       ));
     });
   }
 
   QueryBuilder<SheetFormat, SheetFormat, QAfterFilterCondition> heightLessThan(
-    double value, {
+    int value, {
     bool include = false,
-    double epsilon = Query.epsilon,
   }) {
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(FilterCondition.lessThan(
         include: include,
         property: r'height',
         value: value,
-        epsilon: epsilon,
       ));
     });
   }
 
   QueryBuilder<SheetFormat, SheetFormat, QAfterFilterCondition> heightBetween(
-    double lower,
-    double upper, {
+    int lower,
+    int upper, {
     bool includeLower = true,
     bool includeUpper = true,
-    double epsilon = Query.epsilon,
   }) {
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(FilterCondition.between(
@@ -1006,7 +998,6 @@ extension SheetFormatQueryFilter
         includeLower: includeLower,
         upper: upper,
         includeUpper: includeUpper,
-        epsilon: epsilon,
       ));
     });
   }
@@ -1143,55 +1134,47 @@ extension SheetFormatQueryFilter
   }
 
   QueryBuilder<SheetFormat, SheetFormat, QAfterFilterCondition> widthEqualTo(
-    double value, {
-    double epsilon = Query.epsilon,
-  }) {
+      int value) {
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(FilterCondition.equalTo(
         property: r'width',
         value: value,
-        epsilon: epsilon,
       ));
     });
   }
 
   QueryBuilder<SheetFormat, SheetFormat, QAfterFilterCondition>
       widthGreaterThan(
-    double value, {
+    int value, {
     bool include = false,
-    double epsilon = Query.epsilon,
   }) {
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(FilterCondition.greaterThan(
         include: include,
         property: r'width',
         value: value,
-        epsilon: epsilon,
       ));
     });
   }
 
   QueryBuilder<SheetFormat, SheetFormat, QAfterFilterCondition> widthLessThan(
-    double value, {
+    int value, {
     bool include = false,
-    double epsilon = Query.epsilon,
   }) {
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(FilterCondition.lessThan(
         include: include,
         property: r'width',
         value: value,
-        epsilon: epsilon,
       ));
     });
   }
 
   QueryBuilder<SheetFormat, SheetFormat, QAfterFilterCondition> widthBetween(
-    double lower,
-    double upper, {
+    int lower,
+    int upper, {
     bool includeLower = true,
     bool includeUpper = true,
-    double epsilon = Query.epsilon,
   }) {
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(FilterCondition.between(
@@ -1200,7 +1183,6 @@ extension SheetFormatQueryFilter
         includeLower: includeLower,
         upper: upper,
         includeUpper: includeUpper,
-        epsilon: epsilon,
       ));
     });
   }

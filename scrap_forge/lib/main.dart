@@ -25,6 +25,13 @@ class ScrapForgeApp extends StatefulWidget {
 class _ScrapForgeAppState extends State<ScrapForgeApp> {
   AppSettings appSettings = AppSettings();
 
+  @override
+  void initState() {
+    super.initState();
+
+    getAppSettings();
+  }
+
   Future<void> getAppSettings() async {
     final IsarService isar = IsarService();
 
@@ -44,18 +51,12 @@ class _ScrapForgeAppState extends State<ScrapForgeApp> {
     setState(() {
       this.appSettings = newSettings;
     });
+    saveSettings(newSettings);
   }
 
   Future<void> saveSettings(AppSettings newSettings) async {
     final IsarService isar = IsarService();
     await isar.saveSettings(newSettings);
-  }
-
-  @override
-  void initState() {
-    super.initState();
-
-    getAppSettings();
   }
 
   @override
@@ -81,6 +82,12 @@ class _ScrapForgeAppState extends State<ScrapForgeApp> {
         '/product': (context) => ProductPage(context: context),
         '/measure': (context) => MeasurementHub(
               sheetFormat: appSettings.defaultSheetFormat,
+              availableSheetFormats: Map.fromEntries([
+                SheetFormat.a3,
+                SheetFormat.a4,
+                SheetFormat.a5,
+                ...appSettings.customSheetFormats,
+              ].map((e) => MapEntry(e.name, e))),
               framingQuality: appSettings.framingQuality,
               boundingQuality: appSettings.boundingQuality,
             ),
@@ -89,7 +96,7 @@ class _ScrapForgeAppState extends State<ScrapForgeApp> {
         '/settings': (context) => Settings(
               appSettings: appSettings,
               updateSettings: updateSettings,
-              saveSettings: saveSettings,
+              // saveSettings: saveSettings,
             ),
       },
     );

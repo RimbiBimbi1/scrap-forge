@@ -68,6 +68,7 @@ class _CustomFormatEditor extends State<CustomFormatEditor> {
             ),
             CustomTextField(
                 label: Text("Wysokość"),
+                type: TextInputType.number,
                 controller: heightController,
                 inputFormatters: [FilteringTextInputFormatter.digitsOnly],
                 validator: (value) {
@@ -78,6 +79,7 @@ class _CustomFormatEditor extends State<CustomFormatEditor> {
                 }),
             CustomTextField(
                 label: Text("Szerokość"),
+                type: TextInputType.number,
                 controller: widthController,
                 inputFormatters: [FilteringTextInputFormatter.digitsOnly],
                 validator: (value) {
@@ -110,8 +112,8 @@ class _CustomFormatEditor extends State<CustomFormatEditor> {
                 onPressed: () {
                   if (_formKey.currentState != null &&
                       _formKey.currentState!.validate()) {
-                    double w = double.tryParse(widthController.text) ?? 0;
-                    double h = double.tryParse(heightController.text) ?? 0;
+                    int w = int.tryParse(widthController.text) ?? 0;
+                    int h = int.tryParse(heightController.text) ?? 0;
                     widget.saveFormat(
                       SheetFormat(
                         name: nameController.text,
