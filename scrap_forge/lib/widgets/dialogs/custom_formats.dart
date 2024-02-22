@@ -3,10 +3,12 @@ import 'package:scrap_forge/db_entities/app_settings.dart';
 import 'package:scrap_forge/widgets/dialogs/custom_format_editor.dart';
 
 class CustomFormats extends StatefulWidget {
-  final List<SheetFormat> customFormats;
-  final ValueSetter<List<SheetFormat>> setFormats;
+  final Map<String, SheetFormat> customFormats;
+  final Map<String, SheetFormat> baseFormats;
+  final ValueSetter<Map<String, SheetFormat>> setFormats;
   const CustomFormats({
     super.key,
+    required this.baseFormats,
     required this.customFormats,
     required this.setFormats,
   });
@@ -16,38 +18,46 @@ class CustomFormats extends StatefulWidget {
 }
 
 class _CustomFormatsState extends State<CustomFormats> {
-  List<SheetFormat> formats = List.empty();
+  // List<SheetFormat> formats = List.empty();
+  Map<String, SheetFormat> formats = {};
 
   @override
   void initState() {
     super.initState();
+    // formats = widget.customFormats;
     formats = widget.customFormats;
   }
 
-  Future<void> _displayFormatEditor({int editedIndex = -1}) async {
+  // bool compareFormats(SheetFormat f1, SheetFormat f2) {
+  //   return f1.name == f2.name || SheetFormat.compareDimensions(f1, f2) == 0;
+  // }
+
+  // bool formatExists(SheetFormat newformat) {
+  //   return formats.any((format) => compareFormats(format, newformat));
+  // }
+
+  Future<void> _displayFormatEditor({String? toBeEdited}) async {
     return showDialog<void>(
       context: context,
       builder: (context) {
-        bool editingMode = (editedIndex > -1 && editedIndex < formats.length);
         return CustomFormatEditor(
-          edited: editingMode ? formats[editedIndex] : null,
-          saveFormat: editingMode
-              ? (edited) {
-                  List<SheetFormat> temp = List.from(formats);
-                  temp[editedIndex] = edited;
-                  setState(() {
-                    formats = temp;
-                  });
-                  widget.setFormats(temp);
-                }
-              : (added) {
-                  List<SheetFormat> temp = [...formats, added];
-                  setState(() {
-                    formats = temp;
-                  });
-                  widget.setFormats(temp);
-                },
-        );
+            formats: Map.fromEntries([
+              ...widget.baseFormats.entries,
+              ...widget.customFormats.entries
+            ]),
+            edited: formats[toBeEdited],
+            saveFormat: (edited) {
+              Map<String, SheetFormat> temp = Map.from(formats);
+              temp.remove(toBeEdited);
+              temp.addEntries([MapEntry(edited.name, edited)]);
+              setState(() {
+                formats = temp;
+              });
+              widget.setFormats(temp);
+            }
+
+            // validateFormat: (),
+            );
       },
     );
   }
@@ -64,14 +74,13 @@ class _CustomFormatsState extends State<CustomFormats> {
           shrinkWrap: true,
           children: formats.isNotEmpty
               ? formats
-                  .asMap()
                   .map(
-                    (i, format) => MapEntry(
-                      i,
+                    (name, format) => MapEntry(
+                      name,
                       ListTile(
                         title: Text(format.name),
                         subtitle: Text(
-                          "${format.height}mm x ${format.width}mm",
+                          "${format.width.toInt()}mm x ${format.height.toInt()}mm",
                           textScaleFactor: 0.9,
                         ),
                         trailing: Row(
@@ -79,9 +88,10 @@ class _CustomFormatsState extends State<CustomFormats> {
                           children: [
                             IconButton(
                               onPressed: () {
-                                List<SheetFormat> temp = formats
-                                    .where((element) => element != format)
-                                    .toList();
+                                Map<String, SheetFormat> temp =
+                                    Map.from(formats);
+                                temp.removeWhere(
+                                    (key, value) => format == value);
                                 setState(() {
                                   formats = temp;
                                   widget.setFormats(temp);
@@ -94,7 +104,7 @@ class _CustomFormatsState extends State<CustomFormats> {
                             ),
                             IconButton(
                               onPressed: () =>
-                                  _displayFormatEditor(editedIndex: i),
+                                  _displayFormatEditor(toBeEdited: name),
                               icon: Icon(
                                 Icons.edit,
                                 color: Theme.of(context).colorScheme.onPrimary,

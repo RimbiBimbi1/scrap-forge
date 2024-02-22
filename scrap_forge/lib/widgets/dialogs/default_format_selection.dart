@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:scrap_forge/db_entities/app_settings.dart';
 
 class DefaultFormatMenu extends StatefulWidget {
-  final List<SheetFormat> formatOptions;
+  final Map<String, SheetFormat> formatOptions;
   final SheetFormat currentFormat;
   final ValueSetter<SheetFormat> setFormat;
   const DefaultFormatMenu({
@@ -40,26 +40,28 @@ class _DefaultFormatMenuState extends State<DefaultFormatMenu> {
         child: ListView(shrinkWrap: true, children: [
           ...widget.formatOptions
               .map(
-                (e) => RadioListTile(
-                  value: e,
-                  groupValue: selectedFormat,
-                  onChanged: (value) => setState(
-                    () {
-                      selectedFormat = value ?? selectedFormat;
-                    },
-                  ),
-                  activeColor: Theme.of(context).colorScheme.primary,
-                  title: Text(
-                    e.name,
-                    textScaleFactor: 0.9,
-                  ),
-                  subtitle: Text(
-                    "${e.width}mm x ${e.height}mm",
-                    textScaleFactor: 0.9,
+                (key, value) => MapEntry(
+                  key,
+                  RadioListTile(
+                    value: value.name,
+                    groupValue: selectedFormat.name,
+                    onChanged: (value) => setState(() {
+                      selectedFormat =
+                          widget.formatOptions[value] ?? selectedFormat;
+                    }),
+                    activeColor: Theme.of(context).colorScheme.primary,
+                    title: Text(
+                      value.name,
+                      textScaleFactor: 0.9,
+                    ),
+                    subtitle: Text(
+                      "${value.width.toInt()}mm x ${value.height.toInt()}mm",
+                      textScaleFactor: 0.9,
+                    ),
                   ),
                 ),
               )
-              .toList(),
+              .values,
         ]),
       ),
       contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),

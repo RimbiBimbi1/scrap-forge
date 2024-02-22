@@ -1,3 +1,5 @@
+import 'dart:math';
+
 import 'package:isar/isar.dart';
 import 'package:scrap_forge/db_entities/product.dart';
 
@@ -59,5 +61,16 @@ class SheetFormat {
 
   String displayNameOrDims() {
     return (name.isNotEmpty) ? name : "$width x $height";
+  }
+
+  static double compareDimensions(SheetFormat f1, SheetFormat f2) {
+    bool heightEqual = max(f2.height, f2.width) == max(f1.height, f1.width);
+    bool widthEqual = min(f2.height, f2.width) == min(f1.height, f1.width);
+
+    if (heightEqual && widthEqual) {
+      return 0;
+    } else {
+      return f2.height * f2.width - f1.height * f1.width;
+    }
   }
 }

@@ -28,12 +28,22 @@ class _SettingsState extends State<Settings> {
   AppSettings appSettings = AppSettings();
   final defaultSizeUnitController = TextEditingController();
   SheetFormat tempFormat = SheetFormat.a4;
+  Map<String, SheetFormat> customFormats = {};
+  Map<String, SheetFormat> baseFormats = {};
 
   @override
   void initState() {
     super.initState();
     appSettings = widget.appSettings;
     tempFormat = widget.appSettings.defaultSheetFormat;
+    customFormats = [...widget.appSettings.customSheetFormats]
+        .asMap()
+        .map((key, value) => MapEntry(value.name, value));
+    baseFormats = [
+      SheetFormat.a3,
+      SheetFormat.a4,
+      SheetFormat.a5,
+    ].asMap().map((key, value) => MapEntry(value.name, value));
   }
 
   Future<void> _displayCustomFormatsMenu() async {
@@ -41,10 +51,21 @@ class _SettingsState extends State<Settings> {
       context: context,
       builder: (context) {
         return CustomFormats(
-          customFormats: appSettings.customSheetFormats,
-          setFormats: (formatList) {
+          baseFormats: baseFormats,
+          customFormats: customFormats,
+          setFormats: (editedFormats) {
+            SheetFormat format = appSettings.defaultSheetFormat;
+            if (!baseFormats.containsKey(appSettings.defaultSheetFormat.name) &&
+                !editedFormats.containsKey(
+                  appSettings.defaultSheetFormat.name,
+                )) {
+              format = SheetFormat.a4;
+            }
             setState(() {
-              appSettings = appSettings..customSheetFormats = formatList;
+              customFormats = editedFormats;
+              appSettings = appSettings
+                ..customSheetFormats = editedFormats.values.toList()
+                ..defaultSheetFormat = format;
             });
           },
         );
@@ -57,12 +78,9 @@ class _SettingsState extends State<Settings> {
       context: context,
       builder: (context) {
         return DefaultFormatMenu(
-          formatOptions: [
-            SheetFormat.a3,
-            SheetFormat.a4,
-            SheetFormat.a5,
-            ...appSettings.customSheetFormats
-          ],
+          formatOptions: Map.fromEntries(
+            [...baseFormats.entries, ...customFormats.entries],
+          ),
           currentFormat: appSettings.defaultSheetFormat,
           setFormat: (value) {
             setState(() {

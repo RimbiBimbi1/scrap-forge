@@ -1,3 +1,5 @@
+import 'dart:math';
+
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:scrap_forge/db_entities/app_settings.dart';
@@ -6,10 +8,12 @@ import 'package:scrap_forge/widgets/custom_text_field.dart';
 class CustomFormatEditor extends StatefulWidget {
   final ValueSetter<SheetFormat> saveFormat;
   final SheetFormat? edited;
+  final Map<String, SheetFormat> formats;
   const CustomFormatEditor({
     super.key,
     required this.saveFormat,
     this.edited,
+    required this.formats,
   });
 
   @override
@@ -21,49 +25,69 @@ class _CustomFormatEditor extends State<CustomFormatEditor> {
   TextEditingController heightController = TextEditingController();
   TextEditingController widthController = TextEditingController();
 
+  final _formKey = GlobalKey<FormState>();
+
   @override
   void initState() {
     super.initState();
     nameController.text = widget.edited?.name ?? "";
-    heightController.text = (widget.edited?.height ?? "").toString();
-    widthController.text = (widget.edited?.width ?? "").toString();
+    heightController.text = (widget.edited?.height.toInt() ?? "").toString();
+    widthController.text = (widget.edited?.width.toInt() ?? "").toString();
+  }
+
+  String? nameValidator(String? name) {
+    if (name == null) {
+      return "Format musi mieć nazwę";
+    }
+    if (name.isEmpty || name.length > 12) {
+      return "Nazwa musi mieć 1-12 znaków";
+    }
+    if ((name != widget.edited?.name) && widget.formats.containsKey(name)) {
+      return "Istnieje już inny format o podanej nazwie";
+    }
+    return null;
   }
 
   @override
   Widget build(BuildContext context) {
     return AlertDialog(
-      title: Text("Dodaj format:"),
+      title: Text(widget.edited != null
+          ? "Edytuj format ${widget.edited!.name}:"
+          : "Dodaj format:"),
       titlePadding: const EdgeInsets.fromLTRB(18, 24, 18, 0),
-      content: ListView(
-        // mainAxisSize: MainAxisSize.min,
-        shrinkWrap: true,
-        children: [
-          CustomTextField(
-            label: Text("Nazwa"),
-            controller: nameController,
-            validator: (value) => null,
-          ),
-          CustomTextField(
-              label: Text("Wysokość"),
-              controller: heightController,
-              inputFormatters: [FilteringTextInputFormatter.digitsOnly],
-              validator: (value) {
-                if (value == null || value == "") {
-                  return "Podaj wysokość podkładu";
-                }
-                return null;
-              }),
-          CustomTextField(
-              label: Text("Szerokość"),
-              controller: widthController,
-              inputFormatters: [FilteringTextInputFormatter.digitsOnly],
-              validator: (value) {
-                if (value == null || value == "") {
-                  return "Podaj szerokość podkładu";
-                }
-                return null;
-              }),
-        ],
+      content: Form(
+        key: _formKey,
+        child: ListView(
+          // mainAxisSize: MainAxisSize.min,
+          shrinkWrap: true,
+          children: [
+            CustomTextField(
+              label: Text("Nazwa"),
+              controller: nameController,
+              validator: nameValidator,
+            ),
+            CustomTextField(
+                label: Text("Wysokość"),
+                controller: heightController,
+                inputFormatters: [FilteringTextInputFormatter.digitsOnly],
+                validator: (value) {
+                  if (value == null || value == "") {
+                    return "Podaj wysokość formatu";
+                  }
+                  return null;
+                }),
+            CustomTextField(
+                label: Text("Szerokość"),
+                controller: widthController,
+                inputFormatters: [FilteringTextInputFormatter.digitsOnly],
+                validator: (value) {
+                  if (value == null || value == "") {
+                    return "Podaj szerokość formatu";
+                  }
+                  return null;
+                }),
+          ],
+        ),
       ),
       actions: [
         Row(
@@ -84,14 +108,19 @@ class _CustomFormatEditor extends State<CustomFormatEditor> {
               flex: 4,
               child: ElevatedButton(
                 onPressed: () {
-                  widget.saveFormat(
-                    SheetFormat(
-                      name: nameController.text,
-                      width: double.tryParse(widthController.text) ?? 0,
-                      height: double.tryParse(heightController.text) ?? 0,
-                    ),
-                  );
-                  Navigator.of(context).pop();
+                  if (_formKey.currentState != null &&
+                      _formKey.currentState!.validate()) {
+                    double w = double.tryParse(widthController.text) ?? 0;
+                    double h = double.tryParse(heightController.text) ?? 0;
+                    widget.saveFormat(
+                      SheetFormat(
+                        name: nameController.text,
+                        width: min(w, h),
+                        height: max(w, h),
+                      ),
+                    );
+                    Navigator.of(context).pop();
+                  }
                 },
                 child: const Text("Zatwierdź"),
               ),
