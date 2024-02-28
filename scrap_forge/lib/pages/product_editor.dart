@@ -166,12 +166,11 @@ class _ProductEditorState extends State<ProductEditor> {
   }
 
   String getInitialDimension(double? value, SizeUnit? unit) {
-    return (SafeCalculator.divide(
-              value,
-              unit?.multiplier,
-            ) ??
-            '')
-        .toString();
+    num? result = SafeCalculator.divide(
+      value,
+      unit?.multiplier,
+    );
+    return (result != null ? result.toStringAsFixed(2) : '').toString();
   }
 
   String getInitialDateString(int? timestamp) {

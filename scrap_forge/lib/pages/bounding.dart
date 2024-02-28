@@ -10,7 +10,6 @@ import 'package:scrap_forge/measure_tool/bounding_tool.dart';
 import 'package:scrap_forge/measure_tool/image_processor.dart';
 import 'package:scrap_forge/measure_tool/triangle_texturer.dart';
 import 'package:scrap_forge/pages/loading.dart';
-import 'package:scrap_forge/widgets/dialogs/format_selection_menu.dart';
 
 class BoundingPage extends StatefulWidget {
   final Uint8List picked;
@@ -59,7 +58,8 @@ class _BoundingPageState extends State<BoundingPage> {
   void initState() {
     super.initState();
     sheetFormat = widget.sheetFormat;
-    boundingData = isolateTask(detectSheetIsolated, [
+
+    boundingData = isolateTask(detectObjectIsolated, [
       imgLib.decodeJpg(widget.picked) ?? imgLib.Image.empty(),
       widget.corners,
       widget.sheetFormat,
@@ -152,7 +152,7 @@ Future isolateTask(
   return response;
 }
 
-List<Offset> detectSheetIsolated(List<dynamic> args) {
+List<Offset> detectObjectIsolated(List<dynamic> args) {
   SendPort resultPort = args[0];
 
   imgLib.Image sheet = texture(args[1], args[2], args[3]);

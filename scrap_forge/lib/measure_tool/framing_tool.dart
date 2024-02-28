@@ -5,6 +5,7 @@ const double magnifierRadius = 35;
 class FramingTool extends StatefulWidget {
   final Size size;
   final List<Offset> points;
+  final VoidCallback resetPoints;
   final Widget Function(double w, double h) displayImage;
 
   final ValueSetter<List<Offset>> setCorners;
@@ -14,6 +15,7 @@ class FramingTool extends StatefulWidget {
     required this.size,
     required this.displayImage,
     required this.points,
+    required this.resetPoints,
     required this.setCorners,
   });
 
@@ -26,11 +28,12 @@ class _FramingToolState extends State<FramingTool> {
   int activeCorner = -1;
 
   Widget image = Container();
+  List<Offset> initialCorners = List.empty();
 
   @override
   void initState() {
     super.initState();
-
+    initialCorners = widget.points;
     image = widget.displayImage(widget.size.width, widget.size.height);
   }
 
@@ -148,8 +151,12 @@ class _FramingToolState extends State<FramingTool> {
           padding: const EdgeInsets.symmetric(vertical: 8),
           color: theme.colorScheme.secondary,
           child: Row(
-            mainAxisAlignment: MainAxisAlignment.center,
+            mainAxisAlignment: MainAxisAlignment.spaceAround,
             children: [
+              OutlinedButton(
+                onPressed: widget.resetPoints,
+                child: const Text("Zacznij od nowa"),
+              ),
               ElevatedButton(
                 onPressed: () => widget.setCorners(widget.points),
                 child: const Text("Zatwierdź"),

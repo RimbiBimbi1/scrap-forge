@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'dart:math' as math;
 
 import 'package:scrap_forge/db_entities/app_settings.dart';
+import 'package:scrap_forge/db_entities/product.dart';
 
 double initialMagnifierRadius = 30;
 
@@ -318,6 +319,59 @@ class _FramingToolState extends State<BoundingTool> {
     return List.from([dim1, dim2, area]);
   }
 
+  Future<void> _displayDecisionDialog(List<double> dimensions) {
+    return showDialog(
+        context: context,
+        builder: (context) {
+          return Dialog(
+            child: Padding(
+              padding: EdgeInsets.symmetric(vertical: 24, horizontal: 24),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  OutlinedButton(
+                    onPressed: () {
+                      Navigator.popUntil(
+                        context,
+                        ModalRoute.withName('/measure'),
+                      );
+                      Navigator.pop(context);
+                    },
+                    child: Text("Wróć do strony głównej"),
+                  ),
+                  ElevatedButton(
+                      onPressed: () {
+                        Product product = Product()
+                          ..name = ''
+                          ..dimensions = Dimensions(
+                            length: dimensions[0],
+                            width: dimensions[1],
+                            projectionArea: dimensions[2],
+                            lengthDisplayUnit: SizeUnit.centimeter,
+                            widthDisplayUnit: SizeUnit.centimeter,
+                            // heightDisplayUnit: SizeUnit.millimeter,
+                            areaDisplayUnit: SizeUnit.centimeter,
+                          );
+
+                        Navigator.popUntil(
+                          context,
+                          ModalRoute.withName('/measure'),
+                        );
+                        Navigator.pushReplacementNamed(
+                          context,
+                          '/editProduct',
+                          arguments: {"productData": product},
+                        );
+                      },
+                      child: Text("Dodaj do nowego produktu"))
+                ],
+              ),
+            ),
+          );
+        });
+  }
+
   @override
   Widget build(BuildContext context) {
     ThemeData theme = Theme.of(context);
@@ -415,12 +469,19 @@ class _FramingToolState extends State<BoundingTool> {
                   if (widget.onBoundingBoxConfirmed != null) {
                     widget.onBoundingBoxConfirmed!(
                       List<double>.from(
-                        [dimensions[0], dimensions[1], dimensions[2]],
+                        [
+                          dimensions[0],
+                          dimensions[1],
+                          dimensions[2],
+                        ],
                       ),
                     );
+                    Navigator.popUntil(
+                        context, ModalRoute.withName('/measure'));
+                    Navigator.pop(context);
+                  } else {
+                    _displayDecisionDialog(dimensions);
                   }
-                  Navigator.popUntil(context, ModalRoute.withName('/measure'));
-                  Navigator.pop(context);
                 },
                 child: const Text("Zatwierdź"),
               ),

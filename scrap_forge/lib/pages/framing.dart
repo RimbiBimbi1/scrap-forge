@@ -42,6 +42,7 @@ class _FramingPageState extends State<FramingPage> {
   SheetFormat sheetFormat = SheetFormat.a4;
 
   Future<dynamic>? sheetCorners;
+  Future<dynamic>? detectedCorners;
 
   @override
   void initState() {
@@ -54,6 +55,10 @@ class _FramingPageState extends State<FramingPage> {
 
     sheetCorners = isolateTask(
         detectSheetIsolated, [widget.picked, widget.framingQuality]);
+  }
+
+  void resetCorners() {
+    setState(() {});
   }
 
   Widget displayImage(double w, double h) {
@@ -86,6 +91,36 @@ class _FramingPageState extends State<FramingPage> {
         );
       },
     );
+  }
+
+  List<Offset> organizeCorners(List<Offset> corners) {
+    //Find corner nearest to (0,0)
+    int closestCorner = 0;
+    double minDistance = double.infinity;
+    for (final (i, corner) in corners.indexed) {
+      if (corner.distance > minDistance) {
+        minDistance = corner.distance;
+        closestCorner = i;
+      }
+    }
+    //Arrange the points so the first one is the closest to (0,0)
+    List<Offset> organized = corners.indexed
+        .map((c) => corners[(c.$1 - closestCorner) % 4])
+        .toList();
+
+    //If the sheet is sideways, switch two of the corners to rotate it
+    double distanceSq01 = (organized[1] - organized[0]).distance;
+    double distanceSq03 = (organized[3] - organized[0]).distance;
+    if (distanceSq01 > distanceSq03) {
+      organized = organized.indexed.map((i) {
+        if (i.$1 % 2 == 0) {
+          return organized[(i.$1 + 2) % 4];
+        }
+        return i.$2;
+      }).toList();
+    }
+
+    return organized;
   }
 
   @override
@@ -129,11 +164,12 @@ class _FramingPageState extends State<FramingPage> {
                   size: Size(displayW, displayH),
                   displayImage: displayImage,
                   points: corners,
+                  resetPoints: resetCorners,
                   setCorners: (adjustedCorners) {
                     Navigator.of(context).push(MaterialPageRoute(
                         builder: (context) => BoundingPage(
                               picked: widget.picked,
-                              corners: adjustedCorners
+                              corners: organizeCorners(adjustedCorners)
                                   .map((e) =>
                                       Offset(e.dx / displayW, e.dy / displayH))
                                   .toList(),

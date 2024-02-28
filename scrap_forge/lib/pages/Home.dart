@@ -78,7 +78,7 @@ class _HomeState extends State<Home> {
                 foregroundColor: theme.colorScheme.onPrimary,
                 onPressed: () {
                   Navigator.pushNamed(context, "/measure",
-                      arguments: {'onBoundingBoxConfirmed': (values) {}});
+                      arguments: {'onBoundingBoxConfirmed': null});
                 },
                 child: const Icon(
                   Icons.straighten,

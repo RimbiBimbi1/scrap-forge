@@ -109,14 +109,15 @@ class _MeasurementHubState extends State<MeasurementHub> {
                         Navigator.of(context).push(
                           MaterialPageRoute(
                             builder: (context) => FramingPage(
-                                picked: picked,
-                                sheetFormat: sheetFormat,
-                                availableSheetFormats:
-                                    widget.availableSheetFormats,
-                                framingQuality: widget.framingQuality,
-                                boundingQuality: widget.boundingQuality,
-                                onBoundingBoxConfirmed:
-                                    arguments['onBoundingBoxConfirmed']),
+                              picked: picked,
+                              sheetFormat: sheetFormat,
+                              availableSheetFormats:
+                                  widget.availableSheetFormats,
+                              framingQuality: widget.framingQuality,
+                              boundingQuality: widget.boundingQuality,
+                              onBoundingBoxConfirmed:
+                                  arguments['onBoundingBoxConfirmed'],
+                            ),
                           ),
                         );
                       }
