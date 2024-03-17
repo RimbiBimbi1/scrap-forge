@@ -376,8 +376,8 @@ class _FramingToolState extends State<BoundingTool> {
   Widget build(BuildContext context) {
     ThemeData theme = Theme.of(context);
 
-    Color defaultColor = const Color.fromARGB(255, 255, 0, 0);
-    Color focusColor = const Color.fromARGB(255, 255, 255, 255);
+    Color defaultColor = const Color.fromARGB(255, 255, 255, 255);
+    Color focusColor = Color.fromARGB(255, 255, 200, 0);
 
     List<double> dimensions = calculateDimensions();
     return Column(

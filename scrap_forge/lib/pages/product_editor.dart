@@ -138,7 +138,10 @@ class _ProductEditorState extends State<ProductEditor> {
             product.available != null ||
             product.needed != null);
 
-        photos = product.photos.map((photo) => base64Decode(photo)).toList();
+        // photos = product.photos.map((photo) => base64Decode(photo)).toList();
+        photos = product.photos
+            .map((photo) => Uint8List.fromList(photo.data))
+            .toList();
 
         madeFrom = product.madeFrom.toList();
 
@@ -360,7 +363,7 @@ class _ProductEditorState extends State<ProductEditor> {
           ..name = nameController.text
           ..description = descriptionController.text
           ..count = int.tryParse(countController.text)
-          ..photos = photos.map((bytes) => base64Encode(bytes)).toList()
+          ..photos = photos.map((bytes) => Photo()..data = bytes).toList()
           ..category = categoryController.text
           ..progress = addAsProject ? progress : null
           ..startedTimestamp = addAsProject

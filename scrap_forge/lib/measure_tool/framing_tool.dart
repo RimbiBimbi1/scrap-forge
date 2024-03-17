@@ -86,8 +86,8 @@ class _FramingToolState extends State<FramingTool> {
   Widget build(BuildContext context) {
     ThemeData theme = Theme.of(context);
 
-    Color defaultColor = Color.fromARGB(255, 255, 0, 0);
-    Color focusColor = Color.fromARGB(255, 255, 255, 255);
+    Color defaultColor = Color.fromARGB(255, 255, 255, 255);
+    Color focusColor = Color.fromARGB(255, 255, 200, 0);
     return Column(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       crossAxisAlignment: CrossAxisAlignment.center,

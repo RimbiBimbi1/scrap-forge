@@ -21,14 +21,14 @@ class _ProductStripSmallState extends State<ProductStripSmall> {
   Widget? thumbnail;
 
   void getImage() {
-    String? data;
+    List<int> data;
 
     if (widget.product.photos.isEmpty) {
       return;
     }
 
-    data = widget.product.photos.first;
-    Uint8List bytes = base64Decode(data);
+    data = widget.product.photos.first.data;
+    Uint8List bytes = Uint8List.fromList(data);
     setState(() {
       thumbnail = Image(image: MemoryImage(bytes));
     });

@@ -13,7 +13,7 @@ class Product {
   @Enumerated(EnumType.name)
   ProjectLifeCycle? progress;
 
-  List<String> photos = [];
+  List<Photo> photos = [];
 
   String? category;
 
@@ -78,6 +78,11 @@ class Product {
 
     return null;
   }
+}
+
+@embedded
+class Photo {
+  List<int> data = [];
 }
 
 @embedded

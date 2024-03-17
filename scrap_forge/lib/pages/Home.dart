@@ -147,9 +147,9 @@ class _HomeState extends State<Home> {
                     background: theme.colorScheme.secondary,
                     color: theme.colorScheme.onSecondary,
                     title: "Ukończone",
-                    child: SvgPicture.asset(
-                      'assets/image-placeholder.svg',
-                      fit: BoxFit.fill,
+                    child: const Image(
+                      image: AssetImage('assets/images/finished_projects.png'),
+                      fit: BoxFit.fitWidth,
                     ),
                   ),
                   const Spacer(

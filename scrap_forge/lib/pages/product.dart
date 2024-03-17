@@ -141,8 +141,8 @@ class _ProductPageState extends State<ProductPage> {
                                       borderRadius: const BorderRadius.all(
                                           Radius.circular(8)),
                                       image: DecorationImage(
-                                          image:
-                                              MemoryImage(base64Decode(photo)),
+                                          image: MemoryImage(
+                                              Uint8List.fromList(photo.data)),
                                           fit: BoxFit.cover),
                                     ),
                                   ),

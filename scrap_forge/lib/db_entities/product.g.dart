@@ -86,7 +86,8 @@ const ProductSchema = CollectionSchema(
     r'photos': PropertySchema(
       id: 13,
       name: r'photos',
-      type: IsarType.stringList,
+      type: IsarType.objectList,
+      target: r'Photo',
     ),
     r'progress': PropertySchema(
       id: 14,
@@ -136,7 +137,7 @@ const ProductSchema = CollectionSchema(
       linkName: r'madeFrom',
     )
   },
-  embeddedSchemas: {r'Dimensions': DimensionsSchema},
+  embeddedSchemas: {r'Photo': PhotoSchema, r'Dimensions': DimensionsSchema},
   getId: _productGetId,
   getLinks: _productGetLinks,
   attach: _productAttach,
@@ -177,9 +178,10 @@ int _productEstimateSize(
   }
   bytesCount += 3 + object.photos.length * 3;
   {
+    final offsets = allOffsets[Photo]!;
     for (var i = 0; i < object.photos.length; i++) {
       final value = object.photos[i];
-      bytesCount += value.length * 3;
+      bytesCount += PhotoSchema.estimateSize(value, offsets, allOffsets);
     }
   }
   {
@@ -215,7 +217,12 @@ void _productSerialize(
   writer.writeDouble(offsets[10], object.maxArea);
   writer.writeString(offsets[11], object.name);
   writer.writeLong(offsets[12], object.needed);
-  writer.writeStringList(offsets[13], object.photos);
+  writer.writeObjectList<Photo>(
+    offsets[13],
+    allOffsets,
+    PhotoSchema.serialize,
+    object.photos,
+  );
   writer.writeString(offsets[14], object.progress?.name);
   writer.writeDouble(offsets[15], object.projectionAreamm);
   writer.writeLong(offsets[16], object.startedTimestamp);
@@ -245,7 +252,13 @@ Product _productDeserialize(
   object.lastModifiedTimestamp = reader.readLongOrNull(offsets[8]);
   object.name = reader.readStringOrNull(offsets[11]);
   object.needed = reader.readLongOrNull(offsets[12]);
-  object.photos = reader.readStringList(offsets[13]) ?? [];
+  object.photos = reader.readObjectList<Photo>(
+        offsets[13],
+        PhotoSchema.deserialize,
+        allOffsets,
+        Photo(),
+      ) ??
+      [];
   object.progress =
       _ProductprogressValueEnumMap[reader.readStringOrNull(offsets[14])];
   object.startedTimestamp = reader.readLongOrNull(offsets[16]);
@@ -290,7 +303,13 @@ P _productDeserializeProp<P>(
     case 12:
       return (reader.readLongOrNull(offset)) as P;
     case 13:
-      return (reader.readStringList(offset) ?? []) as P;
+      return (reader.readObjectList<Photo>(
+            offset,
+            PhotoSchema.deserialize,
+            allOffsets,
+            Photo(),
+          ) ??
+          []) as P;
     case 14:
       return (_ProductprogressValueEnumMap[reader.readStringOrNull(offset)])
           as P;
@@ -1574,138 +1593,6 @@ extension ProductQueryFilter
     });
   }
 
-  QueryBuilder<Product, Product, QAfterFilterCondition> photosElementEqualTo(
-    String value, {
-    bool caseSensitive = true,
-  }) {
-    return QueryBuilder.apply(this, (query) {
-      return query.addFilterCondition(FilterCondition.equalTo(
-        property: r'photos',
-        value: value,
-        caseSensitive: caseSensitive,
-      ));
-    });
-  }
-
-  QueryBuilder<Product, Product, QAfterFilterCondition>
-      photosElementGreaterThan(
-    String value, {
-    bool include = false,
-    bool caseSensitive = true,
-  }) {
-    return QueryBuilder.apply(this, (query) {
-      return query.addFilterCondition(FilterCondition.greaterThan(
-        include: include,
-        property: r'photos',
-        value: value,
-        caseSensitive: caseSensitive,
-      ));
-    });
-  }
-
-  QueryBuilder<Product, Product, QAfterFilterCondition> photosElementLessThan(
-    String value, {
-    bool include = false,
-    bool caseSensitive = true,
-  }) {
-    return QueryBuilder.apply(this, (query) {
-      return query.addFilterCondition(FilterCondition.lessThan(
-        include: include,
-        property: r'photos',
-        value: value,
-        caseSensitive: caseSensitive,
-      ));
-    });
-  }
-
-  QueryBuilder<Product, Product, QAfterFilterCondition> photosElementBetween(
-    String lower,
-    String upper, {
-    bool includeLower = true,
-    bool includeUpper = true,
-    bool caseSensitive = true,
-  }) {
-    return QueryBuilder.apply(this, (query) {
-      return query.addFilterCondition(FilterCondition.between(
-        property: r'photos',
-        lower: lower,
-        includeLower: includeLower,
-        upper: upper,
-        includeUpper: includeUpper,
-        caseSensitive: caseSensitive,
-      ));
-    });
-  }
-
-  QueryBuilder<Product, Product, QAfterFilterCondition> photosElementStartsWith(
-    String value, {
-    bool caseSensitive = true,
-  }) {
-    return QueryBuilder.apply(this, (query) {
-      return query.addFilterCondition(FilterCondition.startsWith(
-        property: r'photos',
-        value: value,
-        caseSensitive: caseSensitive,
-      ));
-    });
-  }
-
-  QueryBuilder<Product, Product, QAfterFilterCondition> photosElementEndsWith(
-    String value, {
-    bool caseSensitive = true,
-  }) {
-    return QueryBuilder.apply(this, (query) {
-      return query.addFilterCondition(FilterCondition.endsWith(
-        property: r'photos',
-        value: value,
-        caseSensitive: caseSensitive,
-      ));
-    });
-  }
-
-  QueryBuilder<Product, Product, QAfterFilterCondition> photosElementContains(
-      String value,
-      {bool caseSensitive = true}) {
-    return QueryBuilder.apply(this, (query) {
-      return query.addFilterCondition(FilterCondition.contains(
-        property: r'photos',
-        value: value,
-        caseSensitive: caseSensitive,
-      ));
-    });
-  }
-
-  QueryBuilder<Product, Product, QAfterFilterCondition> photosElementMatches(
-      String pattern,
-      {bool caseSensitive = true}) {
-    return QueryBuilder.apply(this, (query) {
-      return query.addFilterCondition(FilterCondition.matches(
-        property: r'photos',
-        wildcard: pattern,
-        caseSensitive: caseSensitive,
-      ));
-    });
-  }
-
-  QueryBuilder<Product, Product, QAfterFilterCondition> photosElementIsEmpty() {
-    return QueryBuilder.apply(this, (query) {
-      return query.addFilterCondition(FilterCondition.equalTo(
-        property: r'photos',
-        value: '',
-      ));
-    });
-  }
-
-  QueryBuilder<Product, Product, QAfterFilterCondition>
-      photosElementIsNotEmpty() {
-    return QueryBuilder.apply(this, (query) {
-      return query.addFilterCondition(FilterCondition.greaterThan(
-        property: r'photos',
-        value: '',
-      ));
-    });
-  }
-
   QueryBuilder<Product, Product, QAfterFilterCondition> photosLengthEqualTo(
       int length) {
     return QueryBuilder.apply(this, (query) {
@@ -2254,6 +2141,13 @@ extension ProductQueryObject
       FilterQuery<Dimensions> q) {
     return QueryBuilder.apply(this, (query) {
       return query.object(q, r'dimensions');
+    });
+  }
+
+  QueryBuilder<Product, Product, QAfterFilterCondition> photosElement(
+      FilterQuery<Photo> q) {
+    return QueryBuilder.apply(this, (query) {
+      return query.object(q, r'photos');
     });
   }
 }
@@ -2878,12 +2772,6 @@ extension ProductQueryWhereDistinct
     });
   }
 
-  QueryBuilder<Product, Product, QDistinct> distinctByPhotos() {
-    return QueryBuilder.apply(this, (query) {
-      return query.addDistinctBy(r'photos');
-    });
-  }
-
   QueryBuilder<Product, Product, QDistinct> distinctByProgress(
       {bool caseSensitive = true}) {
     return QueryBuilder.apply(this, (query) {
@@ -3003,7 +2891,7 @@ extension ProductQueryProperty
     });
   }
 
-  QueryBuilder<Product, List<String>, QQueryOperations> photosProperty() {
+  QueryBuilder<Product, List<Photo>, QQueryOperations> photosProperty() {
     return QueryBuilder.apply(this, (query) {
       return query.addPropertyName(r'photos');
     });
@@ -3044,6 +2932,210 @@ extension ProductQueryProperty
 // **************************************************************************
 // IsarEmbeddedGenerator
 // **************************************************************************
+
+// coverage:ignore-file
+// ignore_for_file: duplicate_ignore, non_constant_identifier_names, constant_identifier_names, invalid_use_of_protected_member, unnecessary_cast, prefer_const_constructors, lines_longer_than_80_chars, require_trailing_commas, inference_failure_on_function_invocation, unnecessary_parenthesis, unnecessary_raw_strings, unnecessary_null_checks, join_return_with_assignment, prefer_final_locals, avoid_js_rounded_ints, avoid_positional_boolean_parameters, always_specify_types
+
+const PhotoSchema = Schema(
+  name: r'Photo',
+  id: 7605685642742149252,
+  properties: {
+    r'data': PropertySchema(
+      id: 0,
+      name: r'data',
+      type: IsarType.longList,
+    )
+  },
+  estimateSize: _photoEstimateSize,
+  serialize: _photoSerialize,
+  deserialize: _photoDeserialize,
+  deserializeProp: _photoDeserializeProp,
+);
+
+int _photoEstimateSize(
+  Photo object,
+  List<int> offsets,
+  Map<Type, List<int>> allOffsets,
+) {
+  var bytesCount = offsets.last;
+  bytesCount += 3 + object.data.length * 8;
+  return bytesCount;
+}
+
+void _photoSerialize(
+  Photo object,
+  IsarWriter writer,
+  List<int> offsets,
+  Map<Type, List<int>> allOffsets,
+) {
+  writer.writeLongList(offsets[0], object.data);
+}
+
+Photo _photoDeserialize(
+  Id id,
+  IsarReader reader,
+  List<int> offsets,
+  Map<Type, List<int>> allOffsets,
+) {
+  final object = Photo();
+  object.data = reader.readLongList(offsets[0]) ?? [];
+  return object;
+}
+
+P _photoDeserializeProp<P>(
+  IsarReader reader,
+  int propertyId,
+  int offset,
+  Map<Type, List<int>> allOffsets,
+) {
+  switch (propertyId) {
+    case 0:
+      return (reader.readLongList(offset) ?? []) as P;
+    default:
+      throw IsarError('Unknown property with id $propertyId');
+  }
+}
+
+extension PhotoQueryFilter on QueryBuilder<Photo, Photo, QFilterCondition> {
+  QueryBuilder<Photo, Photo, QAfterFilterCondition> dataElementEqualTo(
+      int value) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.equalTo(
+        property: r'data',
+        value: value,
+      ));
+    });
+  }
+
+  QueryBuilder<Photo, Photo, QAfterFilterCondition> dataElementGreaterThan(
+    int value, {
+    bool include = false,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.greaterThan(
+        include: include,
+        property: r'data',
+        value: value,
+      ));
+    });
+  }
+
+  QueryBuilder<Photo, Photo, QAfterFilterCondition> dataElementLessThan(
+    int value, {
+    bool include = false,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.lessThan(
+        include: include,
+        property: r'data',
+        value: value,
+      ));
+    });
+  }
+
+  QueryBuilder<Photo, Photo, QAfterFilterCondition> dataElementBetween(
+    int lower,
+    int upper, {
+    bool includeLower = true,
+    bool includeUpper = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.between(
+        property: r'data',
+        lower: lower,
+        includeLower: includeLower,
+        upper: upper,
+        includeUpper: includeUpper,
+      ));
+    });
+  }
+
+  QueryBuilder<Photo, Photo, QAfterFilterCondition> dataLengthEqualTo(
+      int length) {
+    return QueryBuilder.apply(this, (query) {
+      return query.listLength(
+        r'data',
+        length,
+        true,
+        length,
+        true,
+      );
+    });
+  }
+
+  QueryBuilder<Photo, Photo, QAfterFilterCondition> dataIsEmpty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.listLength(
+        r'data',
+        0,
+        true,
+        0,
+        true,
+      );
+    });
+  }
+
+  QueryBuilder<Photo, Photo, QAfterFilterCondition> dataIsNotEmpty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.listLength(
+        r'data',
+        0,
+        false,
+        999999,
+        true,
+      );
+    });
+  }
+
+  QueryBuilder<Photo, Photo, QAfterFilterCondition> dataLengthLessThan(
+    int length, {
+    bool include = false,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.listLength(
+        r'data',
+        0,
+        true,
+        length,
+        include,
+      );
+    });
+  }
+
+  QueryBuilder<Photo, Photo, QAfterFilterCondition> dataLengthGreaterThan(
+    int length, {
+    bool include = false,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.listLength(
+        r'data',
+        length,
+        include,
+        999999,
+        true,
+      );
+    });
+  }
+
+  QueryBuilder<Photo, Photo, QAfterFilterCondition> dataLengthBetween(
+    int lower,
+    int upper, {
+    bool includeLower = true,
+    bool includeUpper = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.listLength(
+        r'data',
+        lower,
+        includeLower,
+        upper,
+        includeUpper,
+      );
+    });
+  }
+}
+
+extension PhotoQueryObject on QueryBuilder<Photo, Photo, QFilterCondition> {}
 
 // coverage:ignore-file
 // ignore_for_file: duplicate_ignore, non_constant_identifier_names, constant_identifier_names, invalid_use_of_protected_member, unnecessary_cast, prefer_const_constructors, lines_longer_than_80_chars, require_trailing_commas, inference_failure_on_function_invocation, unnecessary_parenthesis, unnecessary_raw_strings, unnecessary_null_checks, join_return_with_assignment, prefer_final_locals, avoid_js_rounded_ints, avoid_positional_boolean_parameters, always_specify_types
