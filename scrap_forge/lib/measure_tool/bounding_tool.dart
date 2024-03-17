@@ -1,3 +1,5 @@
+import 'dart:math';
+
 import 'package:flutter/material.dart';
 import 'dart:math' as math;
 
@@ -310,7 +312,8 @@ class _FramingToolState extends State<BoundingTool> {
   }
 
   List<double> calculateDimensions() {
-    double ratio = widget.sheetFormat.height / widget.size.height;
+    double ratio = max(widget.sheetFormat.height, widget.sheetFormat.width) /
+        widget.size.height;
     double dim1 = (corners[0] - corners[1]).distance * ratio;
     double dim2 = (corners[1] - corners[2]).distance * ratio;
     double area =

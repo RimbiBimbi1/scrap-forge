@@ -215,8 +215,10 @@ Future isolateTask(
 
 List<Offset> detectSheetIsolated(List<dynamic> args) {
   SendPort resultPort = args[0];
+  Uint8List picked = args[1];
+  MeasurementToolQuality quality = args[2];
 
-  List<Offset> corners = detectSheet(args[1], args[2]);
+  List<Offset> corners = detectSheet(picked, quality);
 
   Isolate.exit(resultPort, corners);
 }

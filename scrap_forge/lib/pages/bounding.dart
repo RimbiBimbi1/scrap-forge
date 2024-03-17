@@ -59,12 +59,15 @@ class _BoundingPageState extends State<BoundingPage> {
     super.initState();
     sheetFormat = widget.sheetFormat;
 
-    boundingData = isolateTask(detectObjectIsolated, [
-      imgLib.decodeJpg(widget.picked) ?? imgLib.Image.empty(),
-      widget.corners,
-      widget.sheetFormat,
-      widget.boundingQuality,
-    ]);
+    boundingData = isolateTask(
+      detectObjectIsolated,
+      [
+        widget.picked,
+        widget.corners,
+        widget.sheetFormat,
+        widget.boundingQuality,
+      ],
+    );
   }
 
   @override
@@ -154,10 +157,18 @@ Future isolateTask(
 
 List<Offset> detectObjectIsolated(List<dynamic> args) {
   SendPort resultPort = args[0];
+  Uint8List picked = args[1];
+  List<Offset> corners = args[2];
+  SheetFormat sheetFormat = args[3];
+  MeasurementToolQuality quality = args[4];
 
-  imgLib.Image sheet = texture(args[1], args[2], args[3]);
-  List<dynamic> result = detectBoundingBox(sheet, args[4]);
-  List<Offset> corners = result[0] as List<Offset>;
+  imgLib.Image sheet = texture(
+    imgLib.decodeJpg(picked) ?? imgLib.Image.empty(),
+    corners,
+    sheetFormat,
+  );
+  List<dynamic> result = detectBoundingBox(sheet, quality);
+  corners = result[0] as List<Offset>;
   int projectionAreaPixels = result[1] as int;
 
   Isolate.exit(resultPort, [sheet, corners, projectionAreaPixels]);
