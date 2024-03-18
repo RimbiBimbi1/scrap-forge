@@ -10,9 +10,11 @@ import 'package:scrap_forge/measure_tool/bounding_tool.dart';
 import 'package:scrap_forge/measure_tool/image_processor.dart';
 import 'package:scrap_forge/measure_tool/triangle_texturer.dart';
 import 'package:scrap_forge/pages/loading.dart';
+import 'package:scrap_forge/utils/isolate_task.dart';
 
 class BoundingPage extends StatefulWidget {
-  final Uint8List picked;
+  final Uint8List pickedBytes;
+  final imgLib.Image pickedImage;
   final List<Offset> corners;
   final SheetFormat sheetFormat;
   final Map<String, SheetFormat> availableSheetFormats;
@@ -22,7 +24,8 @@ class BoundingPage extends StatefulWidget {
 
   const BoundingPage({
     super.key,
-    required this.picked,
+    required this.pickedBytes,
+    required this.pickedImage,
     required this.corners,
     this.sheetFormat = SheetFormat.a4,
     this.boundingQuality = MeasurementToolQuality.medium,
@@ -62,7 +65,7 @@ class _BoundingPageState extends State<BoundingPage> {
     boundingData = isolateTask(
       detectObjectIsolated,
       [
-        widget.picked,
+        widget.pickedImage,
         widget.corners,
         widget.sheetFormat,
         widget.boundingQuality,
@@ -75,7 +78,6 @@ class _BoundingPageState extends State<BoundingPage> {
     ThemeData theme = Theme.of(context);
 
     return Scaffold(
-      // backgroundColor: Colors.grey[900],
       appBar: AppBar(
         title: const Text("Obramuj przedmiot"),
         actions: [
@@ -93,7 +95,6 @@ class _BoundingPageState extends State<BoundingPage> {
       ),
       body: SafeArea(
         child: Center(
-          // padding: Ed,
           child: FutureBuilder(
             future: boundingData,
             builder: (context, snapshot) {
@@ -102,7 +103,6 @@ class _BoundingPageState extends State<BoundingPage> {
 
               if (snapshot.connectionState == ConnectionState.done) {
                 List<dynamic> result = snapshot.data;
-
                 imgLib.Image image = result[0] as imgLib.Image;
                 List<Offset> cornersNormalized = result[1] as List<Offset>;
                 int projectionAreaPixels = result[2] as int;
@@ -127,9 +127,12 @@ class _BoundingPageState extends State<BoundingPage> {
                     onBoundingBoxConfirmed: widget.onBoundingBoxConfirmed);
               } else {
                 return Stack(
+                  alignment: Alignment.center,
                   children: [
-                    Image(image: MemoryImage(widget.picked)),
-                    const Loading(),
+                    Image(image: MemoryImage(widget.pickedBytes)),
+                    const Loading(
+                      title: "Poszukiwanie przedmiotu...",
+                    ),
                   ],
                 );
               }
@@ -141,29 +144,15 @@ class _BoundingPageState extends State<BoundingPage> {
   }
 }
 
-Future isolateTask(
-    void Function(List<dynamic> tArgs) task, List<dynamic> args) async {
-  final ReceivePort receivePort = ReceivePort();
-  try {
-    await Isolate.spawn(task, [receivePort.sendPort, ...args]);
-  } on Object {
-    receivePort.close();
-  }
-
-  final response = await receivePort.first;
-
-  return response;
-}
-
 List<Offset> detectObjectIsolated(List<dynamic> args) {
   SendPort resultPort = args[0];
-  Uint8List picked = args[1];
+  imgLib.Image image = args[1];
   List<Offset> corners = args[2];
   SheetFormat sheetFormat = args[3];
   MeasurementToolQuality quality = args[4];
 
   imgLib.Image sheet = texture(
-    imgLib.decodeJpg(picked) ?? imgLib.Image.empty(),
+    image,
     corners,
     sheetFormat,
   );
@@ -175,12 +164,12 @@ List<Offset> detectObjectIsolated(List<dynamic> args) {
 }
 
 imgLib.Image texture(
-    imgLib.Image photo, List<Offset> sheetCorners, SheetFormat format) {
+    imgLib.Image image, List<Offset> sheetCorners, SheetFormat format) {
   // phase = 'sheetConfirmed';
   int sheetWpx = 420;
   int sheetHpx = (420 * (format.height / format.width)).round();
-  double imgW = photo.width.toDouble();
-  double imgH = photo.height.toDouble();
+  double imgW = image.width.toDouble();
+  double imgH = image.height.toDouble();
 
   // double displayW = MediaQuery.of(context).size.width * 0.95;
   // double displayH = imgH * (displayW / imgW);
@@ -206,7 +195,7 @@ imgLib.Image texture(
     imgLib.Point(0, 0)
   ]);
   TriangleTexturer tt =
-      TriangleTexturer(photo, a4, URTriangleTexture, URTriangleResult);
+      TriangleTexturer(image, a4, URTriangleTexture, URTriangleResult);
 
   tt.texture();
 

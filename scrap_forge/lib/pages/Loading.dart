@@ -2,7 +2,11 @@ import 'package:flutter/material.dart';
 import 'package:rive/rive.dart';
 
 class Loading extends StatelessWidget {
-  const Loading({super.key});
+  final String title;
+  const Loading({
+    super.key,
+    this.title = "Ładowanie...",
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -19,7 +23,7 @@ class Loading extends StatelessWidget {
               child: RiveAnimation.asset('assets/hearth2.riv'),
             ),
             Text(
-              'Ładowanie...',
+              title,
               style: TextStyle(
                   color: theme.colorScheme.onPrimary,
                   fontSize: 25,

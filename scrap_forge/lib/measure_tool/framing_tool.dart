@@ -1,4 +1,7 @@
+import 'dart:math';
+
 import 'package:flutter/material.dart';
+import 'package:vector_math/vector_math_64.dart';
 
 const double magnifierRadius = 35;
 
@@ -88,6 +91,12 @@ class _FramingToolState extends State<FramingTool> {
 
     Color defaultColor = Color.fromARGB(255, 255, 255, 255);
     Color focusColor = Color.fromARGB(255, 255, 200, 0);
+
+    double width = widget.size.width;
+    double height = widget.size.height;
+
+    // double ratio = width / height;
+
     return Column(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       crossAxisAlignment: CrossAxisAlignment.center,
@@ -95,9 +104,16 @@ class _FramingToolState extends State<FramingTool> {
         const SizedBox.shrink(),
         Padding(
           padding: const EdgeInsets.symmetric(vertical: 5),
-          child: SizedBox(
-            width: widget.size.width,
-            height: widget.size.height,
+          child:
+              // transform: Matrix4.compose(
+              //   // Vector3(height * ratio, (height - width) * ratio, 0),
+              //   Vector3(width, (height - width) * ratio, 0),
+              //   Quaternion(0, 0, sin(pi / 4), sin(pi / 4)),
+              //   Vector3(ratio, ratio, 1),
+              // ),
+              SizedBox(
+            width: width,
+            height: height,
             child: Stack(
               children: [
                 image,

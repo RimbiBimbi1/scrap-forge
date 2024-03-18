@@ -11,10 +11,12 @@ import 'package:scrap_forge/pages/Loading.dart';
 import 'dart:isolate';
 
 import 'package:scrap_forge/pages/bounding.dart';
+import 'package:scrap_forge/utils/isolate_task.dart';
 import 'package:scrap_forge/widgets/dialogs/format_selection_menu.dart';
 
 class FramingPage extends StatefulWidget {
-  final Uint8List picked;
+  final Uint8List pickedBytes;
+  final imgLib.Image pickedImage;
   final SheetFormat sheetFormat;
   final Function(List<double>)? onBoundingBoxConfirmed;
   final MeasurementToolQuality framingQuality;
@@ -22,7 +24,8 @@ class FramingPage extends StatefulWidget {
   final Map<String, SheetFormat> availableSheetFormats;
   const FramingPage({
     super.key,
-    required this.picked,
+    required this.pickedBytes,
+    required this.pickedImage,
     this.sheetFormat = SheetFormat.a4,
     this.onBoundingBoxConfirmed,
     this.framingQuality = MeasurementToolQuality.medium,
@@ -35,9 +38,6 @@ class FramingPage extends StatefulWidget {
 }
 
 class _FramingPageState extends State<FramingPage> {
-  Uint8List displayed = Uint8List(0);
-
-  imgLib.Image image = imgLib.Image.empty();
   bool chooseFormat = false;
   SheetFormat sheetFormat = SheetFormat.a4;
 
@@ -49,12 +49,8 @@ class _FramingPageState extends State<FramingPage> {
     super.initState();
 
     sheetFormat = widget.sheetFormat;
-    displayed = widget.picked;
-
-    image = imgLib.decodeJpg(widget.picked) ?? imgLib.Image.empty();
-
     sheetCorners = isolateTask(
-        detectSheetIsolated, [widget.picked, widget.framingQuality]);
+        detectSheetIsolated, [widget.pickedImage, widget.framingQuality]);
   }
 
   void resetCorners() {
@@ -69,7 +65,7 @@ class _FramingPageState extends State<FramingPage> {
         child: Image(
           fit: BoxFit.scaleDown,
           image: MemoryImage(
-            displayed,
+            widget.pickedBytes,
           ),
         ),
       ),
@@ -128,7 +124,6 @@ class _FramingPageState extends State<FramingPage> {
     ThemeData theme = Theme.of(context);
 
     return Scaffold(
-      // backgroundColor: Colors.grey[900],
       appBar: AppBar(
         title: const Text("Zaznacz rogi kartki"),
         actions: [
@@ -150,8 +145,8 @@ class _FramingPageState extends State<FramingPage> {
               double maxDisplayH = MediaQuery.of(context).size.height * 0.80;
 
               if (snapshot.connectionState == ConnectionState.done) {
-                double imgW = image.width.toDouble();
-                double imgH = image.height.toDouble();
+                double imgW = widget.pickedImage.width.toDouble();
+                double imgH = widget.pickedImage.height.toDouble();
 
                 double displayH = min(imgH * (maxDisplayW / imgW), maxDisplayH);
                 double displayW = imgW * (displayH / imgH);
@@ -168,7 +163,8 @@ class _FramingPageState extends State<FramingPage> {
                   setCorners: (adjustedCorners) {
                     Navigator.of(context).push(MaterialPageRoute(
                         builder: (context) => BoundingPage(
-                              picked: widget.picked,
+                              pickedBytes: widget.pickedBytes,
+                              pickedImage: widget.pickedImage,
                               corners: organizeCorners(adjustedCorners)
                                   .map((e) =>
                                       Offset(e.dx / displayW, e.dy / displayH))
@@ -186,8 +182,8 @@ class _FramingPageState extends State<FramingPage> {
                 return Stack(
                   alignment: Alignment.center,
                   children: [
-                    Image(image: MemoryImage(widget.picked)),
-                    const Loading(),
+                    Image(image: MemoryImage(widget.pickedBytes)),
+                    const Loading(title: "Poszukiwanie podkładu..."),
                   ],
                 );
               }
@@ -199,23 +195,9 @@ class _FramingPageState extends State<FramingPage> {
   }
 }
 
-Future isolateTask(
-    void Function(List<dynamic> tArgs) task, List<dynamic> args) async {
-  final ReceivePort receivePort = ReceivePort();
-  try {
-    await Isolate.spawn(task, [receivePort.sendPort, ...args]);
-  } on Object {
-    receivePort.close();
-  }
-
-  final response = await receivePort.first;
-
-  return response;
-}
-
 List<Offset> detectSheetIsolated(List<dynamic> args) {
   SendPort resultPort = args[0];
-  Uint8List picked = args[1];
+  imgLib.Image picked = args[1];
   MeasurementToolQuality quality = args[2];
 
   List<Offset> corners = detectSheet(picked, quality);
@@ -223,21 +205,12 @@ List<Offset> detectSheetIsolated(List<dynamic> args) {
   Isolate.exit(resultPort, corners);
 }
 
-List<Offset> detectSheet(Uint8List picked, MeasurementToolQuality quality) {
-  imgLib.Image? photo = imgLib.decodeJpg(picked);
-  if (photo == null) {
-    return List.empty();
-  }
-
-  if (photo.width > photo.height) {
-    photo = imgLib.copyRotate(photo, angle: 90);
-  }
-
+List<Offset> detectSheet(imgLib.Image picked, MeasurementToolQuality quality) {
   double h = quality.height.toDouble();
-  double w = photo.width / photo.height * h;
+  double w = picked.width / picked.height * h;
 
   imgLib.Image processed =
-      ImageProcessor.getBinaryShadowless(photo, height: h.round());
+      ImageProcessor.getBinaryShadowless(picked, height: h.round());
 
   CornerScanner cs = CornerScanner(processed);
   List<imgLib.Point> scanned = cs.scanForCorners();
