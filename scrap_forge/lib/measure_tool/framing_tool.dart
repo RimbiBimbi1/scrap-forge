@@ -1,7 +1,4 @@
-import 'dart:math';
-
 import 'package:flutter/material.dart';
-import 'package:vector_math/vector_math_64.dart';
 
 const double magnifierRadius = 35;
 
@@ -89,8 +86,8 @@ class _FramingToolState extends State<FramingTool> {
   Widget build(BuildContext context) {
     ThemeData theme = Theme.of(context);
 
-    Color defaultColor = Color.fromARGB(255, 255, 255, 255);
-    Color focusColor = Color.fromARGB(255, 255, 200, 0);
+    Color defaultColor = const Color.fromARGB(255, 255, 255, 255);
+    Color focusColor = const Color.fromARGB(255, 255, 200, 0);
 
     double width = widget.size.width;
     double height = widget.size.height;

@@ -212,8 +212,8 @@ Future<XFile?> pickImage({bool fromCamera = true}) async {
   if (!fromCamera) {
     source = ImageSource.gallery;
   }
-  XFile? file = await ImagePicker()
-      .pickImage(maxHeight: 1080, maxWidth: 1080, source: source);
+  XFile? file = await ImagePicker().pickImage(
+      maxHeight: 1440, maxWidth: 1440, source: source, imageQuality: 80);
 
   // if (file != null) {
   //   Uint8List bytes = await file.readAsBytes();

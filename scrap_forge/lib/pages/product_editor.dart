@@ -1,4 +1,3 @@
-import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:image_picker/image_picker.dart';
@@ -61,7 +60,7 @@ class _ProductEditorState extends State<ProductEditor> {
   TextEditingController startDate = TextEditingController();
   TextEditingController finishDate = TextEditingController();
 
-  List<Uint8List> photos = List.empty();
+  List<Photo> photos = List.empty();
   List<Product> madeFrom = List.empty();
   List<Product> usedIn = List.empty();
 
@@ -139,9 +138,7 @@ class _ProductEditorState extends State<ProductEditor> {
             product.needed != null);
 
         // photos = product.photos.map((photo) => base64Decode(photo)).toList();
-        photos = product.photos
-            .map((photo) => Uint8List.fromList(photo.data))
-            .toList();
+        photos = product.photos;
 
         madeFrom = product.madeFrom.toList();
 
@@ -261,23 +258,34 @@ class _ProductEditorState extends State<ProductEditor> {
   }
 
   Future<void> pickImagesFromGallery() async {
-    List<XFile> images = await ImagePicker().pickMultiImage();
+    List<XFile> images = await ImagePicker().pickMultiImage(
+      maxHeight: 1080,
+      maxWidth: 1080,
+      imageQuality: 75,
+    );
     List<Uint8List> bytes =
         await Future.wait(images.map((img) => img.readAsBytes()));
-
-    if (bytes.isNotEmpty) {
-      setState(() {
-        this.photos = List.from([...this.photos, ...bytes]);
-      });
-    }
+    List<Photo> added = bytes.map((data) => Photo()..data = data).toList();
+    List<Photo> photos = [...this.photos, ...added];
+    if (photos.length > 10) photos = photos.sublist(0, 10);
+    setState(() {
+      this.photos = photos;
+    });
   }
 
   Future<void> pickImageFromCamera() async {
-    XFile? image = await ImagePicker().pickImage(source: ImageSource.camera);
+    XFile? image = await ImagePicker().pickImage(
+      source: ImageSource.camera,
+      maxHeight: 1920,
+      maxWidth: 1920,
+      imageQuality: 80,
+    );
     if (image != null) {
       Uint8List bytes = await image.readAsBytes();
+      List<Photo> photos = [...this.photos, Photo()..data = bytes];
+      if (photos.length > 10) photos = photos.sublist(0, 10);
       setState(() {
-        this.photos = List.from([...this.photos, bytes]);
+        this.photos = photos;
       });
     }
   }
@@ -363,7 +371,7 @@ class _ProductEditorState extends State<ProductEditor> {
           ..name = nameController.text
           ..description = descriptionController.text
           ..count = int.tryParse(countController.text)
-          ..photos = photos.map((bytes) => Photo()..data = bytes).toList()
+          ..photos = photos
           ..category = categoryController.text
           ..progress = addAsProject ? progress : null
           ..startedTimestamp = addAsProject
@@ -485,6 +493,10 @@ class _ProductEditorState extends State<ProductEditor> {
                           textScaleFactor: 1.2,
                         ),
                       ),
+                      Padding(
+                        padding: const EdgeInsets.all(4.0),
+                        child: Text("Dodaj maksymalnie 10 zdjęć"),
+                      ),
                       SizedBox(
                         height: 200,
                         child: Container(
@@ -516,12 +528,16 @@ class _ProductEditorState extends State<ProductEditor> {
                                                 const BorderRadius.all(
                                                     Radius.circular(8)),
                                             image: DecorationImage(
-                                                image: MemoryImage(bytes),
+                                                image: MemoryImage(
+                                                  Uint8List.fromList(
+                                                    bytes.data,
+                                                  ),
+                                                ),
                                                 fit: BoxFit.cover),
                                           ),
                                           child: IconButton(
                                             onPressed: () {
-                                              List<Uint8List> temp =
+                                              List<Photo> temp =
                                                   List.from(photos);
                                               temp.removeAt(index);
                                               setState(() {
