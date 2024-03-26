@@ -206,9 +206,9 @@ class _HomeState extends State<Home> {
                     background: theme.colorScheme.secondary,
                     color: theme.colorScheme.onSecondary,
                     title: "Już użyte",
-                    child: SvgPicture.asset(
-                      'assets/image-placeholder.svg',
-                      fit: BoxFit.fill,
+                    child: const Image(
+                      image: AssetImage('assets/images/used_materials.png'),
+                      fit: BoxFit.fitHeight,
                     ),
                   ),
                   const Spacer(

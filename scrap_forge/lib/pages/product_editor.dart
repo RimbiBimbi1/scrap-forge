@@ -64,6 +64,60 @@ class _ProductEditorState extends State<ProductEditor> {
   List<Product> madeFrom = List.empty();
   List<Product> usedIn = List.empty();
 
+  List<Widget> displayedPhotos = List.empty();
+
+  List<Widget> displayPhotos(List<Photo> photos) {
+    return photos
+        .asMap()
+        .map(
+          (index, bytes) => MapEntry(
+            index,
+            Padding(
+              padding: const EdgeInsets.all(4.0),
+              child: Container(
+                alignment: AlignmentDirectional.topEnd,
+                height: 200,
+                width: 135,
+                clipBehavior: Clip.hardEdge,
+                decoration: BoxDecoration(
+                  borderRadius: const BorderRadius.all(Radius.circular(8)),
+                  image: DecorationImage(
+                      image: MemoryImage(
+                        Uint8List.fromList(
+                          bytes.data,
+                        ),
+                      ),
+                      fit: BoxFit.cover),
+                ),
+                child: IconButton(
+                  onPressed: () {
+                    List<Photo> temp = List.from(photos);
+                    temp.removeAt(index);
+                    setState(() {
+                      photos = temp;
+                      displayedPhotos = displayPhotos(temp);
+                    });
+                  },
+                  icon: const Icon(
+                    Icons.close_outlined,
+                    color: Colors.white,
+                    shadows: [
+                      Shadow(
+                        color: Colors.black,
+                        blurRadius: 4,
+                        offset: Offset(1, 2),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            ),
+          ),
+        )
+        .values
+        .toList();
+  }
+
   @override
   void initState() {
     super.initState();
@@ -139,6 +193,7 @@ class _ProductEditorState extends State<ProductEditor> {
 
         // photos = product.photos.map((photo) => base64Decode(photo)).toList();
         photos = product.photos;
+        displayedPhotos = displayPhotos(photos);
 
         madeFrom = product.madeFrom.toList();
 
@@ -270,22 +325,25 @@ class _ProductEditorState extends State<ProductEditor> {
     if (photos.length > 10) photos = photos.sublist(0, 10);
     setState(() {
       this.photos = photos;
+      displayedPhotos = displayPhotos(photos);
     });
   }
 
   Future<void> pickImageFromCamera() async {
     XFile? image = await ImagePicker().pickImage(
       source: ImageSource.camera,
-      maxHeight: 1920,
-      maxWidth: 1920,
-      imageQuality: 80,
+      maxHeight: 1080,
+      maxWidth: 1080,
+      imageQuality: 75,
     );
     if (image != null) {
       Uint8List bytes = await image.readAsBytes();
-      List<Photo> photos = [...this.photos, Photo()..data = bytes];
+      Photo added = Photo()..data = bytes;
+      List<Photo> photos = [...this.photos, added];
       if (photos.length > 10) photos = photos.sublist(0, 10);
       setState(() {
         this.photos = photos;
+        displayedPhotos = displayPhotos(photos);
       });
     }
   }
@@ -493,8 +551,8 @@ class _ProductEditorState extends State<ProductEditor> {
                           textScaleFactor: 1.2,
                         ),
                       ),
-                      Padding(
-                        padding: const EdgeInsets.all(4.0),
+                      const Padding(
+                        padding: EdgeInsets.all(4.0),
                         child: Text("Dodaj maksymalnie 10 zdjęć"),
                       ),
                       SizedBox(
@@ -510,57 +568,7 @@ class _ProductEditorState extends State<ProductEditor> {
                             shrinkWrap: true,
                             scrollDirection: Axis.horizontal,
                             children: [
-                              ...photos
-                                  .asMap()
-                                  .map(
-                                    (index, bytes) => MapEntry(
-                                      index,
-                                      Padding(
-                                        padding: const EdgeInsets.all(4.0),
-                                        child: Container(
-                                          alignment:
-                                              AlignmentDirectional.topEnd,
-                                          height: 200,
-                                          width: 135,
-                                          clipBehavior: Clip.hardEdge,
-                                          decoration: BoxDecoration(
-                                            borderRadius:
-                                                const BorderRadius.all(
-                                                    Radius.circular(8)),
-                                            image: DecorationImage(
-                                                image: MemoryImage(
-                                                  Uint8List.fromList(
-                                                    bytes.data,
-                                                  ),
-                                                ),
-                                                fit: BoxFit.cover),
-                                          ),
-                                          child: IconButton(
-                                            onPressed: () {
-                                              List<Photo> temp =
-                                                  List.from(photos);
-                                              temp.removeAt(index);
-                                              setState(() {
-                                                photos = temp;
-                                              });
-                                            },
-                                            icon: const Icon(
-                                              Icons.close_outlined,
-                                              color: Colors.white,
-                                              shadows: [
-                                                Shadow(
-                                                  color: Colors.black,
-                                                  blurRadius: 4,
-                                                  offset: Offset(1, 2),
-                                                ),
-                                              ],
-                                            ),
-                                          ),
-                                        ),
-                                      ),
-                                    ),
-                                  )
-                                  .values,
+                              ...displayedPhotos,
                               Padding(
                                 padding: const EdgeInsets.all(4.0),
                                 child: SizedBox(

@@ -241,6 +241,7 @@ class _GalleryFilterMenuState extends State<GalleryFilterMenu> {
       DeviceOrientation.portraitUp,
       DeviceOrientation.portraitDown,
     ]);
+
     ThemeData theme = Theme.of(context);
     return Scaffold(
       appBar: AppBar(
@@ -249,62 +250,62 @@ class _GalleryFilterMenuState extends State<GalleryFilterMenu> {
           IconButton(
               onPressed: () {
                 if (_formKey.currentState!.validate()) {
-                  widget.setFilter(
-                    customFilter
-                      ..showProjects = customFilter.showFinished ||
-                          customFilter.showInProgress ||
-                          customFilter.showPlanned
-                      ..showMaterials = enableMaterials
-                      ..nameHas = nameController.text
-                      ..minConsumed =
-                          filterFieldValue(minConsumed.text)?.toInt()
-                      ..minAvailable =
-                          filterFieldValue(minAvaliable.text)?.toInt()
-                      ..minNeeded = filterFieldValue(minNeeded.text)?.toInt()
-                      ..maxConsumed =
-                          filterFieldValue(maxConsumed.text)?.toInt()
-                      ..maxAvailable =
-                          filterFieldValue(maxAvaliable.text)?.toInt()
-                      ..maxNeeded = filterFieldValue(maxNeeded.text)?.toInt()
-                      ..minDimensions = Dimensions(
-                        length: SafeCalculator.multiply(
-                          filterFieldValue(minLength.text)?.toDouble(),
-                          lengthUnit.multiplier,
-                        )?.toDouble(),
-                        width: SafeCalculator.multiply(
-                          filterFieldValue(minWidth.text)?.toDouble(),
-                          widthUnit.multiplier,
-                        )?.toDouble(),
-                        height: SafeCalculator.multiply(
-                          filterFieldValue(minHeight.text)?.toDouble(),
-                          heightUnit.multiplier,
-                        )?.toDouble(),
-                        lengthDisplayUnit: lengthUnit,
-                        widthDisplayUnit: widthUnit,
-                        heightDisplayUnit: heightUnit,
-                      )
-                      ..maxDimensions = Dimensions(
-                        length: SafeCalculator.multiply(
-                                filterFieldValue(maxLength.text)?.toDouble(),
-                                lengthUnit.multiplier)
-                            ?.toDouble(),
-                        width: SafeCalculator.multiply(
-                          filterFieldValue(maxWidth.text)?.toDouble(),
-                          widthUnit.multiplier,
-                        )?.toDouble(),
-                        height: SafeCalculator.multiply(
-                                filterFieldValue(maxHeight.text)?.toDouble(),
-                                heightUnit.multiplier)
-                            ?.toDouble(),
-                        lengthDisplayUnit: lengthUnit,
-                        widthDisplayUnit: widthUnit,
-                        heightDisplayUnit: heightUnit,
-                      )
-                      ..minStartDate = filterFieldDate(minStartDate.text)
-                      ..maxStartDate = filterFieldDate(maxStartDate.text)
-                      ..minFinishDate = filterFieldDate(minFinishDate.text)
-                      ..maxFinishDate = filterFieldDate(maxFinishDate.text),
-                  );
+                  customFilter
+                    // ..showFinished =
+                    ..showProjects = customFilter.showFinished ||
+                        customFilter.showInProgress ||
+                        customFilter.showPlanned
+                    ..showMaterials = enableMaterials
+                    ..nameHas = nameController.text
+                    ..minConsumed = filterFieldValue(minConsumed.text)?.toInt()
+                    ..minAvailable =
+                        filterFieldValue(minAvaliable.text)?.toInt()
+                    ..minNeeded = filterFieldValue(minNeeded.text)?.toInt()
+                    ..maxConsumed = filterFieldValue(maxConsumed.text)?.toInt()
+                    ..maxAvailable =
+                        filterFieldValue(maxAvaliable.text)?.toInt()
+                    ..maxNeeded = filterFieldValue(maxNeeded.text)?.toInt()
+                    ..minDimensions = Dimensions(
+                      length: SafeCalculator.multiply(
+                        filterFieldValue(minLength.text)?.toDouble(),
+                        lengthUnit.multiplier,
+                      )?.toDouble(),
+                      width: SafeCalculator.multiply(
+                        filterFieldValue(minWidth.text)?.toDouble(),
+                        widthUnit.multiplier,
+                      )?.toDouble(),
+                      height: SafeCalculator.multiply(
+                        filterFieldValue(minHeight.text)?.toDouble(),
+                        heightUnit.multiplier,
+                      )?.toDouble(),
+                      lengthDisplayUnit: lengthUnit,
+                      widthDisplayUnit: widthUnit,
+                      heightDisplayUnit: heightUnit,
+                    )
+                    ..maxDimensions = Dimensions(
+                      length: SafeCalculator.multiply(
+                              filterFieldValue(maxLength.text)?.toDouble(),
+                              lengthUnit.multiplier)
+                          ?.toDouble(),
+                      width: SafeCalculator.multiply(
+                        filterFieldValue(maxWidth.text)?.toDouble(),
+                        widthUnit.multiplier,
+                      )?.toDouble(),
+                      height: SafeCalculator.multiply(
+                              filterFieldValue(maxHeight.text)?.toDouble(),
+                              heightUnit.multiplier)
+                          ?.toDouble(),
+                      lengthDisplayUnit: lengthUnit,
+                      widthDisplayUnit: widthUnit,
+                      heightDisplayUnit: heightUnit,
+                    )
+                    ..minStartDate = filterFieldDate(minStartDate.text)
+                    ..maxStartDate = filterFieldDate(maxStartDate.text)
+                    ..minFinishDate = filterFieldDate(minFinishDate.text)
+                    ..maxFinishDate = filterFieldDate(maxFinishDate.text);
+
+                  widget.setFilter(customFilter);
+                  // print(customFilter.nameHas);
                 }
               },
               icon: const Icon(Icons.check))

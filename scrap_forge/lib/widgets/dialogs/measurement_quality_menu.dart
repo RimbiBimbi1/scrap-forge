@@ -5,10 +5,12 @@ import 'package:scrap_forge/db_entities/app_settings.dart';
 class MeasurementQualityMenu extends StatefulWidget {
   final MeasurementToolQuality currentQuality;
   final ValueSetter<MeasurementToolQuality> setQuality;
+  final Widget header;
   const MeasurementQualityMenu({
     super.key,
     required this.currentQuality,
     required this.setQuality,
+    required this.header,
   });
 
   @override
@@ -27,10 +29,10 @@ class _MeasurementQualityMenuState extends State<MeasurementQualityMenu> {
   @override
   Widget build(BuildContext context) {
     return AlertDialog(
-      title: const Column(
+      title: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text("Wybierz domyślny format podkładu:"),
+          widget.header,
         ],
       ),
       titlePadding: const EdgeInsets.fromLTRB(24, 24, 24, 8),

@@ -23,11 +23,15 @@ class ProductGallery extends StatefulWidget {
 class _ProductGalleryState extends State<ProductGallery> {
   IsarService db = IsarService();
   List<Product> products = List.empty();
-  bool asMaterials = false;
+  List<GlobalKey> productKeys1 = List.empty();
+  List<GlobalKey> productKeys2 = List.empty();
   bool selectionMode = false;
   List<bool> selected = List.empty();
   ValueSetter? confirmSelection;
   ProductFilter baseFilter = ProductFilter();
+
+  TextEditingController moveFromController = TextEditingController();
+  TextEditingController moveToController = TextEditingController();
   // ProductFilter? customFilter;
 
   @override
@@ -37,13 +41,17 @@ class _ProductGalleryState extends State<ProductGallery> {
 
     db.listenToProducts().listen(
       (event) async {
-        List<Product> result = await getProducts(baseFilter);
+        List<Product> result = await getProducts((() => baseFilter)());
 
         if (mounted &&
             !ProductListComparator.compareByLastModifiedTimestamps(
                 products, result)) {
           setState(() {
             this.products = result;
+            this.productKeys1 =
+                List.generate(result.length, (index) => GlobalKey());
+            this.productKeys2 =
+                List.generate(result.length, (index) => GlobalKey());
             this.selected = List.filled(result.length, false);
           });
         }
@@ -64,13 +72,13 @@ class _ProductGalleryState extends State<ProductGallery> {
 
     setState(() {
       this.products = result;
+      this.productKeys1 = List.generate(result.length, (index) => GlobalKey());
+      this.productKeys2 = List.generate(result.length, (index) => GlobalKey());
       this.selected = List.filled(result.length, false);
       this.baseFilter = baseFilter;
-      this.asMaterials = baseFilter.showMaterials;
       this.selectionMode = selectionMode ?? false;
       this.confirmSelection = confirmSelection;
     });
-    // }
   }
 
   Future<List<Product>> getProducts(filter) async {
@@ -82,6 +90,10 @@ class _ProductGalleryState extends State<ProductGallery> {
     List<Product> products = await getProducts(filter);
     setState(() {
       this.products = products;
+      this.productKeys1 =
+          List.generate(products.length, (index) => GlobalKey());
+      this.productKeys2 =
+          List.generate(products.length, (index) => GlobalKey());
       this.baseFilter = filter;
       this.selected = List.filled(products.length, false);
     });
@@ -108,8 +120,9 @@ class _ProductGalleryState extends State<ProductGallery> {
                     children: [
                       Flexible(
                         child: ProductStrip(
+                            key: productKeys1[index],
                             product: p,
-                            asMaterial: asMaterials,
+                            // asMaterial: projectsOnly,
                             onPressed: () =>
                                 {updateSelected(index, !selected[index])}),
                       ),
@@ -125,7 +138,8 @@ class _ProductGalleryState extends State<ProductGallery> {
                   ),
                   secondChild: ProductStrip(
                     product: p,
-                    asMaterial: asMaterials,
+                    key: productKeys2[index],
+                    // asMaterial: projectsOnly,
                     onLongPress: () => onTileLongPress(index),
                   ),
                   crossFadeState: selectionMode
@@ -167,114 +181,54 @@ class _ProductGalleryState extends State<ProductGallery> {
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
                   const Text(
-                    "Przenieś wybrane produkty do:",
+                    "Przenieś wybrane projekty do:",
                     textScaleFactor: 1.4,
                   ),
                   Column(
                     mainAxisAlignment: MainAxisAlignment.start,
                     crossAxisAlignment: CrossAxisAlignment.stretch,
                     children: [
-                      ...(!asMaterials
-                              ? ([
-                                  {
-                                    'label': "Ukończone",
-                                    'move': (Product p) =>
-                                        p..progress = ProjectLifeCycle.finished
-                                  },
-                                  {
-                                    'label': "W trakcie realizacji",
-                                    'move': (Product p) => p
-                                      ..progress = ProjectLifeCycle.inProgress
-                                  },
-                                  {
-                                    'label': "Planowanie",
-                                    'move': (Product p) =>
-                                        p..progress = ProjectLifeCycle.planned
-                                  },
-                                ])
-                              : ([
-                                  {
-                                    'moveTo': ProductFilter.consumedMaterials(),
-                                    'label': "Wykorzystane",
-                                    'move': (Product p) {
-                                      if (baseFilter.minAvailable != null) {
-                                        p.consumed ??= 0;
-                                        p.consumed =
-                                            p.consumed! + (p.available ?? 0);
-                                        p.available = null;
-                                      } else if (baseFilter.minNeeded != null) {
-                                        p.consumed ??= 0;
-                                        p.consumed =
-                                            p.consumed! + (p.needed ?? 0);
-                                        p.needed = null;
-                                      }
-                                      return p;
-                                    }
-                                  },
-                                  {
-                                    'moveTo':
-                                        ProductFilter.availableMaterials(),
-                                    'label': "Dostępne",
-                                    'move': (Product p) {
-                                      if (baseFilter.minConsumed != null) {
-                                        p.available ??= 0;
-                                        p.available =
-                                            p.available! + (p.consumed ?? 0);
-                                        p.consumed = null;
-                                      } else if (baseFilter.minNeeded != null) {
-                                        p.available ??= 0;
-                                        p.available =
-                                            p.available! + (p.needed ?? 0);
-                                        p.needed = null;
-                                      }
-                                      return p;
-                                    }
-                                  },
-                                  {
-                                    'moveTo': ProductFilter.neededMaterials(),
-                                    'label': "Potrzebne",
-                                    'move': (Product p) {
-                                      if (baseFilter.minConsumed != null) {
-                                        p.needed ??= 0;
-                                        p.needed =
-                                            p.needed! + (p.consumed ?? 0);
-                                        p.consumed = null;
-                                      } else if (baseFilter.minAvailable !=
-                                          null) {
-                                        p.needed ??= 0;
-                                        p.needed =
-                                            p.needed! + (p.available ?? 0);
-                                        p.available = null;
-                                      }
-                                      return p;
-                                    }
-                                  },
-                                ]))
-                          .map(
-                        (folder) => OutlinedButton(
-                          onPressed: () {
-                            List<Product> moved = products
-                                .asMap()
-                                .entries
-                                .where((p) => selected[p.key])
-                                .map((e) => (folder['move'] as Product Function(
-                                    Product p))(e.value))
-                                .toList();
+                      {
+                        'label': "Ukończone",
+                        'move': (Product p) =>
+                            p..progress = ProjectLifeCycle.finished
+                      },
+                      {
+                        'label': "W trakcie realizacji",
+                        'move': (Product p) =>
+                            p..progress = ProjectLifeCycle.inProgress
+                      },
+                      {
+                        'label': "Planowanie",
+                        'move': (Product p) =>
+                            p..progress = ProjectLifeCycle.planned
+                      },
+                    ]
+                        .map(
+                          (folder) => OutlinedButton(
+                            onPressed: () {
+                              List<Product> moved = products
+                                  .asMap()
+                                  .entries
+                                  .where((p) => selected[p.key])
+                                  .map((e) => (folder['move'] as Product
+                                      Function(Product p))(e.value))
+                                  .toList();
 
-                            db.saveProducts(moved);
+                              db.saveProducts(moved);
 
-                            Navigator.of(context).pop();
-                          },
-                          child: Container(
-                            alignment: AlignmentDirectional.centerStart,
-                            child: Text(
-                              (folder['label'] ?? "").toString(),
-                              textAlign: TextAlign.left,
+                              Navigator.of(context).pop();
+                            },
+                            child: Container(
+                              alignment: AlignmentDirectional.centerStart,
+                              child: Text(
+                                (folder['label'] ?? "").toString(),
+                                textAlign: TextAlign.left,
+                              ),
                             ),
                           ),
-                        ),
-                      ),
-                    ],
+                        )
+                        .toList(),
                   ),
                   ElevatedButton(
                       onPressed: () {
@@ -364,6 +318,7 @@ class _ProductGalleryState extends State<ProductGallery> {
       DeviceOrientation.portraitUp,
       DeviceOrientation.portraitDown,
     ]);
+
     ThemeData theme = Theme.of(context);
 
     return Scaffold(
@@ -397,20 +352,22 @@ class _ProductGalleryState extends State<ProductGallery> {
                       ),
                     ]
                   : [
-                      TextButton(
-                        onPressed: _displayMoveDialog,
-                        child: Column(
-                          children: [
-                            Transform.rotate(
-                              angle: math.pi / 2,
-                              child: const Icon(
-                                Icons.move_down,
+                      (baseFilter.showProjects)
+                          ? TextButton(
+                              onPressed: _displayMoveDialog,
+                              child: Column(
+                                children: [
+                                  Transform.rotate(
+                                    angle: math.pi / 2,
+                                    child: const Icon(
+                                      Icons.move_down,
+                                    ),
+                                  ),
+                                  const Text("Przenieś")
+                                ],
                               ),
-                            ),
-                            const Text("Przenieś")
-                          ],
-                        ),
-                      ),
+                            )
+                          : SizedBox.shrink(),
                       TextButton(
                         onPressed: _displayDeleteDialog,
                         child: const Column(

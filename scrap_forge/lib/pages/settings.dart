@@ -86,13 +86,15 @@ class _SettingsState extends State<Settings> {
     );
   }
 
-  Future<void> _displayMeasurementQualityMenu({quality, setQuality}) async {
+  Future<void> _displayMeasurementQualityMenu(
+      {quality, setQuality, header}) async {
     return showDialog<void>(
       context: context,
       builder: (context) {
         return MeasurementQualityMenu(
           currentQuality: quality,
           setQuality: setQuality,
+          header: header,
         );
       },
     );
@@ -147,6 +149,7 @@ class _SettingsState extends State<Settings> {
                           widget.appSettings..framingQuality = value,
                         );
                       },
+                      header: Text("Wybierz jakość poszukiwania podkładu:"),
                     ),
                     style: ButtonStyle(
                       foregroundColor: MaterialStatePropertyAll(
@@ -180,6 +183,7 @@ class _SettingsState extends State<Settings> {
                         widget.updateSettings(
                             widget.appSettings..boundingQuality = value);
                       },
+                      header: Text("Wybierz jakość poszukiwania przedmiotu:"),
                     ),
                     style: ButtonStyle(
                       foregroundColor: MaterialStatePropertyAll(
