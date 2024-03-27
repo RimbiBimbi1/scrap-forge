@@ -11,6 +11,7 @@ Future<List<Product>> fetchProducts(ProductFilter filter) async {
 
 class ProductFilter {
   String nameHas;
+  String categoryHas;
   bool showProjects;
   bool showFinished;
   bool showInProgress;
@@ -39,6 +40,7 @@ class ProductFilter {
 
   ProductFilter({
     this.nameHas = '',
+    this.categoryHas = '',
     this.showProjects = false,
     this.showFinished = false,
     this.showInProgress = false,

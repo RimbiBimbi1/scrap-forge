@@ -71,6 +71,7 @@ class IsarService {
     QueryBuilder<Product, Product, QAfterFilterCondition> query = isar.products
         .filter()
         .nameContains(filter.nameHas, caseSensitive: false)
+        .categoryContains(filter.categoryHas, caseSensitive: false)
         .group((q) => q
             .optional(
               filter.showFinished,

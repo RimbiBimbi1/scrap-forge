@@ -31,7 +31,7 @@ class _FormatSelectionMenuState extends State<FormatSelectionMenu> {
       title: const Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text("Wybierz domyślny format podkładu:"),
+          Text("Wybierz format podkładu:"),
         ],
       ),
       titlePadding: const EdgeInsets.fromLTRB(24, 24, 24, 8),

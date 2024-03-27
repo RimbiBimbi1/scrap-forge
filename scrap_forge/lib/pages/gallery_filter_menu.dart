@@ -71,6 +71,9 @@ class _GalleryFilterMenuState extends State<GalleryFilterMenu> {
 
     this.customFilter = filter;
 
+    nameController.text = filter.nameHas;
+    categoryController.text = filter.categoryHas;
+
     enableMaterials = filter.showMaterials;
     enableConsumed = filter.minConsumed != null || filter.maxConsumed != null;
     enableAvailable =
@@ -257,6 +260,7 @@ class _GalleryFilterMenuState extends State<GalleryFilterMenu> {
                         customFilter.showPlanned
                     ..showMaterials = enableMaterials
                     ..nameHas = nameController.text
+                    ..categoryHas = categoryController.text
                     ..minConsumed = filterFieldValue(minConsumed.text)?.toInt()
                     ..minAvailable =
                         filterFieldValue(minAvaliable.text)?.toInt()
