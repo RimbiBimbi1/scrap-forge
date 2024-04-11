@@ -199,7 +199,7 @@ class IsarService {
     // ignore: invalid_use_of_protected_member
     query = QueryBuilder.apply(
       query,
-      (query) => query
+      (q) => q
           .addFilterCondition(
               FilterCondition.isNotNull(property: filter.sortBy))
           .addSortBy(filter.sortBy, filter.sortDesc ? Sort.asc : Sort.desc),

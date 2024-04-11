@@ -469,9 +469,8 @@ class ImageProcessor {
     ];
 
     imgLib.Image processed = imgLib.copyResize(
-      image, height: height,
-      // height: (photo.height / 4).round(),
-      // width: (photo.width / 4).round(),
+      image,
+      height: height,
     );
 
     processed = ImageProcessor.getInvariant(processed);

@@ -94,8 +94,8 @@ class _ProductEditorState extends State<ProductEditor> {
                     List<Photo> temp = List.from(photos);
                     temp.removeAt(index);
                     setState(() {
-                      photos = temp;
-                      displayedPhotos = displayPhotos(temp);
+                      this.photos = temp;
+                      this.displayedPhotos = displayPhotos(temp);
                     });
                   },
                   icon: const Icon(
