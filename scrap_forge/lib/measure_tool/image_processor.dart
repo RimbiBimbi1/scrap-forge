@@ -384,6 +384,7 @@ class ImageProcessor {
 
         num geoMean = math.pow(r * g * b, 1.0 / 3.0);
 
+        //Get channel ratios
         X[x][y] = math.log(r / geoMean);
         Y[x][y] = math.log(g / geoMean);
 
@@ -406,7 +407,8 @@ class ImageProcessor {
       }
     }
 
-    num alpha = (math.pi / 2) - (acot(covXY.sign) * (sumYabs / sumXabs));
+    //calculate the direction of color change caused by light's color temperature
+    num alpha = acot(covXY.sign) * (sumYabs / sumXabs);
 
     num maxI = -double.infinity;
     num minI = double.infinity;
@@ -429,6 +431,7 @@ class ImageProcessor {
     minI *= 1.025;
     maxI *= 0.975;
 
+    //cut the outliers off
     for (int y = 0; y < h; y++) {
       for (int x = 0; x < w; x++) {
         if (tempInvariant[x][y] > maxI) {

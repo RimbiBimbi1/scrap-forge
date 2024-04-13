@@ -3,7 +3,7 @@
     <uses-permission android:name="android.permission.WRITE_MEDIA_IMAGES"/>
 
     <application
-        android:label="scrap_forge"
+        android:label="ScrapForge"
         android:name="${applicationName}"
         android:icon="@mipmap/launcher_icon">
         <activity

@@ -42,9 +42,9 @@ enum MeasurementToolQuality {
 
 @embedded
 class SheetFormat {
-  final String name;
-  final int width;
-  final int height;
+  final String name; //nazwa formatu podkładu
+  final int width; //wysokość podkładu w mm
+  final int height; //szerokość podkładu w mm
 
   const SheetFormat({
     this.name = '',

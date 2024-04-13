@@ -87,21 +87,22 @@ class Photo {
 
 @embedded
 class Dimensions {
-  double? length;
+  double? length; //długość w mm
+  //adnotacja dotycząca sposobu przechowywania w bazie danych
   @Enumerated(EnumType.value, 'multiplier')
-  SizeUnit? lengthDisplayUnit;
+  SizeUnit? lengthDisplayUnit; //jednostka długości
 
-  double? width;
+  double? width; //szerokość w mm
   @Enumerated(EnumType.value, 'multiplier')
-  SizeUnit? widthDisplayUnit;
+  SizeUnit? widthDisplayUnit; //j.w.
 
-  double? height;
+  double? height; //wysokosc w mm
   @Enumerated(EnumType.value, 'multiplier')
-  SizeUnit? heightDisplayUnit;
+  SizeUnit? heightDisplayUnit; //j.w.
 
-  double? projectionArea;
+  double? projectionArea; //przybliżone pole powierzchni w mm2
   @Enumerated(EnumType.value, 'multiplier')
-  SizeUnit? areaDisplayUnit;
+  SizeUnit? areaDisplayUnit; //j.w.
 
   Dimensions({
     this.length,

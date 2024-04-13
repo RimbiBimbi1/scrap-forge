@@ -773,11 +773,13 @@ class _ProductEditorState extends State<ProductEditor> {
                               ),
                               dropdownMenuEntries: const [
                                 DropdownMenuEntry(
-                                    value: SizeUnit.millimeter, label: "mm2"),
+                                    value: SizeUnit.millimeter,
+                                    label: "mm\u00B2"),
                                 DropdownMenuEntry(
-                                    value: SizeUnit.centimeter, label: "cm2"),
+                                    value: SizeUnit.centimeter,
+                                    label: "cm\u00B2"),
                                 DropdownMenuEntry(
-                                    value: SizeUnit.meter, label: "m2"),
+                                    value: SizeUnit.meter, label: "m\u00B2"),
                               ],
                               initialSelection: areaUnit,
                               controller: areaUnitController,
