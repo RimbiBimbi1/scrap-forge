@@ -29,11 +29,6 @@ class _GalleryFilterMenuState extends State<GalleryFilterMenu> {
   TextEditingController nameController = TextEditingController();
   TextEditingController categoryController = TextEditingController();
 
-  bool enableProjects = false;
-  bool enableFinished = false;
-  bool enableInProgress = false;
-  bool enablePlanned = false;
-
   bool enableMaterials = false;
   bool enableConsumed = false;
   bool enableAvailable = false;
@@ -81,11 +76,6 @@ class _GalleryFilterMenuState extends State<GalleryFilterMenu> {
 
     nameController.text = filter.nameHas;
     categoryController.text = filter.categoryHas;
-
-    enableProjects = filter.forceMaterials || filter.showProjects;
-    enableFinished = filter.showFinished;
-    enableInProgress = filter.showInProgress;
-    enablePlanned = filter.showPlanned;
 
     enableMaterials = filter.forceMaterials || filter.showMaterials;
     enableConsumed = filter.minConsumed != null || filter.maxConsumed != null;
@@ -267,11 +257,14 @@ class _GalleryFilterMenuState extends State<GalleryFilterMenu> {
               onPressed: () {
                 if (_formKey.currentState!.validate()) {
                   customFilter
-                    // ..showFinished =
-                    ..showProjects = enableProjects ||
-                        enableFinished ||
-                        enableInProgress ||
-                        enablePlanned
+                    ..showProjects = customFilter.forceProjects ||
+                        customFilter.showProjects ||
+                        customFilter.showFinished ||
+                        customFilter.showInProgress ||
+                        customFilter.showPlanned
+                    ..showFinished = customFilter.showFinished
+                    ..showInProgress = customFilter.showInProgress
+                    ..showPlanned = customFilter.showPlanned
                     ..showMaterials =
                         customFilter.forceMaterials || enableMaterials
                     ..nameHas = nameController.text
@@ -380,9 +373,9 @@ class _GalleryFilterMenuState extends State<GalleryFilterMenu> {
                                 ..showProjects = value;
                               if (!value) {
                                 temp
-                                  ..showFinished = false
-                                  ..showInProgress = false
-                                  ..showPlanned = false;
+                                  ..showFinished = true
+                                  ..showInProgress = true
+                                  ..showPlanned = true;
                               }
                               setState(() {
                                 customFilter = temp;

@@ -39,6 +39,7 @@ class IsarService {
     final isar = await db;
 
     isar.writeTxnSync(() {
+      isar.products.deleteSync(product.id);
       isar.products.putSync(product);
     });
   }
@@ -67,11 +68,11 @@ class IsarService {
 
   Future<List<Product>> getProducts(ProductFilter filter) async {
     final isar = await db;
-
     QueryBuilder<Product, Product, QAfterFilterCondition> query = isar.products
         .filter()
         .nameContains(filter.nameHas, caseSensitive: false)
         .categoryContains(filter.categoryHas, caseSensitive: false)
+        .optional(filter.showProjects, (q) => q.progressIsNotNull())
         .group((q) => q
             .optional(
               filter.showFinished,

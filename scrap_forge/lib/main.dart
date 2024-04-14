@@ -65,10 +65,6 @@ class _ScrapForgeAppState extends State<ScrapForgeApp> {
 
   Future<void> checkPermissions(Permission permission) async {
     final status = await permission.request();
-    if (status.isDenied) {
-      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
-          content: Text('Pełne działanie aplikacji wymaga uprawnień.')));
-    }
   }
 
   @override
