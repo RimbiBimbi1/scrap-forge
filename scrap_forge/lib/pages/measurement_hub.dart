@@ -3,6 +3,7 @@ import 'dart:typed_data';
 
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:permission_handler/permission_handler.dart';
 import 'package:scrap_forge/db_entities/app_settings.dart';
 import 'package:scrap_forge/pages/framing.dart';
 import 'package:scrap_forge/pages/loading.dart';

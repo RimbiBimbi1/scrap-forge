@@ -13,11 +13,13 @@ class ProductFilter {
   String nameHas;
   String categoryHas;
   bool showProjects;
+  bool forceProjects;
   bool showFinished;
   bool showInProgress;
   bool showPlanned;
 
   bool showMaterials;
+  bool forceMaterials;
   int? minConsumed;
   int? minAvailable;
   int? minNeeded;
@@ -42,10 +44,12 @@ class ProductFilter {
     this.nameHas = '',
     this.categoryHas = '',
     this.showProjects = false,
+    this.forceProjects = false,
     this.showFinished = false,
     this.showInProgress = false,
     this.showPlanned = false,
     this.showMaterials = false,
+    this.forceMaterials = false,
     this.minConsumed,
     this.minAvailable,
     this.minNeeded,

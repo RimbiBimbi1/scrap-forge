@@ -950,7 +950,8 @@ class _ProductEditorState extends State<ProductEditor> {
                                                 context, "/products",
                                                 arguments: {
                                                   'productFilter':
-                                                      ProductFilter.materials(),
+                                                      ProductFilter.materials()
+                                                        ..forceMaterials = true,
                                                   'select': true,
                                                   'confirmSelection':
                                                       onMaterialsUsedPicked,
@@ -1102,7 +1103,8 @@ class _ProductEditorState extends State<ProductEditor> {
                                               context, "/products",
                                               arguments: {
                                                 'productFilter':
-                                                    ProductFilter.projects(),
+                                                    ProductFilter.projects()
+                                                      ..forceProjects = true,
                                                 'select': true,
                                                 'confirmSelection':
                                                     onProductsMadeWithPicked,

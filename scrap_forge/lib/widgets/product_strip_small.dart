@@ -6,10 +6,12 @@ import 'package:scrap_forge/db_entities/product.dart';
 
 class ProductStripSmall extends StatefulWidget {
   final Product product;
+  final bool replacing;
 
   const ProductStripSmall({
     super.key,
     required this.product,
+    this.replacing = false,
   });
 
   @override
@@ -67,8 +69,13 @@ class _ProductStripSmallState extends State<ProductStripSmall> {
       ),
       child: TextButton(
         onPressed: () async {
-          await Navigator.pushNamed(context, "/product",
-              arguments: {'productData': widget.product});
+          if (widget.replacing) {
+            await Navigator.pushReplacementNamed(context, "/product",
+                arguments: {'productData': widget.product});
+          } else {
+            await Navigator.pushNamed(context, "/product",
+                arguments: {'productData': widget.product});
+          }
         },
         child: Row(
           children: [

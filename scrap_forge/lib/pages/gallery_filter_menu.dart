@@ -12,8 +12,11 @@ import 'package:scrap_forge/widgets/shared_input_error.dart';
 class GalleryFilterMenu extends StatefulWidget {
   final void Function(ProductFilter filter) setFilter;
   final ProductFilter filter;
-  const GalleryFilterMenu(
-      {super.key, required this.setFilter, required this.filter});
+  const GalleryFilterMenu({
+    super.key,
+    required this.setFilter,
+    required this.filter,
+  });
 
   @override
   State<GalleryFilterMenu> createState() => _GalleryFilterMenuState();
@@ -25,6 +28,11 @@ class _GalleryFilterMenuState extends State<GalleryFilterMenu> {
 
   TextEditingController nameController = TextEditingController();
   TextEditingController categoryController = TextEditingController();
+
+  bool enableProjects = false;
+  bool enableFinished = false;
+  bool enableInProgress = false;
+  bool enablePlanned = false;
 
   bool enableMaterials = false;
   bool enableConsumed = false;
@@ -74,7 +82,12 @@ class _GalleryFilterMenuState extends State<GalleryFilterMenu> {
     nameController.text = filter.nameHas;
     categoryController.text = filter.categoryHas;
 
-    enableMaterials = filter.showMaterials;
+    enableProjects = filter.forceMaterials || filter.showProjects;
+    enableFinished = filter.showFinished;
+    enableInProgress = filter.showInProgress;
+    enablePlanned = filter.showPlanned;
+
+    enableMaterials = filter.forceMaterials || filter.showMaterials;
     enableConsumed = filter.minConsumed != null || filter.maxConsumed != null;
     enableAvailable =
         filter.minAvailable != null || filter.maxAvailable != null;
@@ -255,10 +268,12 @@ class _GalleryFilterMenuState extends State<GalleryFilterMenu> {
                 if (_formKey.currentState!.validate()) {
                   customFilter
                     // ..showFinished =
-                    ..showProjects = customFilter.showFinished ||
-                        customFilter.showInProgress ||
-                        customFilter.showPlanned
-                    ..showMaterials = enableMaterials
+                    ..showProjects = enableProjects ||
+                        enableFinished ||
+                        enableInProgress ||
+                        enablePlanned
+                    ..showMaterials =
+                        customFilter.forceMaterials || enableMaterials
                     ..nameHas = nameController.text
                     ..categoryHas = categoryController.text
                     ..minConsumed = filterFieldValue(minConsumed.text)?.toInt()
@@ -344,12 +359,37 @@ class _GalleryFilterMenuState extends State<GalleryFilterMenu> {
                               color: theme.colorScheme.outline, width: 2),
                         ),
                       ),
-                      child: Text(
-                        "Wyświetl tylko projekty:",
-                        style: TextStyle(
-                          color: theme.colorScheme.onBackground,
-                        ),
-                        textScaleFactor: 1.15,
+                      child: FormField<bool>(
+                        enabled: !customFilter.forceProjects,
+                        initialValue: customFilter.forceProjects ||
+                            customFilter.showProjects,
+                        builder: (FormFieldState<bool> field) {
+                          return SwitchListTile(
+                            activeColor: theme.colorScheme.primary,
+                            contentPadding: const EdgeInsets.all(0),
+                            title: Text(
+                              "Wyświetl tylko projekty:",
+                              style: TextStyle(
+                                color: theme.colorScheme.onBackground,
+                              ),
+                            ),
+                            value: customFilter.forceProjects ||
+                                customFilter.showProjects,
+                            onChanged: (value) {
+                              ProductFilter temp = customFilter
+                                ..showProjects = value;
+                              if (!value) {
+                                temp
+                                  ..showFinished = false
+                                  ..showInProgress = false
+                                  ..showPlanned = false;
+                              }
+                              setState(() {
+                                customFilter = temp;
+                              });
+                            },
+                          );
+                        },
                       ),
                     ),
                     children: [
@@ -358,7 +398,10 @@ class _GalleryFilterMenuState extends State<GalleryFilterMenu> {
                         'value': customFilter.showFinished,
                         'onChanged': (bool value) {
                           setState(() {
-                            customFilter = customFilter..showFinished = value;
+                            customFilter = customFilter
+                              ..showFinished = value
+                              ..showProjects =
+                                  customFilter.showProjects || value;
                           });
                         }
                       },
@@ -367,7 +410,10 @@ class _GalleryFilterMenuState extends State<GalleryFilterMenu> {
                         'value': customFilter.showInProgress,
                         'onChanged': (bool value) {
                           setState(() {
-                            customFilter = customFilter..showInProgress = value;
+                            customFilter = customFilter
+                              ..showInProgress = value
+                              ..showProjects =
+                                  customFilter.showProjects || value;
                           });
                         }
                       },
@@ -376,7 +422,10 @@ class _GalleryFilterMenuState extends State<GalleryFilterMenu> {
                         'value': customFilter.showPlanned,
                         'onChanged': (bool value) {
                           setState(() {
-                            customFilter = customFilter..showPlanned = value;
+                            customFilter = customFilter
+                              ..showPlanned = value
+                              ..showProjects =
+                                  customFilter.showProjects || value;
                           });
                         }
                       },
@@ -560,6 +609,7 @@ class _GalleryFilterMenuState extends State<GalleryFilterMenu> {
                         ),
                       ),
                       child: FormField<bool>(
+                        enabled: !customFilter.forceMaterials,
                         initialValue: enableMaterials,
                         builder: (FormFieldState<bool> field) {
                           return SwitchListTile(
@@ -571,7 +621,8 @@ class _GalleryFilterMenuState extends State<GalleryFilterMenu> {
                                 color: theme.colorScheme.onBackground,
                               ),
                             ),
-                            value: enableMaterials,
+                            value:
+                                customFilter.forceMaterials || enableMaterials,
                             onChanged: (value) {
                               if (!value) {
                                 minConsumed.text = '';

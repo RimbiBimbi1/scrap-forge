@@ -254,7 +254,10 @@ class _ProductPageState extends State<ProductPage> {
                         ...product!.madeFrom.map(
                           (material) => Padding(
                             padding: const EdgeInsets.all(4.0),
-                            child: ProductStripSmall(product: material),
+                            child: ProductStripSmall(
+                              product: material,
+                              replacing: true,
+                            ),
                           ),
                         )
                       ],
@@ -271,9 +274,12 @@ class _ProductPageState extends State<ProductPage> {
                           textScaleFactor: 1.1,
                         ),
                         ...product!.usedIn.map(
-                          (p) => Padding(
+                          (project) => Padding(
                             padding: const EdgeInsets.all(4.0),
-                            child: ProductStripSmall(product: p),
+                            child: ProductStripSmall(
+                              product: project,
+                              replacing: true,
+                            ),
                           ),
                         )
                       ],
