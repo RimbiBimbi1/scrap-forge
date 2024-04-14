@@ -14,7 +14,7 @@ ThemeData lightTheme = ThemeData(
         background: Colors.white,
         onBackground: Colors.black,
         surface: Colors.red,
-        onSurface: Colors.white,
+        onSurface: Colors.black,
         outline: Colors.black),
     // textTheme: const TextTheme(),
     appBarTheme: const AppBarTheme(

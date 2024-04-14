@@ -68,7 +68,6 @@ class _ScrapForgeAppState extends State<ScrapForgeApp> {
         GlobalWidgetsLocalizations.delegate
       ],
       supportedLocales: const [Locale('pl'), Locale('en')],
-      // locale: const Locale('pl'),
       theme: lightTheme,
       darkTheme: darkTheme,
       themeMode: appSettings.darkMode ? ThemeMode.dark : ThemeMode.light,
@@ -96,7 +95,6 @@ class _ScrapForgeAppState extends State<ScrapForgeApp> {
         '/settings': (context) => Settings(
               appSettings: appSettings,
               updateSettings: updateSettings,
-              // saveSettings: saveSettings,
             ),
       },
     );

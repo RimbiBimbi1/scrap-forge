@@ -107,7 +107,7 @@ class _CustomFormatsState extends State<CustomFormats> {
                                   _displayFormatEditor(toBeEdited: name),
                               icon: Icon(
                                 Icons.edit,
-                                color: Theme.of(context).colorScheme.onPrimary,
+                                color: Theme.of(context).colorScheme.onTertiary,
                               ),
                             ),
                           ],
