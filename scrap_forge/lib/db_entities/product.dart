@@ -4,7 +4,7 @@ part 'product.g.dart';
 
 @collection
 class Product {
-  Id id = Isar.autoIncrement; // you can also use id = null to auto increment
+  Id id = Isar.autoIncrement;
 
   String? name;
   String? description;
@@ -13,43 +13,96 @@ class Product {
   @Enumerated(EnumType.name)
   ProjectLifeCycle? progress;
 
-  List<String> photos = [];
+  List<Photo> photos = [];
 
   String? category;
 
   final madeFrom = IsarLinks<Product>();
+  // List<int> madeFromQuantities = [];
 
   @Backlink(to: "madeFrom")
   final usedIn = IsarLinks<Product>();
+  // List<int> usedInQuantities = [];
 
   Dimensions? dimensions;
 
-  int? addedTimestamp;
   int? lastModifiedTimestamp;
+  int? startedTimestamp;
   int? finishedTimestamp;
 
   int? consumed;
   int? available;
   int? needed;
+
+  bool isMaterial() {
+    return (consumed != null || available != null || needed != null);
+  }
+
+  bool isProduct() {
+    return (progress != null);
+  }
+
+  double? get lengthmm => dimensions?.length;
+  double? get widthmm => dimensions?.width;
+  double? get heightmm => dimensions?.height;
+
+  double? get projectionAreamm => dimensions?.projectionArea ?? 0;
+  double? get maxArea {
+    List<double> nonNullDims = [
+      dimensions?.width,
+      dimensions?.length,
+      dimensions?.height
+    ].whereType<double>().toList();
+
+    if (nonNullDims.length < 2) {
+      return null;
+    }
+
+    nonNullDims.sort((a, b) => (a - b).toInt());
+
+    return nonNullDims[0] * nonNullDims[1];
+  }
+
+  double? get volume {
+    List<double> nonNullDims = [
+      dimensions?.width,
+      dimensions?.length,
+      dimensions?.height
+    ].whereType<double>().toList();
+
+    if (nonNullDims.length == 3) {
+      return (dimensions!.width! / 100) *
+          (dimensions!.length! / 100) *
+          (dimensions!.height! / 100);
+    }
+
+    return null;
+  }
+}
+
+@embedded
+class Photo {
+  List<int> data = [];
 }
 
 @embedded
 class Dimensions {
-  double? length;
+  double? length; //długość w mm
+  //adnotacja dotycząca sposobu przechowywania w bazie danych
   @Enumerated(EnumType.value, 'multiplier')
-  SizeUnit? lengthDisplayUnit;
+  SizeUnit? lengthDisplayUnit; //jednostka długości
 
-  double? width;
+  double? width; //szerokość w mm
   @Enumerated(EnumType.value, 'multiplier')
-  SizeUnit? widthDisplayUnit;
+  SizeUnit? widthDisplayUnit; //j.w.
 
-  double? height;
+  double? height; //wysokosc w mm
   @Enumerated(EnumType.value, 'multiplier')
-  SizeUnit? heightDisplayUnit;
+  SizeUnit? heightDisplayUnit; //j.w.
 
-  double? projectionArea;
+  double? projectionArea; //przybliżone pole powierzchni w mm2
   @Enumerated(EnumType.value, 'multiplier')
-  SizeUnit? areaDisplayUnit;
+  SizeUnit? areaDisplayUnit; //j.w.
 
   Dimensions({
     this.length,

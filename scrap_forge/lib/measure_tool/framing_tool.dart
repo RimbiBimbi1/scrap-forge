@@ -1,18 +1,21 @@
 import 'package:flutter/material.dart';
 
-const double magnifierRadius = 25;
+const double magnifierRadius = 35;
 
 class FramingTool extends StatefulWidget {
   final Size size;
-  final Widget image;
   final List<Offset> points;
+  final VoidCallback resetPoints;
+  final Widget Function(double w, double h) displayImage;
+
   final ValueSetter<List<Offset>> setCorners;
 
   const FramingTool({
     super.key,
     required this.size,
-    required this.image,
+    required this.displayImage,
     required this.points,
+    required this.resetPoints,
     required this.setCorners,
   });
 
@@ -24,8 +27,15 @@ class _FramingToolState extends State<FramingTool> {
   Offset magnifierPosition = Offset.zero;
   int activeCorner = -1;
 
-  final Color defaultColor = Colors.white;
-  final focusColor = Colors.amber;
+  Widget image = Container();
+  List<Offset> initialCorners = List.empty();
+
+  @override
+  void initState() {
+    super.initState();
+    initialCorners = widget.points;
+    image = widget.displayImage(widget.size.width, widget.size.height);
+  }
 
   void getClosestCorner(DragStartDetails details) {
     int i = 0;
@@ -74,67 +84,97 @@ class _FramingToolState extends State<FramingTool> {
 
   @override
   Widget build(BuildContext context) {
+    ThemeData theme = Theme.of(context);
+
+    Color defaultColor = const Color.fromARGB(255, 255, 255, 255);
+    Color focusColor = const Color.fromARGB(255, 255, 200, 0);
+
+    double width = widget.size.width;
+    double height = widget.size.height;
+
+    // double ratio = width / height;
+
     return Column(
-      mainAxisAlignment: MainAxisAlignment.center,
+      mainAxisAlignment: MainAxisAlignment.spaceBetween,
       crossAxisAlignment: CrossAxisAlignment.center,
       children: [
-        SizedBox(
-          height: 10,
-        ),
-        SizedBox(
-          width: widget.size.width,
-          height: widget.size.height,
-          child: Stack(
-            children: [
-              widget.image,
-              GestureDetector(
-                onPanStart: getClosestCorner,
-                onPanUpdate: calcMagnifierPosition,
-                onPanEnd: (DragEndDetails details) => {
-                  setState(() {
-                    activeCorner = -1;
-                  })
-                },
-              ),
-              ...widget.points
-                  .asMap()
-                  .map(
-                    (index, mag) => MapEntry(
-                      index,
-                      Positioned(
-                        left: mag.dx - magnifierRadius,
-                        top: mag.dy - magnifierRadius,
-                        child: RawMagnifier(
-                          decoration: MagnifierDecoration(
-                            shape: CircleBorder(
-                              side: BorderSide(
-                                  color: activeCorner == index
-                                      ? focusColor
-                                      : defaultColor,
-                                  width: 2),
+        const SizedBox.shrink(),
+        Padding(
+          padding: const EdgeInsets.symmetric(vertical: 5),
+          child:
+              // transform: Matrix4.compose(
+              //   // Vector3(height * ratio, (height - width) * ratio, 0),
+              //   Vector3(width, (height - width) * ratio, 0),
+              //   Quaternion(0, 0, sin(pi / 4), sin(pi / 4)),
+              //   Vector3(ratio, ratio, 1),
+              // ),
+              SizedBox(
+            width: width,
+            height: height,
+            child: Stack(
+              children: [
+                image,
+                GestureDetector(
+                  onPanStart: getClosestCorner,
+                  onPanUpdate: calcMagnifierPosition,
+                  onPanEnd: (DragEndDetails details) => {
+                    setState(() {
+                      activeCorner = -1;
+                    })
+                  },
+                ),
+                ...widget.points
+                    .asMap()
+                    .map(
+                      (index, mag) => MapEntry(
+                        index,
+                        Positioned(
+                          left: mag.dx - magnifierRadius,
+                          top: mag.dy - magnifierRadius,
+                          child: RawMagnifier(
+                            decoration: MagnifierDecoration(
+                              shape: CircleBorder(
+                                side: BorderSide(
+                                    color: activeCorner == index
+                                        ? focusColor
+                                        : defaultColor,
+                                    width: 2),
+                              ),
                             ),
+                            size: const Size(
+                                magnifierRadius * 2, magnifierRadius * 2),
+                            magnificationScale: 2,
                           ),
-                          size: Size(magnifierRadius * 2, magnifierRadius * 2),
-                          magnificationScale: 2,
                         ),
                       ),
-                    ),
-                  )
-                  .values,
-              CustomPaint(
-                painter: FramePainter(
-                    points: widget.points,
-                    activeCorner: activeCorner,
-                    defaultColor: defaultColor,
-                    focusColor: focusColor),
-              ),
-            ],
+                    )
+                    .values,
+                CustomPaint(
+                  painter: FramePainter(
+                      points: widget.points,
+                      activeCorner: activeCorner,
+                      defaultColor: defaultColor,
+                      focusColor: focusColor),
+                ),
+              ],
+            ),
           ),
         ),
-        Flexible(
-          child: ElevatedButton(
-            onPressed: () => widget.setCorners(widget.points),
-            child: const Text("Zatwierdź"),
+        Container(
+          padding: const EdgeInsets.symmetric(vertical: 8),
+          color: theme.colorScheme.secondary,
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceAround,
+            children: [
+              OutlinedButton(
+                onPressed: widget.resetPoints,
+                child: const Text("Zacznij od nowa"),
+              ),
+              ElevatedButton(
+                onPressed: () => widget.setCorners(widget.points),
+                child: const Text("Zatwierdź"),
+              ),
+            ],
           ),
         ),
       ],
@@ -144,9 +184,9 @@ class _FramingToolState extends State<FramingTool> {
 
 class FramePainter extends CustomPainter {
   final List<Offset> points;
-  final activeCorner;
-  final defaultColor;
-  final focusColor;
+  final int activeCorner;
+  final Color defaultColor;
+  final Color focusColor;
 
   FramePainter(
       {required this.points,

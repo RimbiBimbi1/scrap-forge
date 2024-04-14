@@ -3,38 +3,6 @@ import 'dart:typed_data';
 import 'package:image/image.dart' as imgLib;
 
 class ImageProcessor {
-  static imgLib.Image getResized(imgLib.Image image) {
-    return imgLib.copyResize(image,
-        width: (image.width / 4).round(), height: (image.height / 4).round());
-  }
-
-  static imgLib.Image getExtendedImage(imgLib.Image image, int frameWidth) {
-    int w = image.width;
-    int h = image.height;
-    imgLib.Image ext =
-        imgLib.Image(width: w + (2 * frameWidth), height: h + (2 * frameWidth));
-    for (int y = 0; y < h; y++) {
-      for (int x = 0; x < w; x++) {
-        ext.setPixel(x + frameWidth, y + frameWidth, image.getPixel(x, y));
-      }
-    }
-    return ext;
-  }
-
-  static imgLib.Image getGrayscale(imgLib.Image image) {
-    int w = image.width;
-    int h = image.height;
-    imgLib.Image gs = imgLib.Image(width: w, height: h);
-    for (int y = 0; y < h; y++) {
-      for (int x = 0; x < w; x++) {
-        imgLib.Color pixel = image.getPixel(x, y);
-        double gray = pixel.r * 0.299 + pixel.g * 0.587 + pixel.b * 0.114;
-        gs.setPixelRgb(x, y, gray, gray, gray);
-      }
-    }
-    return gs;
-  }
-
   static imgLib.Image getGaussianBlurred(imgLib.Image image,
       {int kernelRadius = 1, double sd = 1.4}) {
     int w = image.width;
@@ -59,7 +27,7 @@ class ImageProcessor {
         double gray = 0.0;
 
         kernel.asMap().forEach((i, offset) => gray +=
-            image.getPixel((x + offset.x).toInt(), (y + offset.y).toInt()).r *
+            image.getPixel((x + offset.xi), (y + offset.yi)).r *
                 gaussianMultipliers[i]);
 
         gray = math.min(gray, 255);
@@ -165,26 +133,20 @@ class ImageProcessor {
 
         double angle = direction[x][y];
 
-        try {
-          if (angle < 0) {
-            throw Exception();
-          }
-          if ((angle < radTh1) || (radTh7 <= angle)) {
-            q = image.getPixel(x, y + 1).r;
-            r = image.getPixel(x, y - 1).r;
-          } else if (angle < radTh3) {
-            q = image.getPixel(x + 1, y - 1).r;
-            r = image.getPixel(x - 1, y + 1).r;
-          } else if (angle < radTh5) {
-            q = image.getPixel(x + 1, y).r;
-            r = image.getPixel(x - 1, y).r;
-          } else if (angle < radTh7) {
-            q = image.getPixel(x - 1, y - 1).r;
-            r = image.getPixel(x + 1, y + 1).r;
-          }
-        } catch (exception) {
-          q = 255.0;
-          r = 255.0;
+        if (angle < 0) {
+          //do nothing
+        } else if ((angle < radTh1) || (radTh7 <= angle)) {
+          q = image.getPixel(x, y + 1).r;
+          r = image.getPixel(x, y - 1).r;
+        } else if (angle < radTh3) {
+          q = image.getPixel(x + 1, y - 1).r;
+          r = image.getPixel(x - 1, y + 1).r;
+        } else if (angle < radTh5) {
+          q = image.getPixel(x + 1, y).r;
+          r = image.getPixel(x - 1, y).r;
+        } else if (angle < radTh7) {
+          q = image.getPixel(x - 1, y - 1).r;
+          r = image.getPixel(x + 1, y + 1).r;
         }
 
         num gray = image.getPixel(x, y).r;
@@ -237,7 +199,7 @@ class ImageProcessor {
         }
       }
     }
-    return result.toDouble();
+    return result;
   }
 
   static imgLib.Image getHysteresised(imgLib.Image image,
@@ -258,15 +220,14 @@ class ImageProcessor {
     while (tracked.isNotEmpty) {
       imgLib.Point p = tracked.removeLast();
 
-      result.setPixelRgb(p.x.toInt(), p.y.toInt(), 255, 255, 255);
+      result.setPixelRgb(p.xi, p.yi, 255, 255, 255);
 
       for (int ky = -kernelRadius; ky <= kernelRadius; ky++) {
         for (int kx = -kernelRadius; kx <= kernelRadius; kx++) {
           if (kx == 0 && ky == 0) {
             continue;
           }
-          int pRed =
-              result.getPixel((p.x + kx).toInt(), (p.y + ky).toInt()).r.toInt();
+          int pRed = result.getPixel((p.xi + kx), (p.yi + ky)).r.toInt();
 
           if (pRed == 127) {
             tracked.add(imgLib.Point(p.x + kx, p.y + ky));
@@ -308,23 +269,22 @@ class ImageProcessor {
     return kernel;
   }
 
-  static imgLib.Image getDilated(
-    imgLib.Image image,
-  ) {
-    return getEroded(image, erodeTo: 0);
+  static imgLib.Image getDilated(imgLib.Image image, {int radius = 1}) {
+    return getEroded(image, erodeTo: 0, radius: 1);
   }
 
-  static imgLib.Image getEroded(imgLib.Image image, {erodeTo = 255}) {
+  static imgLib.Image getEroded(imgLib.Image image,
+      {int erodeTo = 255, int radius = 1}) {
     int w = image.width;
     int h = image.height;
-    int erodeFrom = (255 - erodeTo).toInt();
+    int erodeFrom = (255 - erodeTo);
     imgLib.Color bg = imgLib.ColorRgb8(erodeFrom, erodeFrom, erodeFrom);
 
     imgLib.Image eroded = imgLib.Image(width: w, height: h);
 
     eroded.clear(bg);
 
-    List<imgLib.Point> kernel = getKernel(1, excludeCenter: true);
+    List<imgLib.Point> kernel = getKernel(radius, excludeCenter: true);
 
     for (int y = 0; y < h; y++) {
       for (int x = 0; x < w; x++) {
@@ -332,7 +292,7 @@ class ImageProcessor {
           int nRed = erodeTo;
           try {
             nRed = image
-                .getPixel((x + neighbour.x).toInt(), (y + neighbour.y).toInt())
+                .getPixel((x + neighbour.xi), (y + neighbour.yi))
                 .r
                 .toInt();
           } catch (ignored) {
@@ -368,15 +328,15 @@ class ImageProcessor {
 
     while (flooded.isNotEmpty) {
       imgLib.Point p = flooded.removeLast();
-      try {
-        if (floodfilled.getPixel(p.x.toInt(), p.y.toInt()).r == 0) {
-          floodfilled.setPixelRgb(p.x.toInt(), p.y.toInt(), 255, 255, 255);
-          if (p.x > 0) flooded.add(imgLib.Point(p.x - 1, p.y));
-          if (p.y > 0) flooded.add(imgLib.Point(p.x, p.y - 1));
-          if (p.x < w - 1) flooded.add(imgLib.Point(p.x + 1, p.y));
-          if (p.y < h - 1) flooded.add(imgLib.Point(p.x, p.y + 1));
-        }
-      } catch (ignored) {}
+      // try {
+      if (floodfilled.getPixel(p.xi, p.yi).r == 0) {
+        floodfilled.setPixelRgb(p.xi, p.yi, 255, 255, 255);
+        if (p.x > 0) flooded.add(imgLib.Point(p.x - 1, p.y));
+        if (p.y > 0) flooded.add(imgLib.Point(p.x, p.y - 1));
+        if (p.x < w - 1) flooded.add(imgLib.Point(p.x + 1, p.y));
+        if (p.y < h - 1) flooded.add(imgLib.Point(p.x, p.y + 1));
+      }
+      // } catch (ignored) {}
     }
     return floodfilled;
   }
@@ -402,14 +362,11 @@ class ImageProcessor {
 
     num l = w * h;
 
-    List<List<num>> X =
-        List.generate(w, (int index) => List.generate(h, (int index) => 0.0));
-    List<List<num>> Y =
-        List.generate(w, (int index) => List.generate(h, (int index) => 0.0));
-    List<List<num>> XY =
-        List.generate(w, (int index) => List.generate(h, (int index) => 0.0));
+    List<List<num>> X = List.generate(w, (int index) => List.filled(h, 0.0));
+    List<List<num>> Y = List.generate(w, (int index) => List.filled(h, 0.0));
+    List<List<num>> XY = List.generate(w, (int index) => List.filled(h, 0.0));
     List<List<num>> tempInvariant =
-        List.generate(w, (int index) => List.generate(h, (int index) => 0.0));
+        List.generate(w, (int index) => List.filled(h, 0.0));
 
     num meanX = 0.0;
     num meanY = 0.0;
@@ -427,6 +384,7 @@ class ImageProcessor {
 
         num geoMean = math.pow(r * g * b, 1.0 / 3.0);
 
+        //Get channel ratios
         X[x][y] = math.log(r / geoMean);
         Y[x][y] = math.log(g / geoMean);
 
@@ -449,7 +407,8 @@ class ImageProcessor {
       }
     }
 
-    num alpha = (math.pi / 2) - (acot(covXY.sign) * (sumYabs / sumXabs));
+    //calculate the direction of color change caused by light's color temperature
+    num alpha = acot(covXY.sign) * (sumYabs / sumXabs);
 
     num maxI = -double.infinity;
     num minI = double.infinity;
@@ -472,6 +431,7 @@ class ImageProcessor {
     minI *= 1.025;
     maxI *= 0.975;
 
+    //cut the outliers off
     for (int y = 0; y < h; y++) {
       for (int x = 0; x < w; x++) {
         if (tempInvariant[x][y] > maxI) {
@@ -496,5 +456,57 @@ class ImageProcessor {
       return math.pi / 2 - math.atan(x);
     }
     return 0;
+  }
+
+  static imgLib.Image getBinaryShadowless(imgLib.Image image,
+      {int height = 400}) {
+    const List<List<int>> Kx = [
+      [-1, 0, 1],
+      [-2, 0, 2],
+      [-1, 0, 1]
+    ];
+    const List<List<int>> Ky = [
+      [1, 2, 1],
+      [0, 0, 0],
+      [-1, -2, -1]
+    ];
+
+    imgLib.Image processed = imgLib.copyResize(
+      image,
+      height: height,
+    );
+
+    processed = ImageProcessor.getInvariant(processed);
+
+    processed = ImageProcessor.getGaussianBlurred(processed);
+
+    List<List<double>> xSobel =
+        ImageProcessor.getDirectionalSobel(processed, Kx);
+
+    List<List<double>> ySobel =
+        ImageProcessor.getDirectionalSobel(processed, Ky);
+
+    processed = ImageProcessor.getSobel(processed, xSobel, ySobel);
+
+    List<List<double>> direction =
+        ImageProcessor.getSobelDirection(processed, xSobel, ySobel);
+
+    processed = ImageProcessor.getNonMaxSuppressed(processed, direction);
+
+    processed = ImageProcessor.getDoubleThresholded(processed);
+
+    processed = ImageProcessor.getHysteresised(processed);
+
+    processed = ImageProcessor.getEroded(processed);
+    processed = ImageProcessor.getEroded(processed);
+    processed = ImageProcessor.getEroded(processed);
+
+    processed = ImageProcessor.getFloodfilled(processed);
+
+    processed = ImageProcessor.getDilated(processed);
+    processed = ImageProcessor.getDilated(processed);
+    processed = ImageProcessor.getDilated(processed);
+
+    return processed;
   }
 }

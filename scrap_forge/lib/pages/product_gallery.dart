@@ -1,11 +1,14 @@
 import 'dart:math' as math;
 
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:scrap_forge/db_entities/product.dart';
 import 'package:scrap_forge/isar_service.dart';
+import 'package:scrap_forge/pages/gallery_filter_menu.dart';
 import 'package:scrap_forge/utils/fetch_products.dart';
 import 'package:scrap_forge/utils/product_list_comparator.dart';
 import 'package:scrap_forge/widgets/product_strip.dart';
+import 'package:scrap_forge/widgets/dialogs/sort_menu.dart';
 
 enum SelectionOptions { delete() }
 
@@ -20,16 +23,40 @@ class ProductGallery extends StatefulWidget {
 class _ProductGalleryState extends State<ProductGallery> {
   IsarService db = IsarService();
   List<Product> products = List.empty();
-  bool asMaterials = false;
+  List<GlobalKey> productKeys1 = List.empty();
+  List<GlobalKey> productKeys2 = List.empty();
   bool selectionMode = false;
   List<bool> selected = List.empty();
   ValueSetter? confirmSelection;
-  ProductFilter filter = ProductFilter();
+  ProductFilter baseFilter = ProductFilter();
+
+  TextEditingController moveFromController = TextEditingController();
+  TextEditingController moveToController = TextEditingController();
+  // ProductFilter? customFilter;
 
   @override
   void initState() {
     super.initState();
     getArguments();
+
+    db.listenToProducts().listen(
+      (event) async {
+        List<Product> result = await getProducts((() => baseFilter)());
+
+        if (mounted &&
+            !ProductListComparator.compareByLastModifiedTimestamps(
+                products, result)) {
+          setState(() {
+            this.products = result;
+            this.productKeys1 =
+                List.generate(result.length, (index) => GlobalKey());
+            this.productKeys2 =
+                List.generate(result.length, (index) => GlobalKey());
+            this.selected = List.filled(result.length, false);
+          });
+        }
+      },
+    );
   }
 
   Future<void> getArguments() async {
@@ -37,26 +64,39 @@ class _ProductGalleryState extends State<ProductGallery> {
         <String, dynamic>{}) as Map;
 
     bool? selectionMode = arguments["select"];
-    ProductFilter filter = arguments["productFilter"];
+    ProductFilter baseFilter = arguments["productFilter"];
     ValueSetter? confirmSelection = arguments["confirmSelection"];
 
     // if (filter != null) {
-    List<Product> result = await getProducts(filter);
+    List<Product> result = await getProducts(baseFilter);
 
     setState(() {
       this.products = result;
+      this.productKeys1 = List.generate(result.length, (index) => GlobalKey());
+      this.productKeys2 = List.generate(result.length, (index) => GlobalKey());
       this.selected = List.filled(result.length, false);
-      this.filter = filter;
-      this.asMaterials = filter.materialsOnly;
+      this.baseFilter = baseFilter;
       this.selectionMode = selectionMode ?? false;
       this.confirmSelection = confirmSelection;
     });
-    // }
   }
 
   Future<List<Product>> getProducts(filter) async {
     const getDbProducts = fetchProducts;
     return await getDbProducts(filter);
+  }
+
+  Future<void> onFilterUpdate(filter) async {
+    List<Product> products = await getProducts(filter);
+    setState(() {
+      this.products = products;
+      this.productKeys1 =
+          List.generate(products.length, (index) => GlobalKey());
+      this.productKeys2 =
+          List.generate(products.length, (index) => GlobalKey());
+      this.baseFilter = filter;
+      this.selected = List.filled(products.length, false);
+    });
   }
 
   void onTileLongPress(int index) {
@@ -69,21 +109,20 @@ class _ProductGalleryState extends State<ProductGallery> {
   }
 
   List<Widget> displayProducts() {
-    // return AnimatedCrossFade(firstChild: firstChild, secondChild: secondChild, crossFadeState: crossFadeState, duration: duration)
-
     return products
         .asMap()
         .map(
           (index, p) => MapEntry(
               index,
               AnimatedCrossFade(
+                  key: GlobalKey(),
                   firstChild: Row(
                     children: [
                       Flexible(
                         child: ProductStrip(
+                            key: productKeys1[index],
                             product: p,
-                            asMaterial: asMaterials,
-                            // onLongPress: () => onTileLongPress(index),
+                            // asMaterial: projectsOnly,
                             onPressed: () =>
                                 {updateSelected(index, !selected[index])}),
                       ),
@@ -99,7 +138,8 @@ class _ProductGalleryState extends State<ProductGallery> {
                   ),
                   secondChild: ProductStrip(
                     product: p,
-                    asMaterial: asMaterials,
+                    key: productKeys2[index],
+                    // asMaterial: projectsOnly,
                     onLongPress: () => onTileLongPress(index),
                   ),
                   crossFadeState: selectionMode
@@ -132,31 +172,71 @@ class _ProductGalleryState extends State<ProductGallery> {
       context: context,
       builder: (context) {
         return Dialog(
-          child: Padding(
-            padding: EdgeInsets.all(24),
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.start,
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              children: [
-                Text(
-                  "Przenieś wybrane produkty do:",
-                  textScaleFactor: 1.4,
-                ),
-                ...(asMaterials
-                        ? [
-                            ProductFilter.finishedProducts(),
-                            ProductFilter.inProgressProducts(),
-                            ProductFilter.plannedProducts(),
-                          ]
-                        : [
-                            ProductFilter.consumedMaterials(),
-                            ProductFilter.availableMaterials(),
-                            ProductFilter.neededMaterials(),
-                          ])
-                    .map((filter) =>
-                        //TODO
-                        Placeholder())
-              ],
+          child: SizedBox(
+            height: 320,
+            child: Padding(
+              padding: const EdgeInsets.all(24),
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  const Text(
+                    "Przenieś wybrane projekty do:",
+                    textScaleFactor: 1.4,
+                  ),
+                  Column(
+                    mainAxisAlignment: MainAxisAlignment.start,
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                    children: [
+                      {
+                        'label': "Ukończone",
+                        'move': (Product p) =>
+                            p..progress = ProjectLifeCycle.finished
+                      },
+                      {
+                        'label': "W trakcie realizacji",
+                        'move': (Product p) =>
+                            p..progress = ProjectLifeCycle.inProgress
+                      },
+                      {
+                        'label': "Planowanie",
+                        'move': (Product p) =>
+                            p..progress = ProjectLifeCycle.planned
+                      },
+                    ]
+                        .map(
+                          (folder) => OutlinedButton(
+                            onPressed: () {
+                              List<Product> moved = products
+                                  .asMap()
+                                  .entries
+                                  .where((p) => selected[p.key])
+                                  .map((e) => (folder['move'] as Product
+                                      Function(Product p))(e.value))
+                                  .toList();
+
+                              db.saveProducts(moved);
+
+                              Navigator.of(context).pop();
+                            },
+                            child: Container(
+                              alignment: AlignmentDirectional.centerStart,
+                              child: Text(
+                                (folder['label'] ?? "").toString(),
+                                textAlign: TextAlign.left,
+                              ),
+                            ),
+                          ),
+                        )
+                        .toList(),
+                  ),
+                  ElevatedButton(
+                      onPressed: () {
+                        Navigator.of(context).pop();
+                      },
+                      child: const Text('Anuluj'))
+                ],
+              ),
             ),
           ),
         );
@@ -196,6 +276,7 @@ class _ProductGalleryState extends State<ProductGallery> {
                   child: ElevatedButton(
                     onPressed: () {
                       db.deleteProducts(getSelected());
+                      Navigator.of(context).pop();
                     },
                     child: const Text("Usuń"),
                   ),
@@ -208,23 +289,40 @@ class _ProductGalleryState extends State<ProductGallery> {
     );
   }
 
+  Future<void> _displaySortDialog() async {
+    return showDialog<void>(
+      context: context,
+      builder: (context) {
+        return SortMenu(
+          initSortBy: baseFilter.sortBy,
+          initSortDesc: baseFilter.sortDesc,
+          setSort: (sortBy, sortDesc) {
+            setState(() {
+              onFilterUpdate(
+                baseFilter
+                  ..sortBy = sortBy
+                  ..sortDesc = sortDesc,
+              );
+            });
+          },
+          sortMaterials: baseFilter.showMaterials,
+          sortProjects: baseFilter.showProjects,
+        );
+      },
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
-    db.listenToProducts().listen((event) async {
-      List<Product> result = await getProducts(filter);
+    SystemChrome.setPreferredOrientations([
+      DeviceOrientation.portraitUp,
+      DeviceOrientation.portraitDown,
+    ]);
 
-      if (mounted &&
-          !ProductListComparator.compareByLastModifiedTimestamps(
-              products, result)) {
-        setState(() {
-          this.products = result;
-          this.selected = List.filled(result.length, false);
-        });
-      }
-    });
+    ThemeData theme = Theme.of(context);
+
     return Scaffold(
       persistentFooterAlignment: AlignmentDirectional.center,
-      backgroundColor: Colors.grey[900],
       persistentFooterButtons: [
         AnimatedCrossFade(
           crossFadeState: selectionMode
@@ -254,20 +352,22 @@ class _ProductGalleryState extends State<ProductGallery> {
                       ),
                     ]
                   : [
-                      TextButton(
-                        onPressed: _displayMoveDialog,
-                        child: Column(
-                          children: [
-                            Transform.rotate(
-                              angle: math.pi / 2,
-                              child: const Icon(
-                                Icons.move_down,
+                      (baseFilter.showProjects)
+                          ? TextButton(
+                              onPressed: _displayMoveDialog,
+                              child: Column(
+                                children: [
+                                  Transform.rotate(
+                                    angle: math.pi / 2,
+                                    child: const Icon(
+                                      Icons.move_down,
+                                    ),
+                                  ),
+                                  const Text("Przenieś")
+                                ],
                               ),
-                            ),
-                            const Text("Przenieś")
-                          ],
-                        ),
-                      ),
+                            )
+                          : SizedBox.shrink(),
                       TextButton(
                         onPressed: _displayDeleteDialog,
                         child: const Column(
@@ -287,8 +387,24 @@ class _ProductGalleryState extends State<ProductGallery> {
         title: const Text("Produkty"),
         actions: [
           IconButton(
-            onPressed: () {},
-            icon: const Icon(Icons.settings),
+            onPressed: _displaySortDialog,
+            icon: const Icon(Icons.sort_rounded),
+          ),
+          IconButton(
+            onPressed: () {
+              Navigator.of(context).push(
+                MaterialPageRoute(
+                  builder: (context) => GalleryFilterMenu(
+                    setFilter: (ProductFilter filter) {
+                      onFilterUpdate(filter);
+                      Navigator.of(context).pop();
+                    },
+                    filter: baseFilter,
+                  ),
+                ),
+              );
+            },
+            icon: const Icon(Icons.filter_alt),
           ),
         ],
         centerTitle: true,
@@ -298,7 +414,7 @@ class _ProductGalleryState extends State<ProductGallery> {
           padding: const EdgeInsets.all(10),
           child: ListView(
             shrinkWrap: true,
-            children: [...displayProducts()],
+            children: displayProducts(),
           ),
         ),
       ),

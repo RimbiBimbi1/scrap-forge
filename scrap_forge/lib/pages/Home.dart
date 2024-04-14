@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:scrap_forge/db_entities/product.dart';
 import 'package:scrap_forge/isar_service.dart';
@@ -6,17 +7,17 @@ import 'package:scrap_forge/utils/fetch_products.dart';
 import 'package:scrap_forge/utils/product_list_comparator.dart';
 import 'package:scrap_forge/widgets/custom_tile.dart';
 import 'package:scrap_forge/widgets/home_section.dart';
-import 'package:scrap_forge/widgets/recent_strip.dart';
+import 'package:scrap_forge/widgets/product_strip_small.dart';
 
 class Home extends StatefulWidget {
-  Home({super.key});
+  const Home({super.key});
 
   @override
   State<Home> createState() => _HomeState();
 }
 
 class _HomeState extends State<Home> {
-  final db = IsarService();
+  final IsarService db = IsarService();
 
   List<Product> recentlyViewed = List.empty();
 
@@ -39,33 +40,91 @@ class _HomeState extends State<Home> {
 
   @override
   Widget build(BuildContext context) {
+    SystemChrome.setPreferredOrientations([
+      DeviceOrientation.portraitUp,
+      DeviceOrientation.portraitDown,
+    ]);
+    ThemeData theme = Theme.of(context);
+
     db.listenToProducts().listen((event) {
       if (mounted) getRecentProjects();
     });
-    ThemeData theme = Theme.of(context);
 
     return Scaffold(
-      backgroundColor: Colors.grey[900],
+      backgroundColor: theme.scaffoldBackgroundColor,
       appBar: AppBar(
-        leading: SizedBox.shrink(),
+        leading: const SizedBox.shrink(),
         title: const Text("Moja kuźnia"),
         actions: [
-          IconButton(onPressed: () {}, icon: const Icon(Icons.settings))
+          IconButton(
+              onPressed: () {
+                Navigator.pushNamed(context, '/settings');
+              },
+              icon: const Icon(Icons.settings))
         ],
         centerTitle: true,
+      ),
+      floatingActionButton: Container(
+        color: Colors.transparent,
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          mainAxisAlignment: MainAxisAlignment.end,
+          children: [
+            Padding(
+              padding: const EdgeInsets.all(8.0),
+              child: FloatingActionButton(
+                heroTag: null,
+                backgroundColor: theme.colorScheme.primary,
+                foregroundColor: theme.colorScheme.onPrimary,
+                onPressed: () {
+                  Navigator.pushNamed(context, "/measure",
+                      arguments: {'onBoundingBoxConfirmed': null});
+                },
+                child: const Icon(
+                  Icons.straighten,
+                ),
+              ),
+            ),
+            Padding(
+              padding: const EdgeInsets.all(8.0),
+              child: FloatingActionButton(
+                heroTag: null,
+                backgroundColor: theme.colorScheme.primary,
+                foregroundColor: theme.colorScheme.onPrimary,
+                onPressed: () {
+                  Navigator.pushNamed(context, "/editProduct");
+                },
+                child: const Icon(
+                  Icons.add_rounded,
+                ),
+              ),
+            ),
+          ],
+        ),
       ),
       body: SafeArea(
         child: Padding(
           padding: const EdgeInsets.all(8.0),
           child: ListView(
             children: [
+              Text(
+                'Ostatnio edytowane',
+                style: TextStyle(
+                  color: theme.colorScheme.onBackground,
+                ),
+                textScaleFactor: 1.2,
+              ),
               Column(
                 mainAxisAlignment: MainAxisAlignment.start,
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
                   ...recentlyViewed
-                      .map((e) => RecentStrip(
-                            product: e,
+                      .map((e) => Padding(
+                            padding: const EdgeInsets.symmetric(vertical: 3),
+                            child: ProductStripSmall(
+                              key: GlobalKey(),
+                              product: e,
+                            ),
                           ))
                       .toList()
                 ],
@@ -88,9 +147,9 @@ class _HomeState extends State<Home> {
                     background: theme.colorScheme.secondary,
                     color: theme.colorScheme.onSecondary,
                     title: "Ukończone",
-                    child: SvgPicture.asset(
-                      'assets/image-placeholder.svg',
-                      fit: BoxFit.fill,
+                    child: const Image(
+                      image: AssetImage('assets/images/finished_projects.png'),
+                      fit: BoxFit.fitWidth,
                     ),
                   ),
                   const Spacer(
@@ -147,9 +206,9 @@ class _HomeState extends State<Home> {
                     background: theme.colorScheme.secondary,
                     color: theme.colorScheme.onSecondary,
                     title: "Już użyte",
-                    child: SvgPicture.asset(
-                      'assets/image-placeholder.svg',
-                      fit: BoxFit.fill,
+                    child: const Image(
+                      image: AssetImage('assets/images/used_materials.png'),
+                      fit: BoxFit.fitHeight,
                     ),
                   ),
                   const Spacer(
@@ -188,16 +247,9 @@ class _HomeState extends State<Home> {
                   ),
                 ],
               ),
-              FloatingActionButton(
-                heroTag: false,
-                onPressed: () {
-                  Navigator.pushNamed(context, "/editProduct");
-                },
-                child: const Text(
-                  "+",
-                  textScaleFactor: 3,
-                ),
-              ),
+              const SizedBox(
+                height: 100,
+              )
             ],
           ),
         ),

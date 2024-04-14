@@ -1,314 +1,77 @@
+import 'dart:isolate';
+import 'dart:typed_data';
+
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
-import 'package:image/image.dart' as imgLib;
 import 'package:image_picker/image_picker.dart';
-import 'package:scrap_forge/measure_tool/auto_bounding_box_scanner.dart';
-import 'package:scrap_forge/measure_tool/bounding_tool.dart';
-import 'package:scrap_forge/measure_tool/corner_scanner.dart';
-import 'package:scrap_forge/measure_tool/framing_tool.dart';
-import 'package:scrap_forge/measure_tool/image_processor.dart';
-import 'package:scrap_forge/measure_tool/triangle_texturer.dart';
-
-enum ASheetFormat {
-  a5(name: 'A5', width: 148, height: 210),
-  a4(name: 'A4', width: 210, height: 297),
-  a3(name: 'A3', width: 297, height: 420);
-
-  const ASheetFormat({
-    required this.name,
-    required this.width,
-    required this.height,
-  });
-
-  final String name;
-  final double width;
-  final double height;
-}
+import 'package:permission_handler/permission_handler.dart';
+import 'package:scrap_forge/db_entities/app_settings.dart';
+import 'package:scrap_forge/pages/framing.dart';
+import 'package:scrap_forge/pages/loading.dart';
+import 'package:scrap_forge/utils/isolate_task.dart';
+import 'package:scrap_forge/widgets/dialogs/format_selection_menu.dart';
+import 'package:image/image.dart' as imgLib;
 
 class MeasurementHub extends StatefulWidget {
-  const MeasurementHub({super.key});
+  final MeasurementToolQuality framingQuality;
+  final MeasurementToolQuality boundingQuality;
+  final SheetFormat sheetFormat;
+  final Map<String, SheetFormat> availableSheetFormats;
+  const MeasurementHub({
+    super.key,
+    this.framingQuality = MeasurementToolQuality.medium,
+    this.boundingQuality = MeasurementToolQuality.medium,
+    this.sheetFormat = SheetFormat.a4,
+    required this.availableSheetFormats,
+  });
 
   @override
   State<MeasurementHub> createState() => _MeasurementHubState();
 }
 
 class _MeasurementHubState extends State<MeasurementHub> {
-  ASheetFormat sheetFormat = ASheetFormat.a4;
-  final sheetWpx = 840;
-  final sheetHpx = 1188;
-  bool chooseFormat = false;
-
-  String phase = "init";
-
-  imgLib.Image originalPhoto = imgLib.Image(width: 200, height: 300);
-  imgLib.Image displayed = imgLib.Image(width: 200, height: 300);
-  imgLib.Image sheet = imgLib.Image(width: 210, height: 297);
-
-  List<Offset> sheetCorners = List.empty();
-  List<Offset> itemBoundingBox = List.empty();
-
-  int projectionAreaPixels = 0;
+  SheetFormat sheetFormat = SheetFormat.a4;
+  bool isLoading = false;
 
   @override
   void initState() {
     super.initState();
+    sheetFormat = widget.sheetFormat;
   }
 
-  pickImage({bool fromCamera = true}) async {
-    ImageSource source = ImageSource.camera;
-    if (!fromCamera) {
-      source = ImageSource.gallery;
-    }
-    XFile? file = await ImagePicker().pickImage(source: source);
-    if (file != null) {
-      // ByteData data = await rootBundle.load("assets/mw_g_1.jpg");
-      // imgLib.Image? image = imgLib.decodeJpg(data.buffer.asUint8List());
-
-      Uint8List bytes = await file.readAsBytes();
-      imgLib.Image? image = imgLib.decodeJpg(bytes);
-      if (image != null) {
-        detectSheet(image);
-      }
-    }
-  }
-
-  imgLib.Image getBinaryShadowless(imgLib.Image photo) {
-    List<List<int>> Kx = [
-      [-1, 0, 1],
-      [-2, 0, 2],
-      [-1, 0, 1]
-    ];
-    List<List<int>> Ky = [
-      [1, 2, 1],
-      [0, 0, 0],
-      [-1, -2, -1]
-    ];
-
-    imgLib.Image processed = imgLib.copyResize(photo,
-        width: (photo.width / 4).round(), height: (photo.height / 4).round());
-
-    processed = ImageProcessor.getInvariant(processed);
-    processed = ImageProcessor.getGaussianBlurred(processed);
-
-    List<List<double>> xSobel =
-        ImageProcessor.getDirectionalSobel(processed, Kx);
-    List<List<double>> ySobel =
-        ImageProcessor.getDirectionalSobel(processed, Ky);
-
-    processed = ImageProcessor.getSobel(processed, xSobel, ySobel);
-
-    List<List<double>> direction =
-        ImageProcessor.getSobelDirection(processed, xSobel, ySobel);
-    processed = ImageProcessor.getNonMaxSuppressed(processed, direction);
-    processed = ImageProcessor.getDoubleThresholded(processed);
-    processed = ImageProcessor.getHysteresised(processed);
-    processed = ImageProcessor.getEroded(processed);
-    processed = ImageProcessor.getEroded(processed);
-    processed = ImageProcessor.getEroded(processed);
-    processed = ImageProcessor.getFloodfilled(processed);
-    processed = ImageProcessor.getDilated(processed);
-    processed = ImageProcessor.getDilated(processed);
-    processed = ImageProcessor.getDilated(processed);
-
-    return processed;
-  }
-
-  void detectSheet(imgLib.Image photo) {
-    if (photo.width > photo.height) {
-      photo = imgLib.copyRotate(photo, angle: 90);
-    }
-
-    imgLib.Image processed = getBinaryShadowless(photo);
-
-    CornerScanner cs = CornerScanner(processed);
-    List<imgLib.Point> scanned = cs.scanForCorners();
-    double imgW = processed.width.toDouble();
-    double imgH = processed.height.toDouble();
-
-    double displayH = MediaQuery.of(context).size.height * 0.75;
-    double displayW = (imgW * displayH) / imgH;
-
-    List<Offset> corners = scanned
-        .map((e) => Offset(e.x / imgW * displayW, e.y / imgH * displayH))
-        .toList();
-
-    setState(() {
-      phase = "sheetDetected";
-      sheetCorners = corners;
-      originalPhoto = photo;
-      displayed = photo;
-    });
-  }
-
-  void texture(List<Offset> sheetCorners) {
-    // phase = 'sheetConfirmed';
-    double imgW = originalPhoto.width.toDouble();
-    double imgH = originalPhoto.height.toDouble();
-
-    double displayH = MediaQuery.of(context).size.height * 0.75;
-    double displayW = (imgW * displayH) / imgH;
-
-    imgLib.Image a4 = imgLib.Image(width: sheetWpx, height: sheetHpx);
-
-    List<imgLib.Point> URTriangleTexture = [0, 1, 2]
-        .map((i) => imgLib.Point(sheetCorners[i].dx / displayW * imgW,
-            sheetCorners[i].dy / displayH * imgH))
-        .toList();
-    List<imgLib.Point> DLTriangleTexture = [2, 3, 0]
-        .map((i) => imgLib.Point(sheetCorners[i].dx / displayW * imgW,
-            sheetCorners[i].dy / displayH * imgH))
-        .toList();
-    List<imgLib.Point> URTriangleResult = List.from([
-      imgLib.Point(0, 0),
-      imgLib.Point(sheetWpx, 0),
-      imgLib.Point(sheetWpx, sheetHpx)
-    ]);
-    List<imgLib.Point> DLTriangleResult = List.from([
-      imgLib.Point(sheetWpx, sheetHpx),
-      imgLib.Point(0, sheetHpx),
-      imgLib.Point(0, 0)
-    ]);
-    TriangleTexturer tt = TriangleTexturer(
-        originalPhoto, a4, URTriangleTexture, URTriangleResult);
-
-    tt.texture();
-
-    tt.setTriangles(DLTriangleTexture, DLTriangleResult);
-    tt.texture();
-
-    imgLib.Image sheetCropped = tt.getResult();
-
-    imgLib.Image binary = getBinaryShadowless(sheetCropped);
-
-    int projectionAreaPixels = binary
-        .getBytes()
-        .reduce((value, element) => (element == 0) ? value += 1 : value);
-
-    binary = ImageProcessor.getBinaryInversed(binary);
-
-    imgW = binary.width.toDouble();
-    imgH = binary.height.toDouble();
-    displayH = MediaQuery.of(context).size.height * 0.75;
-    displayW = (imgW * displayH) / imgH;
-
-    List<imgLib.Point> scanned = AutoBoundingBoxScanner.getBoundingBox(binary);
-
-    List<Offset> corners = scanned
-        .map((e) => Offset(e.x / imgW * displayW, e.y / imgH * displayH))
-        .toList();
-
-    setState(() {
-      this.projectionAreaPixels = projectionAreaPixels;
-      itemBoundingBox = corners;
-      sheet = sheetCropped;
-      displayed = sheetCropped;
-      // displayed = binary;
-      phase = 'boundingBoxDetected';
-    });
+  Future<void> _displayFormatMenu() async {
+    return showDialog<void>(
+      context: context,
+      builder: (context) {
+        return FormatSelectionMenu(
+          formatOptions: widget.availableSheetFormats,
+          currentFormat: sheetFormat,
+          setFormat: (value) {
+            setState(() {
+              sheetFormat = value;
+            });
+          },
+        );
+      },
+    );
   }
 
   @override
   Widget build(BuildContext context) {
-    double imgW = displayed.width.toDouble();
-    double imgH = displayed.height.toDouble();
+    ThemeData theme = Theme.of(context);
 
-    double displayH = MediaQuery.of(context).size.height * 0.70;
-    double displayW = imgW * (displayH / imgH);
-
-    Widget displayImage(imgLib.Image image) {
-      List<int>? withHeader = imgLib.encodeJpg(image);
-      return Center(
-        child: SizedBox(
-          width: displayW,
-          height: displayH,
-          child: Image(
-            fit: BoxFit.fitHeight,
-            image: MemoryImage(
-              Uint8List.fromList(withHeader),
-            ),
-          ),
-        ),
-      );
-    }
-
-    Widget renderContent() {
-      switch (phase) {
-        case 'boundingBoxDetected':
-          return BoundingTool(
-            points: itemBoundingBox,
-            image: displayImage(displayed),
-            sheetFormat: sheetFormat,
-            size: Size(displayW, displayH),
-            projectionAreaPixels: this.projectionAreaPixels,
-          );
-        case 'sheetDetected':
-          return FramingTool(
-            points: sheetCorners,
-            image: displayImage(displayed),
-            size: Size(displayW, displayH),
-            setCorners: (List<Offset> corners) {
-              texture(corners);
-            },
-          );
-        case 'init':
-          return Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: [
-              Flexible(
-                child: ElevatedButton(
-                  onPressed: () => pickImage(fromCamera: false),
-                  child: const Text("Z galerii"),
-                ),
-              ),
-              Flexible(
-                child: ElevatedButton(
-                  onPressed: () => pickImage(fromCamera: true),
-                  child: const Text("Z aparatu"),
-                ),
-              ),
-            ],
-          );
-      }
-      return const Placeholder();
-    }
+    Map arguments = (ModalRoute.of(context)?.settings.arguments ??
+        <String, dynamic>{}) as Map;
 
     return Scaffold(
-      backgroundColor: Colors.grey[900],
+      // backgroundColor: Colors.grey[900],
       appBar: AppBar(
-        title: AnimatedCrossFade(
-          firstChild: const Text("Pomiar"),
-          secondChild: Row(
-            children: [ASheetFormat.a5, ASheetFormat.a4, ASheetFormat.a3]
-                .map((f) => TextButton(
-                      onPressed: () {
-                        setState(() {
-                          chooseFormat = false;
-                          sheetFormat = f;
-                        });
-                      },
-                      child: Text(
-                        f.name,
-                        style: TextStyle(color: Colors.white),
-                      ),
-                    ))
-                .toList(),
-          ),
-          crossFadeState: chooseFormat
-              ? CrossFadeState.showSecond
-              : CrossFadeState.showFirst,
-          duration: Duration(milliseconds: 200),
-        ),
+        title: const Text("Wybierz zdjęcie"),
         actions: [
           TextButton(
-              onPressed: () {
-                setState(() {
-                  chooseFormat = !chooseFormat;
-                });
-              },
+              onPressed: _displayFormatMenu,
               child: Text(
                 sheetFormat.name,
-                style: TextStyle(color: Colors.white),
+                style: const TextStyle(color: Colors.white),
               ))
         ],
         centerTitle: true,
@@ -316,9 +79,178 @@ class _MeasurementHubState extends State<MeasurementHub> {
       body: SafeArea(
         child: Center(
           // padding: Ed,
-          child: renderContent(),
+          child: isLoading
+              ? Loading(
+                  title: "Wczytywanie zdjęcia...",
+                )
+              : SizedBox(
+                  height: 350,
+                  width: 200,
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                    children: [
+                      Flexible(
+                        child: OutlinedButton(
+                          style: OutlinedButton.styleFrom(
+                            backgroundColor: theme.colorScheme.secondary,
+                            side: BorderSide(
+                              color: theme.colorScheme.outline,
+                              width: 1,
+                            ),
+                          ),
+                          onPressed: () async {
+                            // Uint8List picked = await pickImage(fromCamera: false);
+                            XFile? picked = await pickImage(fromCamera: false);
+                            if (picked == null) return;
+                            setState(() {
+                              isLoading = true;
+                            });
+                            List<dynamic> reoriented = await isolateTask(
+                                reorientImageIsolated, [picked]);
+                            if (reoriented.isEmpty) return;
+
+                            if (context.mounted && reoriented.isNotEmpty) {
+                              await Navigator.of(context).push(
+                                MaterialPageRoute(
+                                  builder: (context) => FramingPage(
+                                    pickedBytes: reoriented[0] as Uint8List,
+                                    pickedImage: reoriented[1] as imgLib.Image,
+                                    sheetFormat: sheetFormat,
+                                    availableSheetFormats:
+                                        widget.availableSheetFormats,
+                                    framingQuality: widget.framingQuality,
+                                    boundingQuality: widget.boundingQuality,
+                                    onBoundingBoxConfirmed:
+                                        arguments['onBoundingBoxConfirmed'],
+                                  ),
+                                ),
+                              );
+                            }
+                            setState(() {
+                              isLoading = false;
+                            });
+                          },
+                          child: const Column(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            crossAxisAlignment: CrossAxisAlignment.center,
+                            children: [
+                              Icon(
+                                Icons.add_photo_alternate,
+                                size: 35,
+                              ),
+                              SizedBox(height: 10),
+                              Text("Wybierz zdjęcie z galerii"),
+                            ],
+                          ),
+                        ),
+                      ),
+                      Flexible(
+                        child: OutlinedButton(
+                          style: OutlinedButton.styleFrom(
+                            backgroundColor: theme.colorScheme.secondary,
+                            side: BorderSide(
+                              color: theme.colorScheme.outline,
+                              width: 1,
+                            ),
+                          ),
+                          onPressed: () async {
+                            XFile? picked = await pickImage(fromCamera: true);
+                            if (picked == null) return;
+                            setState(() {
+                              isLoading = true;
+                            });
+                            List<dynamic> reoriented = await isolateTask(
+                                reorientImageIsolated, [picked]);
+                            if (reoriented.isEmpty) return;
+
+                            if (context.mounted && reoriented.isNotEmpty) {
+                              await Navigator.of(context).push(
+                                MaterialPageRoute(
+                                  builder: (context) => FramingPage(
+                                    pickedBytes: reoriented[0] as Uint8List,
+                                    pickedImage: reoriented[1] as imgLib.Image,
+                                    sheetFormat: sheetFormat,
+                                    availableSheetFormats:
+                                        widget.availableSheetFormats,
+                                    framingQuality: widget.framingQuality,
+                                    boundingQuality: widget.boundingQuality,
+                                    onBoundingBoxConfirmed:
+                                        arguments['onBoundingBoxConfirmed'],
+                                  ),
+                                ),
+                              );
+                            }
+                            setState(() {
+                              isLoading = false;
+                            });
+                          },
+                          child: const Column(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            crossAxisAlignment: CrossAxisAlignment.center,
+                            children: [
+                              Icon(
+                                Icons.add_a_photo,
+                                size: 30,
+                              ),
+                              SizedBox(height: 10),
+                              Text("Wykonaj zdjęcie aparatem"),
+                            ],
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
         ),
       ),
     );
   }
+}
+
+Future<XFile?> pickImage({bool fromCamera = true}) async {
+  ImageSource source = ImageSource.camera;
+  if (!fromCamera) {
+    source = ImageSource.gallery;
+  }
+  XFile? file = await ImagePicker().pickImage(
+      maxHeight: 1440, maxWidth: 1440, source: source, imageQuality: 80);
+
+  // if (file != null) {
+  //   Uint8List bytes = await file.readAsBytes();
+
+  //   imgLib.Image? image = imgLib.decodeJpg(bytes);
+  //   if (image != null && image.width > image.height) {
+  //     image = imgLib.copyRotate(image, angle: 90);
+  //     bytes = imgLib.encodeJpg(image);
+  //   }
+
+  //   return [bytes, image];
+  // }
+
+  return file;
+}
+
+Future<List> reorientImageIsolated(List<dynamic> args) async {
+  SendPort resultPort = args[0];
+  XFile? picked = args[1];
+
+  if (picked == null) {
+    Isolate.exit(resultPort, []);
+  }
+
+  List<dynamic> result = await reorientImage(picked);
+
+  Isolate.exit(resultPort, result);
+}
+
+Future<List> reorientImage(XFile picked) async {
+  // Uint8List bytes = await picked.readAsBytes();
+  imgLib.Image? image = await imgLib.decodeJpgFile(picked.path);
+  if (image == null) return [];
+  if (image.width > image.height) {
+    image = imgLib.copyRotate(image, angle: 90);
+  }
+  Uint8List bytes = imgLib.encodeJpg(image);
+  return [bytes, image];
 }

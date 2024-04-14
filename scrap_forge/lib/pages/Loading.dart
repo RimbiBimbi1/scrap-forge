@@ -1,27 +1,43 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_spinkit/flutter_spinkit.dart';
+import 'package:rive/rive.dart';
 
-class Loading extends StatefulWidget {
-  const Loading({super.key});
-
-  @override
-  State<Loading> createState() => _LoadingState();
-}
-
-class _LoadingState extends State<Loading> {
-  @override
-  void initState() {
-    super.initState();
-  }
+class Loading extends StatelessWidget {
+  final String title;
+  const Loading({
+    super.key,
+    this.title = "Ładowanie...",
+  });
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-        backgroundColor: Colors.grey[900],
-        body: const Center(
-            child: SpinKitFadingCircle(
-          color: Colors.orange,
-          size: 100.0,
-        )));
+    ThemeData theme = Theme.of(context);
+
+    return Container(
+      color: const Color.fromARGB(180, 33, 33, 33),
+      child: Center(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            const AspectRatio(
+              aspectRatio: 1,
+              child: RiveAnimation.asset('assets/hearth2.riv'),
+            ),
+            Text(
+              title,
+              style: TextStyle(
+                  color: theme.colorScheme.onPrimary,
+                  fontSize: 25,
+                  shadows: const [
+                    Shadow(
+                      color: Colors.black,
+                      offset: Offset(1, 1),
+                      blurRadius: 7,
+                    )
+                  ]),
+            )
+          ],
+        ),
+      ),
+    );
   }
 }
