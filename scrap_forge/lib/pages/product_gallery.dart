@@ -27,7 +27,7 @@ class _ProductGalleryState extends State<ProductGallery> {
   List<GlobalKey> productKeys2 = List.empty();
   bool selectionMode = false;
   List<bool> selected = List.empty();
-  ValueSetter? confirmSelection;
+  ValueSetter<List<Product>>? confirmSelection;
   ProductFilter baseFilter = ProductFilter();
 
   TextEditingController moveFromController = TextEditingController();
@@ -65,7 +65,8 @@ class _ProductGalleryState extends State<ProductGallery> {
 
     bool? selectionMode = arguments["select"];
     ProductFilter baseFilter = arguments["productFilter"];
-    ValueSetter? confirmSelection = arguments["confirmSelection"];
+    ValueSetter<List<Product>>? confirmSelection =
+        arguments["confirmSelection"];
 
     // if (filter != null) {
     List<Product> result = await getProducts(baseFilter);

@@ -348,16 +348,26 @@ class _ProductEditorState extends State<ProductEditor> {
     }
   }
 
-  void onMaterialsUsedPicked(materials) {
+  void onMaterialsUsedPicked(List<Product> materials) {
+    materials.removeWhere(
+        (p) => madeFrom.any((u) => u.id == p.id) || edit?.id == p.id);
     setState(() {
-      madeFrom = materials;
+      madeFrom = [
+        ...madeFrom,
+        ...materials,
+      ];
     });
     Navigator.pop(context);
   }
 
-  void onProductsMadeWithPicked(products) {
+  void onProductsMadeWithPicked(List<Product> products) {
+    products.removeWhere(
+        (p) => usedIn.any((u) => u.id == p.id) || edit?.id == p.id);
     setState(() {
-      usedIn = products;
+      usedIn = [
+        ...usedIn,
+        ...products,
+      ];
     });
     Navigator.pop(context);
   }
@@ -981,8 +991,9 @@ class _ProductEditorState extends State<ProductEditor> {
                                                 icon: const Icon(Icons
                                                     .remove_circle_outline),
                                                 onPressed: () {
-                                                  List<Product> madeFromCopy =
-                                                      List.of(madeFrom);
+                                                  List<Product> madeFromCopy = [
+                                                    ...madeFrom
+                                                  ];
                                                   madeFromCopy.removeAt(index);
                                                   setState(
                                                     () {
@@ -1134,8 +1145,9 @@ class _ProductEditorState extends State<ProductEditor> {
                                               icon: const Icon(
                                                   Icons.remove_circle_outline),
                                               onPressed: () {
-                                                List<Product> usedInCopy =
-                                                    List.of(usedIn);
+                                                List<Product> usedInCopy = [
+                                                  ...usedIn
+                                                ];
                                                 usedInCopy.removeAt(index);
                                                 setState(() {
                                                   usedIn = usedInCopy;

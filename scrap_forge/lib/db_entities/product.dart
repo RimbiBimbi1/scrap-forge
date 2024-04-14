@@ -18,11 +18,9 @@ class Product {
   String? category;
 
   final madeFrom = IsarLinks<Product>();
-  // List<int> madeFromQuantities = [];
 
   @Backlink(to: "madeFrom")
   final usedIn = IsarLinks<Product>();
-  // List<int> usedInQuantities = [];
 
   Dimensions? dimensions;
 
