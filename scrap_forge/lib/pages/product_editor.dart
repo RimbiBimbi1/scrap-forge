@@ -95,7 +95,7 @@ class _ProductEditorState extends State<ProductEditor> {
                     temp.removeAt(index);
                     setState(() {
                       this.photos = temp;
-                      this.displayedPhotos = displayPhotos(temp);
+                      displayedPhotos = displayPhotos(temp);
                     });
                   },
                   icon: const Icon(
@@ -190,8 +190,6 @@ class _ProductEditorState extends State<ProductEditor> {
         addAsMaterial = (product.consumed != null ||
             product.available != null ||
             product.needed != null);
-
-        // photos = product.photos.map((photo) => base64Decode(photo)).toList();
         photos = product.photos;
         displayedPhotos = displayPhotos(photos);
 
@@ -505,6 +503,9 @@ class _ProductEditorState extends State<ProductEditor> {
       DeviceOrientation.portraitDown,
     ]);
     ThemeData theme = Theme.of(context);
+    MaterialStateProperty<Color> foregroundColor =
+        MaterialStateProperty.resolveWith(
+            (states) => theme.colorScheme.onPrimary);
 
     return Scaffold(
       appBar: AppBar(
@@ -640,7 +641,6 @@ class _ProductEditorState extends State<ProductEditor> {
                           const Text(
                             "Wymiary:",
                             textScaleFactor: 1.2,
-                            // style: TextStyle(color: Colors.white),
                           ),
                           Flexible(
                             flex: 10,
@@ -734,14 +734,23 @@ class _ProductEditorState extends State<ProductEditor> {
                                               width: 1),
                                         ),
                                       ),
-                                      dropdownMenuEntries: const [
+                                      dropdownMenuEntries: [
                                         DropdownMenuEntry(
+                                            style: ButtonStyle(
+                                              foregroundColor: foregroundColor,
+                                            ),
                                             value: SizeUnit.millimeter,
                                             label: "mm"),
                                         DropdownMenuEntry(
+                                            style: ButtonStyle(
+                                              foregroundColor: foregroundColor,
+                                            ),
                                             value: SizeUnit.centimeter,
                                             label: "cm"),
                                         DropdownMenuEntry(
+                                          style: ButtonStyle(
+                                            foregroundColor: foregroundColor,
+                                          ),
                                           value: SizeUnit.meter,
                                           label: "m",
                                         ),
@@ -781,15 +790,25 @@ class _ProductEditorState extends State<ProductEditor> {
                                       width: 1),
                                 ),
                               ),
-                              dropdownMenuEntries: const [
+                              dropdownMenuEntries: [
                                 DropdownMenuEntry(
+                                    style: ButtonStyle(
+                                      foregroundColor: foregroundColor,
+                                    ),
                                     value: SizeUnit.millimeter,
                                     label: "mm\u00B2"),
                                 DropdownMenuEntry(
+                                    style: ButtonStyle(
+                                      foregroundColor: foregroundColor,
+                                    ),
                                     value: SizeUnit.centimeter,
                                     label: "cm\u00B2"),
                                 DropdownMenuEntry(
-                                    value: SizeUnit.meter, label: "m\u00B2"),
+                                    style: ButtonStyle(
+                                      foregroundColor: foregroundColor,
+                                    ),
+                                    value: SizeUnit.meter,
+                                    label: "m\u00B2"),
                               ],
                               initialSelection: areaUnit,
                               controller: areaUnitController,
@@ -867,14 +886,23 @@ class _ProductEditorState extends State<ProductEditor> {
                                     ),
                                   ),
                                   width: MediaQuery.of(context).size.width - 28,
-                                  dropdownMenuEntries: const [
+                                  dropdownMenuEntries: [
                                     DropdownMenuEntry(
+                                        style: ButtonStyle(
+                                          foregroundColor: foregroundColor,
+                                        ),
                                         value: ProjectLifeCycle.finished,
                                         label: "Ukończony"),
                                     DropdownMenuEntry(
+                                        style: ButtonStyle(
+                                          foregroundColor: foregroundColor,
+                                        ),
                                         value: ProjectLifeCycle.inProgress,
                                         label: "W trakcie realizacji"),
                                     DropdownMenuEntry(
+                                        style: ButtonStyle(
+                                          foregroundColor: foregroundColor,
+                                        ),
                                         value: ProjectLifeCycle.planned,
                                         label: "Planowany"),
                                   ],

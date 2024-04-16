@@ -246,7 +246,6 @@ class _FramingToolState extends State<BoundingTool> {
   void rotate(DragUpdateDetails details) {
     List<Offset> points = corners;
     int i = activeArea % 4;
-    // Offset linePrecursor = widget.points[i] + details.delta;
     Offset rectangleCenter = Offset(
       (points[i].dx + points[(i + 2) % 4].dx) / 2,
       (points[i].dy + points[(i + 2) % 4].dy) / 2,
@@ -328,7 +327,7 @@ class _FramingToolState extends State<BoundingTool> {
         builder: (context) {
           return Dialog(
             child: Padding(
-              padding: EdgeInsets.symmetric(vertical: 24, horizontal: 24),
+              padding: const EdgeInsets.symmetric(vertical: 24, horizontal: 24),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 mainAxisSize: MainAxisSize.min,
@@ -341,7 +340,7 @@ class _FramingToolState extends State<BoundingTool> {
                       );
                       Navigator.pop(context);
                     },
-                    child: Text("Wróć do strony głównej"),
+                    child: const Text("Wróć do strony głównej"),
                   ),
                   ElevatedButton(
                       onPressed: () {
@@ -353,7 +352,6 @@ class _FramingToolState extends State<BoundingTool> {
                             projectionArea: dimensions[2],
                             lengthDisplayUnit: SizeUnit.centimeter,
                             widthDisplayUnit: SizeUnit.centimeter,
-                            // heightDisplayUnit: SizeUnit.millimeter,
                             areaDisplayUnit: SizeUnit.centimeter,
                           );
 
@@ -367,7 +365,7 @@ class _FramingToolState extends State<BoundingTool> {
                           arguments: {"productData": product},
                         );
                       },
-                      child: Text("Dodaj do nowego produktu"))
+                      child: const Text("Dodaj do nowego produktu"))
                 ],
               ),
             ),
@@ -380,7 +378,7 @@ class _FramingToolState extends State<BoundingTool> {
     ThemeData theme = Theme.of(context);
 
     Color defaultColor = const Color.fromARGB(255, 255, 255, 255);
-    Color focusColor = Color.fromARGB(255, 255, 200, 0);
+    Color focusColor = const Color.fromARGB(255, 255, 200, 0);
 
     List<double> dimensions = calculateDimensions();
     return Column(

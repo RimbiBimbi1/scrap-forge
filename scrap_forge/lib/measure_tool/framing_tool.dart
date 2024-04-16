@@ -92,8 +92,6 @@ class _FramingToolState extends State<FramingTool> {
     double width = widget.size.width;
     double height = widget.size.height;
 
-    // double ratio = width / height;
-
     return Column(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       crossAxisAlignment: CrossAxisAlignment.center,
@@ -101,14 +99,7 @@ class _FramingToolState extends State<FramingTool> {
         const SizedBox.shrink(),
         Padding(
           padding: const EdgeInsets.symmetric(vertical: 5),
-          child:
-              // transform: Matrix4.compose(
-              //   // Vector3(height * ratio, (height - width) * ratio, 0),
-              //   Vector3(width, (height - width) * ratio, 0),
-              //   Quaternion(0, 0, sin(pi / 4), sin(pi / 4)),
-              //   Vector3(ratio, ratio, 1),
-              // ),
-              SizedBox(
+          child: SizedBox(
             width: width,
             height: height,
             child: Stack(

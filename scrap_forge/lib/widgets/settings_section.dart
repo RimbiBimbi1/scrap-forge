@@ -13,8 +13,7 @@ class SettingsSection extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Padding(
-      //Wygląd aplikacji
-      padding: EdgeInsets.all(8),
+      padding: const EdgeInsets.all(8),
       child: Column(
         mainAxisAlignment: MainAxisAlignment.start,
         crossAxisAlignment: CrossAxisAlignment.stretch,

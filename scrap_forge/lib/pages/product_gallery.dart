@@ -32,7 +32,6 @@ class _ProductGalleryState extends State<ProductGallery> {
 
   TextEditingController moveFromController = TextEditingController();
   TextEditingController moveToController = TextEditingController();
-  // ProductFilter? customFilter;
 
   @override
   void initState() {
@@ -47,12 +46,10 @@ class _ProductGalleryState extends State<ProductGallery> {
             !ProductListComparator.compareByLastModifiedTimestamps(
                 products, result)) {
           setState(() {
-            this.products = result;
-            this.productKeys1 =
-                List.generate(result.length, (index) => GlobalKey());
-            this.productKeys2 =
-                List.generate(result.length, (index) => GlobalKey());
-            this.selected = List.filled(result.length, false);
+            products = result;
+            productKeys1 = List.generate(result.length, (index) => GlobalKey());
+            productKeys2 = List.generate(result.length, (index) => GlobalKey());
+            selected = List.filled(result.length, false);
           });
         }
       },
@@ -68,14 +65,13 @@ class _ProductGalleryState extends State<ProductGallery> {
     ValueSetter<List<Product>>? confirmSelection =
         arguments["confirmSelection"];
 
-    // if (filter != null) {
     List<Product> result = await getProducts(baseFilter);
 
     setState(() {
-      this.products = result;
-      this.productKeys1 = List.generate(result.length, (index) => GlobalKey());
-      this.productKeys2 = List.generate(result.length, (index) => GlobalKey());
-      this.selected = List.filled(result.length, false);
+      products = result;
+      productKeys1 = List.generate(result.length, (index) => GlobalKey());
+      productKeys2 = List.generate(result.length, (index) => GlobalKey());
+      selected = List.filled(result.length, false);
       this.baseFilter = baseFilter;
       this.selectionMode = selectionMode ?? false;
       this.confirmSelection = confirmSelection;
@@ -91,12 +87,10 @@ class _ProductGalleryState extends State<ProductGallery> {
     List<Product> products = await getProducts(filter);
     setState(() {
       this.products = products;
-      this.productKeys1 =
-          List.generate(products.length, (index) => GlobalKey());
-      this.productKeys2 =
-          List.generate(products.length, (index) => GlobalKey());
-      this.baseFilter = filter;
-      this.selected = List.filled(products.length, false);
+      productKeys1 = List.generate(products.length, (index) => GlobalKey());
+      productKeys2 = List.generate(products.length, (index) => GlobalKey());
+      baseFilter = filter;
+      selected = List.filled(products.length, false);
     });
   }
 
@@ -123,7 +117,6 @@ class _ProductGalleryState extends State<ProductGallery> {
                         child: ProductStrip(
                             key: productKeys1[index],
                             product: p,
-                            // asMaterial: projectsOnly,
                             onPressed: () =>
                                 {updateSelected(index, !selected[index])}),
                       ),
@@ -140,7 +133,6 @@ class _ProductGalleryState extends State<ProductGallery> {
                   secondChild: ProductStrip(
                     product: p,
                     key: productKeys2[index],
-                    // asMaterial: projectsOnly,
                     onLongPress: () => onTileLongPress(index),
                   ),
                   crossFadeState: selectionMode
@@ -319,9 +311,6 @@ class _ProductGalleryState extends State<ProductGallery> {
       DeviceOrientation.portraitUp,
       DeviceOrientation.portraitDown,
     ]);
-
-    ThemeData theme = Theme.of(context);
-
     return Scaffold(
       persistentFooterAlignment: AlignmentDirectional.center,
       persistentFooterButtons: [

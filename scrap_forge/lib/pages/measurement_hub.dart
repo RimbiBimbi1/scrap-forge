@@ -3,7 +3,6 @@ import 'dart:typed_data';
 
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
-import 'package:permission_handler/permission_handler.dart';
 import 'package:scrap_forge/db_entities/app_settings.dart';
 import 'package:scrap_forge/pages/framing.dart';
 import 'package:scrap_forge/pages/loading.dart';
@@ -63,7 +62,6 @@ class _MeasurementHubState extends State<MeasurementHub> {
         <String, dynamic>{}) as Map;
 
     return Scaffold(
-      // backgroundColor: Colors.grey[900],
       appBar: AppBar(
         title: const Text("Wybierz zdjęcie"),
         actions: [
@@ -78,9 +76,8 @@ class _MeasurementHubState extends State<MeasurementHub> {
       ),
       body: SafeArea(
         child: Center(
-          // padding: Ed,
           child: isLoading
-              ? Loading(
+              ? const Loading(
                   title: "Wczytywanie zdjęcia...",
                 )
               : SizedBox(
@@ -100,7 +97,6 @@ class _MeasurementHubState extends State<MeasurementHub> {
                             ),
                           ),
                           onPressed: () async {
-                            // Uint8List picked = await pickImage(fromCamera: false);
                             XFile? picked = await pickImage(fromCamera: false);
                             if (picked == null) return;
                             setState(() {
@@ -215,19 +211,6 @@ Future<XFile?> pickImage({bool fromCamera = true}) async {
   }
   XFile? file = await ImagePicker().pickImage(
       maxHeight: 1440, maxWidth: 1440, source: source, imageQuality: 80);
-
-  // if (file != null) {
-  //   Uint8List bytes = await file.readAsBytes();
-
-  //   imgLib.Image? image = imgLib.decodeJpg(bytes);
-  //   if (image != null && image.width > image.height) {
-  //     image = imgLib.copyRotate(image, angle: 90);
-  //     bytes = imgLib.encodeJpg(image);
-  //   }
-
-  //   return [bytes, image];
-  // }
-
   return file;
 }
 
@@ -245,7 +228,6 @@ Future<List> reorientImageIsolated(List<dynamic> args) async {
 }
 
 Future<List> reorientImage(XFile picked) async {
-  // Uint8List bytes = await picked.readAsBytes();
   imgLib.Image? image = await imgLib.decodeJpgFile(picked.path);
   if (image == null) return [];
   if (image.width > image.height) {

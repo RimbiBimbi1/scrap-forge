@@ -75,8 +75,6 @@ class _BoundingPageState extends State<BoundingPage> {
 
   @override
   Widget build(BuildContext context) {
-    ThemeData theme = Theme.of(context);
-
     return Scaffold(
       appBar: AppBar(
         title: const Text("Obramuj przedmiot"),
@@ -165,41 +163,37 @@ List<Offset> detectObjectIsolated(List<dynamic> args) {
 
 imgLib.Image texture(
     imgLib.Image image, List<Offset> sheetCorners, SheetFormat format) {
-  // phase = 'sheetConfirmed';
   int sheetWpx = 420;
   int sheetHpx = (420 * (format.height / format.width)).round();
   double imgW = image.width.toDouble();
   double imgH = image.height.toDouble();
 
-  // double displayW = MediaQuery.of(context).size.width * 0.95;
-  // double displayH = imgH * (displayW / imgW);
-
   imgLib.Image a4 = imgLib.Image(width: sheetWpx, height: sheetHpx);
 
-  List<imgLib.Point> URTriangleTexture = [0, 1, 2]
+  List<imgLib.Point> uRTriangleTexture = [0, 1, 2]
       .map((i) =>
           imgLib.Point(sheetCorners[i].dx * imgW, sheetCorners[i].dy * imgH))
       .toList();
-  List<imgLib.Point> DLTriangleTexture = [2, 3, 0]
+  List<imgLib.Point> lLTriangleTexture = [2, 3, 0]
       .map((i) =>
           imgLib.Point(sheetCorners[i].dx * imgW, sheetCorners[i].dy * imgH))
       .toList();
-  List<imgLib.Point> URTriangleResult = List.from([
+  List<imgLib.Point> uRTriangleResult = List.from([
     imgLib.Point(0, 0),
     imgLib.Point(sheetWpx, 0),
     imgLib.Point(sheetWpx, sheetHpx)
   ]);
-  List<imgLib.Point> DLTriangleResult = List.from([
+  List<imgLib.Point> lLTriangleResult = List.from([
     imgLib.Point(sheetWpx, sheetHpx),
     imgLib.Point(0, sheetHpx),
     imgLib.Point(0, 0)
   ]);
   TriangleTexturer tt =
-      TriangleTexturer(image, a4, URTriangleTexture, URTriangleResult);
+      TriangleTexturer(image, a4, uRTriangleTexture, uRTriangleResult);
 
   tt.texture();
 
-  tt.setTriangles(DLTriangleTexture, DLTriangleResult);
+  tt.setTriangles(lLTriangleTexture, lLTriangleResult);
   tt.texture();
 
   imgLib.Image sheetCropped = tt.getResult();
@@ -224,7 +218,6 @@ List<dynamic> detectBoundingBox(
 
   double imgW = binary.width.toDouble();
   double imgH = binary.height.toDouble();
-  // displayH = imgH * (displayW / imgW);
 
   List<imgLib.Point> scanned = AutoBoundingBoxScanner.getBoundingBox(binary);
 

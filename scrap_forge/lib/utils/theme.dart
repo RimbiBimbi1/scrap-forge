@@ -16,11 +16,9 @@ ThemeData lightTheme = ThemeData(
         surface: Colors.red,
         onSurface: Colors.black,
         outline: Colors.black),
-    // textTheme: const TextTheme(),
     appBarTheme: const AppBarTheme(
       foregroundColor: Colors.white,
       backgroundColor: Colors.red,
-      // color: Colors.white,
     ));
 
 ThemeData darkTheme = ThemeData(
@@ -41,9 +39,7 @@ ThemeData darkTheme = ThemeData(
       onSurface: Colors.white,
       outline: Colors.grey.shade500,
     ),
-    // textTheme: const TextTheme(),
     appBarTheme: const AppBarTheme(
       foregroundColor: Colors.white,
       backgroundColor: Colors.red,
-      // color: Colors.white,
     ));

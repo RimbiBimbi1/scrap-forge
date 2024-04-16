@@ -62,12 +62,12 @@ class _CustomFormatEditor extends State<CustomFormatEditor> {
           shrinkWrap: true,
           children: [
             CustomTextField(
-              label: Text("Nazwa"),
+              label: const Text("Nazwa"),
               controller: nameController,
               validator: nameValidator,
             ),
             CustomTextField(
-                label: Text("Wysokość (w mm)"),
+                label: const Text("Wysokość (w mm)"),
                 type: TextInputType.number,
                 controller: heightController,
                 inputFormatters: [FilteringTextInputFormatter.digitsOnly],
@@ -78,7 +78,7 @@ class _CustomFormatEditor extends State<CustomFormatEditor> {
                   return null;
                 }),
             CustomTextField(
-                label: Text("Szerokość w mm"),
+                label: const Text("Szerokość w mm"),
                 type: TextInputType.number,
                 controller: widthController,
                 inputFormatters: [FilteringTextInputFormatter.digitsOnly],

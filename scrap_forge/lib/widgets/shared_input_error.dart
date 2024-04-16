@@ -10,7 +10,6 @@ class SharedErrorField extends StatelessWidget {
       child: SizedBox(
         height: 25,
         child: TextFormField(
-          // enabled: false,
           readOnly: true,
           validator: validator,
         ),

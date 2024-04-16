@@ -11,6 +11,5 @@ class ThemeManager with ChangeNotifier {
 
   static toggleTheme(bool isDark) {
     _themeMode = isDark ? ThemeMode.dark : ThemeMode.light;
-    // notifyListeners();
   }
 }

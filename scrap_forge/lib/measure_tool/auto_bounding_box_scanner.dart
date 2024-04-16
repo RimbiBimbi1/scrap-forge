@@ -274,9 +274,6 @@ class AutoBoundingBoxScanner {
     int minBoxArea = l;
     int maxBoxArea = 0;
 
-    // int minBoundaryCoverage = l;
-    // int maxBoundaryCoverage = 0;
-
     int minAngle = -45;
     int maxAngle = 45;
 

@@ -7,7 +7,7 @@ import 'package:scrap_forge/db_entities/app_settings.dart';
 import 'package:scrap_forge/measure_tool/corner_scanner.dart';
 import 'package:scrap_forge/measure_tool/framing_tool.dart';
 import 'package:scrap_forge/measure_tool/image_processor.dart';
-import 'package:scrap_forge/pages/Loading.dart';
+import 'package:scrap_forge/pages/loading.dart';
 import 'dart:isolate';
 
 import 'package:scrap_forge/pages/bounding.dart';
@@ -121,8 +121,6 @@ class _FramingPageState extends State<FramingPage> {
 
   @override
   Widget build(BuildContext context) {
-    ThemeData theme = Theme.of(context);
-
     return Scaffold(
       appBar: AppBar(
         title: const Text("Zaznacz rogi kartki"),

@@ -39,10 +39,8 @@ class TriangleTexturer {
         //Jeżeli piksel znajduje się wewnątrz trójkąta:
         if (0 <= u && 1 >= u && 0 <= v && 1 >= v && 0 <= w && 1 >= w) {
           //Oblicz współrzędne kartezjańskie odpowiadającego mu piksela tekstury i zaokrąglij
-          num a = u * from[0].x + v * from[1].x + w * from[2].x;
-          num b = u * from[0].y + v * from[1].y + w * from[2].y;
-          num xT = a.floor();
-          num yT = b.floor();
+          int xT = (u * from[0].x + v * from[1].x + w * from[2].x).floor();
+          int yT = (u * from[0].y + v * from[1].y + w * from[2].y).floor();
           //Jeżeli obliczone współrzędne znajdują się w obrębie obrazu
           if ((xT > 0) &&
               (xT < textureImg.width) &&
@@ -52,7 +50,7 @@ class TriangleTexturer {
             canvasImg.setPixel(
               x,
               y,
-              textureImg.getPixel(xT.toInt(), yT.toInt()),
+              textureImg.getPixel(xT, yT),
             );
           }
         }

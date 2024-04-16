@@ -104,6 +104,9 @@ class _SettingsState extends State<Settings> {
   Widget build(BuildContext context) {
     ThemeData theme = Theme.of(context);
     double width = MediaQuery.of(context).size.width * 0.95;
+    MaterialStateProperty<Color> foregroundColor =
+        MaterialStateProperty.resolveWith(
+            (states) => theme.colorScheme.onPrimary);
 
     return Scaffold(
       backgroundColor: theme.scaffoldBackgroundColor,
@@ -149,7 +152,8 @@ class _SettingsState extends State<Settings> {
                           widget.appSettings..framingQuality = value,
                         );
                       },
-                      header: Text("Wybierz jakość poszukiwania podkładu:"),
+                      header:
+                          const Text("Wybierz jakość poszukiwania podkładu:"),
                     ),
                     style: ButtonStyle(
                       foregroundColor: MaterialStatePropertyAll(
@@ -183,7 +187,8 @@ class _SettingsState extends State<Settings> {
                         widget.updateSettings(
                             widget.appSettings..boundingQuality = value);
                       },
-                      header: Text("Wybierz jakość poszukiwania przedmiotu:"),
+                      header:
+                          const Text("Wybierz jakość poszukiwania przedmiotu:"),
                     ),
                     style: ButtonStyle(
                       foregroundColor: MaterialStatePropertyAll(
@@ -281,12 +286,23 @@ class _SettingsState extends State<Settings> {
                                       width: 1),
                                 ),
                               ),
-                              dropdownMenuEntries: const [
+                              dropdownMenuEntries: [
                                 DropdownMenuEntry(
-                                    value: SizeUnit.millimeter, label: "mm"),
+                                    style: ButtonStyle(
+                                      foregroundColor: foregroundColor,
+                                    ),
+                                    value: SizeUnit.millimeter,
+                                    label: "mm"),
                                 DropdownMenuEntry(
-                                    value: SizeUnit.centimeter, label: "cm"),
+                                    style: ButtonStyle(
+                                      foregroundColor: foregroundColor,
+                                    ),
+                                    value: SizeUnit.centimeter,
+                                    label: "cm"),
                                 DropdownMenuEntry(
+                                  style: ButtonStyle(
+                                    foregroundColor: foregroundColor,
+                                  ),
                                   value: SizeUnit.meter,
                                   label: "m",
                                 ),

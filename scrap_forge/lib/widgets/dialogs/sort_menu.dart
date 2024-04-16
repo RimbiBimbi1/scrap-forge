@@ -26,8 +26,8 @@ class _SortMenuState extends State<SortMenu> {
   @override
   void initState() {
     super.initState();
-    this.sortBy = widget.initSortBy;
-    this.sortDesc = widget.initSortDesc;
+    sortBy = widget.initSortBy;
+    sortDesc = widget.initSortDesc;
   }
 
   @override

@@ -1,8 +1,5 @@
-import 'dart:convert';
 import 'dart:typed_data';
-
 import 'package:flutter/material.dart';
-import 'package:flutter_svg/svg.dart';
 import 'package:scrap_forge/db_entities/product.dart';
 import 'package:scrap_forge/utils/dimension_formatter.dart';
 import 'package:scrap_forge/utils/string_multiliner.dart';
@@ -43,9 +40,6 @@ class _ProductStripState extends State<ProductStrip> {
       );
     });
     return;
-
-    // String dir = (await getApplicationDocumentsDirectory()).path;
-    // File file = File('$dir/$imagePath');
   }
 
   Widget displayHeader() {
@@ -63,15 +57,12 @@ class _ProductStripState extends State<ProductStrip> {
   }
 
   Widget displayBody() {
-    TextStyle textStyle =
-        TextStyle(color: Theme.of(context).colorScheme.onBackground);
     if (!widget.asMaterial) {
       return Expanded(
         child: Padding(
           padding: const EdgeInsets.symmetric(vertical: 3),
           child: Text(
             StringMultiliner.multiline(widget.product.description).toString(),
-            // style: textStyle,
             textAlign: TextAlign.justify,
           ),
         ),
@@ -95,8 +86,6 @@ class _ProductStripState extends State<ProductStrip> {
   }
 
   Widget displayFooter() {
-    TextStyle textStyle =
-        TextStyle(color: Theme.of(context).colorScheme.onBackground);
     return Column(
       mainAxisAlignment: MainAxisAlignment.end,
       crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -105,18 +94,14 @@ class _ProductStripState extends State<ProductStrip> {
             ? Text(
                 "Zaczęto: ${DateTime.fromMillisecondsSinceEpoch(1000 * widget.product.startedTimestamp!).toString().substring(0, 10)}",
                 maxLines: 1,
-                // style: textStyle,
               )
             : Container(),
         (!widget.asMaterial && widget.product.finishedTimestamp != null)
             ? Text(
                 "Ukończono: ${DateTime.fromMillisecondsSinceEpoch(1000 * widget.product.finishedTimestamp!).toString().substring(0, 10)}",
                 maxLines: 1,
-                // style: textStyle,
               )
             : Container()
-        // Text(
-        // "Ukończono: ${widget.product.addedTimestamp != null ? DateTime.fromMicrosecondsSinceEpoch(widget.product.addedTimestamp!) : "?"}"),
       ],
     );
   }
@@ -161,7 +146,6 @@ class _ProductStripState extends State<ProductStrip> {
                       children: [
                         displayHeader(),
                         displayBody(),
-                        // displayFooter()
                       ],
                     ),
                   ),

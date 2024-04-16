@@ -53,7 +53,7 @@ class _ScrapForgeAppState extends State<ScrapForgeApp> {
 
   void updateSettings(AppSettings newSettings) {
     setState(() {
-      this.appSettings = newSettings;
+      appSettings = newSettings;
     });
     saveSettings(newSettings);
   }
@@ -64,7 +64,7 @@ class _ScrapForgeAppState extends State<ScrapForgeApp> {
   }
 
   Future<void> checkPermissions(Permission permission) async {
-    final status = await permission.request();
+    await permission.request();
   }
 
   @override

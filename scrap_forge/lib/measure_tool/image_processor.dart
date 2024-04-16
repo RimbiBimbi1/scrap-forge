@@ -328,7 +328,6 @@ class ImageProcessor {
 
     while (flooded.isNotEmpty) {
       imgLib.Point p = flooded.removeLast();
-      // try {
       if (floodfilled.getPixel(p.xi, p.yi).r == 0) {
         floodfilled.setPixelRgb(p.xi, p.yi, 255, 255, 255);
         if (p.x > 0) flooded.add(imgLib.Point(p.x - 1, p.y));
@@ -336,7 +335,6 @@ class ImageProcessor {
         if (p.x < w - 1) flooded.add(imgLib.Point(p.x + 1, p.y));
         if (p.y < h - 1) flooded.add(imgLib.Point(p.x, p.y + 1));
       }
-      // } catch (ignored) {}
     }
     return floodfilled;
   }

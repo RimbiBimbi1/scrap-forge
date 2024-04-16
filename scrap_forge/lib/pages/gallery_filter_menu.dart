@@ -72,7 +72,7 @@ class _GalleryFilterMenuState extends State<GalleryFilterMenu> {
     super.initState();
     ProductFilter filter = widget.filter;
 
-    this.customFilter = filter;
+    customFilter = filter;
 
     nameController.text = filter.nameHas;
     categoryController.text = filter.categoryHas;
@@ -249,6 +249,10 @@ class _GalleryFilterMenuState extends State<GalleryFilterMenu> {
     ]);
 
     ThemeData theme = Theme.of(context);
+    MaterialStateProperty<Color> foregroundColor =
+        MaterialStateProperty.resolveWith(
+            (states) => theme.colorScheme.onPrimary);
+
     return Scaffold(
       appBar: AppBar(
         title: const Text("Filtry"),
@@ -317,7 +321,6 @@ class _GalleryFilterMenuState extends State<GalleryFilterMenu> {
                     ..maxFinishDate = filterFieldDate(maxFinishDate.text);
 
                   widget.setFilter(customFilter);
-                  // print(customFilter.nameHas);
                 }
               },
               icon: const Icon(Icons.check))
@@ -889,15 +892,25 @@ class _GalleryFilterMenuState extends State<GalleryFilterMenu> {
                                             width: 1),
                                       ),
                                     ),
-                                    dropdownMenuEntries: const [
+                                    dropdownMenuEntries: [
                                       DropdownMenuEntry(
+                                          style: ButtonStyle(
+                                            foregroundColor: foregroundColor,
+                                          ),
                                           value: SizeUnit.millimeter,
                                           label: "mm"),
                                       DropdownMenuEntry(
+                                          style: ButtonStyle(
+                                            foregroundColor: foregroundColor,
+                                          ),
                                           value: SizeUnit.centimeter,
                                           label: "cm"),
                                       DropdownMenuEntry(
-                                          value: SizeUnit.meter, label: "m"),
+                                          style: ButtonStyle(
+                                            foregroundColor: foregroundColor,
+                                          ),
+                                          value: SizeUnit.meter,
+                                          label: "m"),
                                     ],
                                     initialSelection: dim['unit'] as SizeUnit,
                                     controller: dim['unitController']
