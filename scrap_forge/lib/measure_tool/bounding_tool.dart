@@ -72,7 +72,7 @@ class _FramingToolState extends State<BoundingTool> {
               ) /
               2,
           initialMagnifierRadius),
-      10,
+      15,
     );
   }
 
@@ -151,9 +151,9 @@ class _FramingToolState extends State<BoundingTool> {
           (points[j].dx - points[i].dx) * (points[j].dx - points[i].dx) +
               (points[j].dy - points[i].dy) * (points[j].dy - points[i].dy));
 
-      if ((cornerDistances[i] < borderLength) &&
-          (cornerDistances[j] < borderLength) &&
-          (axisDistance < magnifierRadius) &&
+      if ((cornerDistances[i] < borderLength + magnifierRadius) &&
+          (cornerDistances[j] < borderLength + magnifierRadius) &&
+          (axisDistance < 2 * magnifierRadius) &&
           (axisDistance < minAxisDistance)) {
         minAxisDistance = axisDistance;
         index = i;
